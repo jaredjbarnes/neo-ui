@@ -1,35 +1,57 @@
 import Rect from "../../utils/Rect";
 import { Subject } from "rxjs";
+import WindowMediator from ".";
 
 export interface MetaDataEvent<T> {
   key: string;
   value: T;
 }
 
+export interface WindowMemento {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scale: number;
+  rotateX: number;
+  rotateY: number;
+  rotateZ: number;
+  zIndex: number;
+  maxWidth: number;
+  maxHeight: number;
+  minWidth: number;
+  minHeight: number;
+  isResizable: boolean;
+  isMovable: boolean;
+}
+
 type WindowState = "minimized" | "open" | "maximized" | "spotlighted";
 
 export default class Window {
-  private id: string;
-  private name: string;
-  private zIndex: number;
-  private isResizing: boolean;
-  private isDragging: boolean;
-  private width: number;
-  private height: number;
-  private x: number;
-  private y: number;
-  private scale: number;
+  private name = "";
+  private zIndex = 0;
+  private width = 0;
+  private minWidth = 0;
+  private minHeight = 0;
+  private maxWidth = 0;
+  private maxHeight = 0;
+  private height = 0;
+  private x = 0;
+  private y = 0;
+  private scale = 1;
+  private rotateX = 0;
+  private rotateY = 0;
+  private rotateZ = 0;
+  private isResizable: boolean = true;
+  private isMovable: boolean = true;
+  private isResizing: boolean = false;
+  private isDragging: boolean = false;
+  private state: WindowState;
   private changeSubject = new Subject<undefined>();
   private metaDataSubject = new Subject<MetaDataEvent<any>>();
   private positionChangeSubject = new Subject<undefined>();
   private disposeSubject = new Subject<undefined>();
   private metaData = new Map<string, any>();
-  private state: WindowState;
-  private restoreTo: Rect = { top: 0, left: 0, right: 10, bottom: 10 };
-
-  constructor(name?: string) {
-    this.name = name ?? "";
-  }
 
   getName() {
     return this.name;
@@ -77,12 +99,60 @@ export default class Window {
     }
   }
 
+  getMinWidth() {
+    return this.minWidth;
+  }
+
+  setMinWidth(value: number) {
+    if (value !== this.minWidth) {
+      this.minWidth;
+      this.width = Math.min(this.width, this.minWidth);
+      this.notifyChange();
+    }
+  }
+
+  getMinHeight() {
+    return this.minHeight;
+  }
+
+  setMinHeight(value: number) {
+    if (value !== this.minHeight) {
+      this.minHeight;
+      this.height = Math.min(this.height, this.minHeight);
+      this.notifyChange();
+    }
+  }
+
+  getMaxWidth() {
+    return this.maxWidth;
+  }
+
+  setMaxWidth(value: number) {
+    if (value !== this.maxWidth) {
+      this.maxWidth;
+      this.width = Math.max(this.width, this.maxWidth);
+      this.notifyChange();
+    }
+  }
+
+  getMaxHeight() {
+    return this.maxHeight;
+  }
+
+  setMaxHeight(value: number) {
+    if (value !== this.maxHeight) {
+      this.maxHeight;
+      this.height = Math.max(this.maxHeight, this.maxHeight);
+      this.notifyChange();
+    }
+  }
+
   getWidth() {
     return this.width;
   }
 
   setWidth(width: number) {
-    if (this.width !== width) {
+    if (this.isResizable && this.width !== width) {
       this.width = width;
       this.notifyChange();
     }
@@ -93,7 +163,7 @@ export default class Window {
   }
 
   setHeight(height: number) {
-    if (this.height !== height) {
+    if (this.isResizable && this.height !== height) {
       this.height = height;
       this.notifyChange();
     }
@@ -109,6 +179,10 @@ export default class Window {
   }
 
   setSize(width: number, height: number) {
+    if (!this.isResizable) {
+      return;
+    }
+
     let didChange = false;
 
     if (this.width !== width) {
@@ -178,6 +252,28 @@ export default class Window {
     }
   }
 
+  getIsResizable() {
+    return this.isResizable;
+  }
+
+  setIsResizable(value) {
+    if (value !== this.isResizable) {
+      this.isResizable = value;
+      this.notifyChange();
+    }
+  }
+
+  getIsMovable() {
+    return this.isMovable;
+  }
+
+  setIsMovable(value) {
+    if (value !== this.isMovable) {
+      this.isMovable = value;
+      this.notifyChange();
+    }
+  }
+
   getZIndex() {
     return this.zIndex;
   }
@@ -202,22 +298,27 @@ export default class Window {
     }
   }
 
-  getRestoreTo() {
-    return this.restoreTo;
+  restoreTo(memento: WindowMediator) {
+    Object.keys(memento).forEach((key) => (this[key] = memento[key]));
   }
 
-  setRestoreTo(value: Rect) {
-    this.restoreTo = value;
-  }
-
-  restore() {
-    this.x = this.restoreTo.left;
-    this.y = this.restoreTo.top;
-    this.height = this.restoreTo.bottom - this.restoreTo.top;
-    this.width = this.restoreTo.right - this.restoreTo.left;
-
-    this.positionChangeSubject.next();
-    this.notifyChange();
+  createRestoreMemento() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+      scale: this.scale,
+      rotateX: this.rotateX,
+      rotateY: this.rotateY,
+      rotateZ: this.rotateZ,
+      maxWidth: this.maxWidth,
+      maxHeight: this.maxHeight,
+      minWidth: this.minWidth,
+      minHeight: this.minHeight,
+      isResizable: this.isResizable,
+      isMovable: this.isMovable,
+    };
   }
 
   notifyChange() {
@@ -240,6 +341,15 @@ export default class Window {
 
   onClose(callback: () => void) {
     return this.disposeSubject.subscribe({ next: callback });
+  }
+
+  onClosePromise() {
+    return new Promise((resolve) => {
+      const subscription = this.onClose(() => {
+        subscription.unsubscribe();
+        resolve();
+      });
+    });
   }
 
   close() {

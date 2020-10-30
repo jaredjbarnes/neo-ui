@@ -2,6 +2,19 @@ import React, { useState } from "react";
 import Surface from "../core/Surface";
 import styled from "styled-components";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import { makeStyledTransition } from "react-motion-ux";
+
+const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
+  {
+    focused: {
+      border: "2px ridge rgba(30, 167, 253, 0.9)",
+    },
+    normal: {
+      border: "2px ridge rgba(255, 255, 255, 0.15)",
+    },
+  },
+  700
+);
 
 const SelectContainer = styled(Surface)`
   display: inline-grid;
@@ -14,6 +27,7 @@ const SelectContainer = styled(Surface)`
   cursor: pointer;
   color: rgba(100, 110, 140, 1);
   font-family: Verdana, Geneva, sans-serif;
+  outline: none;
 `;
 
 const DownArrow = styled.div`
@@ -35,8 +49,8 @@ const Label = styled.div`
   user-select: none;
 `;
 
-export interface Props<T> {
-  value: T;
+export interface Props {
+  value: any;
   className: string;
   style: React.CSSProperties;
   innerRef:
@@ -45,12 +59,13 @@ export interface Props<T> {
     | null;
 }
 
-export default function Select<T>({
-  value,
-  className,
-  style,
-  innerRef,
-}: Props<T>) {
+export default React.forwardRef<HTMLDivElement, Props>(function (
+  { value, className, style, innerRef }: Props,
+  ref
+) {
+  const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
+  let containerRef = useContainerStyledTransition(isFocused, { ref });
+
   const [isPressed, setIsPressed] = useState(false);
 
   const press = () => {
@@ -60,12 +75,23 @@ export default function Select<T>({
   const release = () => {
     setIsPressed(false);
   };
+
+  const onFocus = () => {
+    setIsFocused("focused");
+  };
+
+  const onBlur = () => {
+    setIsFocused("normal");
+  };
+
   return (
     <SelectContainer
-      ref={innerRef}
+      ref={containerRef}
       onMouseDown={press}
       onMouseUp={release}
       onMouseLeave={release}
+      onFocus={onFocus}
+      onBlur={onBlur}
       mode={isPressed ? "inset" : "raised"}
       raisedOffset={5}
       raisedSpread={10}
@@ -73,6 +99,7 @@ export default function Select<T>({
       insetSpread={6}
       className={className}
       style={style}
+      tabIndex={0}
     >
       <Label>Name</Label>
       <DownArrow>
@@ -80,4 +107,4 @@ export default function Select<T>({
       </DownArrow>
     </SelectContainer>
   );
-}
+});

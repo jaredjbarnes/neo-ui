@@ -2,7 +2,7 @@ import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
 import TextField from "../inputs/TextField";
 import SwitchField from "../inputs/SwitchField";
-import Button from "../inputs/Button";
+import OutlineButton from "../inputs/OutlineButton";
 import StoryBackdrop from "./StoryBackdrop";
 import Surface from "../core/Surface";
 import Handle from "../layouts/window/Handle";
@@ -81,26 +81,12 @@ const SelectField = styled(Select)`
   width: 90%;
 `;
 
-const SaveButton = styled(Button)`
+const SaveButton = styled(OutlineButton)`
   grid-column-start: 2;
   grid-column-end: 2;
   grid-row-start: 3;
   grid-row-end: 3;
   justify-self: end;
-`;
-
-const BorderButtonContent = styled.div`
-  border: 2px solid rgba(30, 167, 253, 0.8);
-  width: 94px;
-  height: 29px;
-  box-sizing: border-box;
-  border-radius: 15px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  line-height: 33px;
-  color: rgba(30, 167, 253, 1);
 `;
 
 export default {
@@ -118,9 +104,7 @@ export function Baseline() {
             <LastNameField name="Last Name" />
             <IsMarriedField name="Married" />
             <SelectField<string> />
-            <SaveButton>
-              <BorderButtonContent>Save</BorderButtonContent>
-            </SaveButton>
+            <SaveButton>Save</SaveButton>
           </Form>
         </WindowBody>
       </Window>

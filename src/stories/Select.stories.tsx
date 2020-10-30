@@ -11,7 +11,7 @@ export default {
   },
 } as Meta;
 
-export function Baseline(props: Props<string>) {
+export function Baseline(props: Props) {
   return (
     <StoryBackdrop>
       <Select {...props} />
