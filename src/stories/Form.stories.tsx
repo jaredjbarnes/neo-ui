@@ -7,6 +7,7 @@ import StoryBackdrop from "./StoryBackdrop";
 import Surface from "../core/Surface";
 import Handle from "../layouts/window/Handle";
 import styled from "styled-components";
+import Select from "../inputs/Select";
 
 const WindowHandle = styled(Handle)`
   grid-column-start: 1;
@@ -71,6 +72,15 @@ const IsMarriedField = styled(SwitchField)`
   grid-row-end: 2;
 `;
 
+const SelectField = styled(Select)`
+  grid-column-start: 2;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 2;
+  justify-self: end;
+  width: 90%;
+`;
+
 const SaveButton = styled(Button)`
   grid-column-start: 2;
   grid-column-end: 2;
@@ -107,6 +117,7 @@ export function Baseline() {
             <FirstNameField name="First Name" />
             <LastNameField name="Last Name" />
             <IsMarriedField name="Married" />
+            <SelectField<string> />
             <SaveButton>
               <BorderButtonContent>Save</BorderButtonContent>
             </SaveButton>

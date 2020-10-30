@@ -24,7 +24,7 @@ const PositionedLabel = styled.div`
   grid-column-end: 1;
   grid-row-start: 1;
   grid-row-end: 1;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   font-size: 14px;
   line-height: 35px;
   padding-left: 4px;
@@ -48,9 +48,9 @@ export interface Props {
 }
 
 const SwitchField = React.forwardRef<HTMLDivElement, Props>(
-  ({ name, checked, className, style, ...props }: Props) => {
+  ({ name, checked, className, style, ...props }: Props, ref) => {
     return (
-      <SwitchFieldContainer className={className} style={style}>
+      <SwitchFieldContainer ref={ref} className={className} style={style}>
         <PositionedLabel>{name}</PositionedLabel>
         <PositionedSwitch checked={checked} {...props} />
       </SwitchFieldContainer>

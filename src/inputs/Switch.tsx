@@ -60,7 +60,7 @@ const SwitchContainer = styled(Surface)`
   height: 36px;
   border-radius: 8px;
   font-size: 10px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   color: rgba(126, 134, 168, 1);
   cursor: pointer;
   border: 2px ridge rgba(30, 167, 253, 0.9);

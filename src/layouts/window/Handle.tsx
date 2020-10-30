@@ -28,7 +28,7 @@ const HandleLabel = styled.div`
   height: 22px;
   color: rgba(100, 110, 140, 0.9);
   font-size: 14px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   line-height: 18px;
   padding: 0px 18px;
   border: 2px ridge rgba(255, 255, 255, 0.15);

@@ -22,7 +22,7 @@ const InputLabel = styled.div`
   grid-column-end: 3;
   grid-row-start: 1;
   grid-row-end: 1;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   font-size: 14px;
   line-height: 24px;
   padding-left: 4px;
