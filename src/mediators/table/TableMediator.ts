@@ -41,6 +41,11 @@ export interface LoadingPageEvent {
   state: "loading" | "loaded";
 }
 
+class PendingResponse<T> {
+  page = 0;
+  promise: Promise<Response<T>> | null;
+}
+
 export default class TableMediator<T> {
   private responses = new Map<number, Response<T>>();
   private isFinished = false;
@@ -52,21 +57,38 @@ export default class TableMediator<T> {
   private onEdit: (item: T) => Promise<void>;
   private onDelete: (item: T) => Promise<void>;
   private currentSorts: Sort[] = [];
+  private pendingResponse = new PendingResponse<T>();
   private pendingResponses: Promise<Response<T>>[] = [];
   private loadingSubject = new Subject<LoadingPageEvent>();
   private columns: Column[] = [];
 
   loadNextPage() {
-    if (!this.isFinished) {
-      this.loadPage(this.getFurthestPage() + 1);
+    if (!this.isFinished && this.pendingResponse == null) {
+      const page = this.getFurthestPage() + 1;
+      this.pendingResponse.page = page;
+
+      this.pendingResponse.promise = this.loadPage(page).finally(() => {
+        this.pendingResponse.promise = null;
+      });
     }
   }
 
-  private loadPage(page: number, force?: boolean) {
+  private shouldLoadPage(page: number) {
     const response = this.responses.get(page);
 
+    return (
+      response == null ||
+      response.error == null ||
+      page <= this.pendingResponse.page
+    );
+  }
+
+  private loadPage(page: number, force?: boolean) {
     // Short Circuit. No need to load twice.
-    if (!force && response != null && response.error != null) {
+    if (
+      !this.shouldLoadPage(page) ||
+      (force && page > this.pendingResponse.page)
+    ) {
       return;
     }
 
@@ -162,9 +184,8 @@ export default class TableMediator<T> {
   }
 
   search(keywords: string) {
-    this.responses = new Map<number, Response<T>>();
+    this.reset();
     this.keywords = keywords;
-
     this.loadNextPage();
   }
 
@@ -234,6 +255,17 @@ export default class TableMediator<T> {
     } else {
       this.currentSorts.push({ name, direction });
     }
+
+    this.reset();
+    this.loadNextPage();
+  }
+
+  reset() {
+    this.responses = new Map<number, Response<T>>();
+    this.pendingResponse.page = 0;
+    this.pendingResponse.promise = null;
+    this.pendingResponses = [];
+    this.isFinished = false;
   }
 
   getTotalRowsLoaded() {
