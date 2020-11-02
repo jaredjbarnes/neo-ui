@@ -59,7 +59,7 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
   value?: string;
   onValueChange?: (
     value: string,
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   style?: React.CSSProperties;
   className?: string;

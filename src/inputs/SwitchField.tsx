@@ -41,7 +41,9 @@ export interface Props {
   checked?: boolean;
   onChange?: (
     value: boolean,
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    event:
+      | React.MouseEvent<HTMLDivElement, MouseEvent>
+      | React.KeyboardEvent<HTMLDivElement>
   ) => void;
   style?: React.CSSProperties;
   className?: string;

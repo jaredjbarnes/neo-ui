@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from "react";
+import AsyncAction from "../../utils/AsyncAction";
 import TableMediator, {
   RequestOptions,
   Response,
@@ -11,7 +12,9 @@ export const TableContext = React.createContext(defaultTableMediator);
 
 export interface TableProviderProps<T> {
   columns: Column[];
-  onLoad: (request: RequestOptions) => Promise<Response<T>>;
+  onLoad: (
+    request: RequestOptions<T>
+  ) => AsyncAction<Response<T>>;
   onView: (item: T) => Promise<void>;
   onAdd: () => Promise<void>;
   onEdit: (item: T) => Promise<void>;
@@ -29,7 +32,7 @@ function TableProvider<T>({
   children,
 }: TableProviderProps<T>) {
   const tableMediator = useMemo(() => {
-    return new TableMediator();
+    return new TableMediator<T>();
   }, []);
 
   useEffect(() => {

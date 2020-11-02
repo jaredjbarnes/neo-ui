@@ -1,9 +1,6 @@
 import { Subject } from "rxjs";
 import AsyncAction from "../../utils/AsyncAction";
 
-// NOTE: TODO We need to remove all concepts of pages.
-// We should use the State pattern with three states, ready, pending, complete.
-
 export interface Cell {
   name: string;
   value: string | React.Component;
@@ -13,13 +10,11 @@ export interface Row<T> {
   id: string;
   value: T;
   cells: Cell[];
-  page: number;
 }
 
 export interface Response<T> {
   data: Row<T>[];
   isLast: boolean;
-  page: number;
   error?: Error;
 }
 
@@ -46,56 +41,73 @@ export interface LoadingPageEvent {
 }
 
 abstract class TableState<T> {
-  private context: TableMediator<T>;
+  context: TableMediator<T>;
 
   constructor(context: TableMediator<T>) {
     this.context = context;
   }
 
-  abstract activate(): void;
-  abstract deactivate(): void;
   abstract loadNextBatch(): void;
   abstract reset(): void;
 }
 
 class ReadyState<T> extends TableState<T> {
-  activate() {}
-  deactivate() {}
   loadNextBatch() {}
-  reset() {}
+
+  reset() {
+    // Do nothing,
+  }
 }
 
 class PendingState<T> extends TableState<T> {
-  activate() {}
-  deactivate() {}
-  loadNextBatch() {}
-  reset() {}
+  loadNextBatch() {
+    // Do nothing.
+  }
+  reset() {
+    this.context.getPendingRequest()?.cancel();
+  }
 }
 
 class FinishedState<T> extends TableState<T> {
-  activate() {}
-  deactivate() {}
-  loadNextBatch() {}
-  reset() {}
+  loadNextBatch() {
+    // Do nothing
+  }
+  
+  reset() {
+    
+  }
+}
+
+const nullableFunction = () => {
+  return Promise.resolve(undefined);
+};
+
+function nullableOnLoadFunction<T>() {
+  return AsyncAction.resolve({
+    data: [],
+    isLast: true,
+  } as Response<T>);
 }
 
 export default class TableMediator<T> {
   private state: TableState<T>;
-  private readyState = new ReadyState(this);
-  private pendingState = new PendingState(this);
-  private finishedState = new FinishedState(this);
+  private readyState = new ReadyState<T>(this);
+  private pendingState = new PendingState<T>(this);
+  private finishedState = new FinishedState<T>(this);
   private responses: Row<T>[] = [];
-  private keywords: string;
+  private keywords: string = "";
   private selectedRows = new Map<string, Row<T>>();
-  private onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
-  private onView: (item: T) => Promise<void>;
-  private onAdd: () => Promise<void>;
-  private onEdit: (item: T) => Promise<void>;
-  private onDelete: (item: T) => Promise<void>;
   private currentSorts: Sort[] = [];
   private pendingResponse: AsyncAction<T> | null = null;
   private loadingSubject = new Subject<LoadingPageEvent>();
   private columns: Column[] = [];
+  private onLoad: (
+    request: RequestOptions<T>
+  ) => AsyncAction<Response<T>> = nullableOnLoadFunction;
+  private onView: (item: T) => Promise<void> = nullableFunction;
+  private onAdd: () => Promise<void> = nullableFunction;
+  private onEdit: (item: T) => Promise<void> = nullableFunction;
+  private onDelete: (item: T) => Promise<void> = nullableFunction;
 
   constructor() {
     this.state = this.readyState;
@@ -105,24 +117,44 @@ export default class TableMediator<T> {
     return this.state.loadNextBatch();
   }
 
-  setOnLoad(onLoad: (request: RequestOptions<T>) => Promise<Response<T>>) {
+  setOnLoad(onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>) {
     this.onLoad = onLoad;
+  }
+
+  getOnLoad() {
+    return this.onLoad;
   }
 
   setOnView(onView: (item: T) => Promise<void>) {
     this.onView = onView;
   }
 
+  getOnView() {
+    return this.onView;
+  }
+
   setOnAdd(onAdd: () => Promise<void>) {
     this.onAdd = onAdd;
+  }
+
+  getOnAdd() {
+    return this.onAdd;
   }
 
   setOnEdit(onEdit: (item: T) => Promise<void>) {
     this.onEdit = onEdit;
   }
 
+  getOnEdit() {
+    return this.onEdit;
+  }
+
   setOnDelete(onDelete: (item: T) => Promise<void>) {
     this.onDelete = onDelete;
+  }
+
+  getOnDelete() {
+    return this.onDelete;
   }
 
   getColumn() {
@@ -131,6 +163,10 @@ export default class TableMediator<T> {
 
   setColumns(columns: Column[]) {
     this.columns = columns;
+  }
+
+  getPendingRequest() {
+    return this.pendingResponse;
   }
 
   search(keywords: string) {
@@ -174,7 +210,7 @@ export default class TableMediator<T> {
     this.loadNextBatch();
   }
 
-  removeSort(name: string) {
+  removeSortByName(name: string) {
     const index = this.currentSorts.findIndex((sort) => {
       return sort.name === name;
     });
@@ -187,13 +223,23 @@ export default class TableMediator<T> {
     }
   }
 
-  reset() {
-    return this.state.reset();
+  changeToPendingState() {
+    this.state = this.pendingState;
   }
 
-  getTotalRowsLoaded() {
-    return Array.from(this.responses.values()).reduce((total, response) => {
-      return total + response.data.length;
-    }, 0);
+  changeToReadyState() {
+    this.state = this.readyState;
+  }
+
+  changeToFinishState() {
+    this.state = this.finishedState;
+  }
+
+  getSort() {
+    return this.currentSorts.slice();
+  }
+
+  reset() {
+    return this.state.reset();
   }
 }
