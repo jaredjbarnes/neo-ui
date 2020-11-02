@@ -1,6 +1,6 @@
 import Rect from "../../utils/Rect";
 import { Subject } from "rxjs";
-import WindowMediator from ".";
+import WindowMediator from "./WindowsMediator";
 
 export interface MetaDataEvent<T> {
   key: string;
@@ -25,6 +25,11 @@ export interface WindowMemento {
   isMovable: boolean;
 }
 
+interface Message<T> {
+  type: string;
+  payload: T;
+}
+
 type WindowState = "minimized" | "open" | "maximized" | "spotlighted";
 
 export default class Window {
@@ -46,12 +51,14 @@ export default class Window {
   private isMovable: boolean = true;
   private isResizing: boolean = false;
   private isDragging: boolean = false;
-  private state: WindowState;
-  private changeSubject = new Subject<undefined>();
+  private state: WindowState = "open";
+  private changeSubject = new Subject<void>();
   private metaDataSubject = new Subject<MetaDataEvent<any>>();
   private positionChangeSubject = new Subject<undefined>();
-  private disposeSubject = new Subject<undefined>();
+  private disposeSubject = new Subject<void>();
+  private messageSubject = new Subject<Message<any>>();
   private metaData = new Map<string, any>();
+  private isDisabled = false;
 
   getName() {
     return this.name;
@@ -256,7 +263,7 @@ export default class Window {
     return this.isResizable;
   }
 
-  setIsResizable(value) {
+  setIsResizable(value: boolean) {
     if (value !== this.isResizable) {
       this.isResizable = value;
       this.notifyChange();
@@ -267,7 +274,7 @@ export default class Window {
     return this.isMovable;
   }
 
-  setIsMovable(value) {
+  setIsMovable(value: boolean) {
     if (value !== this.isMovable) {
       this.isMovable = value;
       this.notifyChange();
@@ -299,7 +306,9 @@ export default class Window {
   }
 
   restoreTo(memento: WindowMediator) {
-    Object.keys(memento).forEach((key) => (this[key] = memento[key]));
+    Object.keys(memento).forEach(
+      (key) => ((this as any)[key] = (memento as any)[key])
+    );
   }
 
   createRestoreMemento() {
@@ -343,13 +352,31 @@ export default class Window {
     return this.disposeSubject.subscribe({ next: callback });
   }
 
-  onClosePromise() {
+  whenClosed() {
     return new Promise((resolve) => {
       const subscription = this.onClose(() => {
         subscription.unsubscribe();
         resolve();
       });
     });
+  }
+
+  disable() {
+    this.isDisabled = false;
+    this.changeSubject.next();
+  }
+
+  enable() {
+    this.isDisabled = true;
+    this.changeSubject.next();
+  }
+
+  postMessage<T>(message: Message<T>) {
+    this.messageSubject.next(message);
+  }
+
+  onMessage<T>(callback: (message: Message<T>) => void) {
+    return this.messageSubject.subscribe({ next: callback });
   }
 
   close() {
@@ -360,6 +387,7 @@ export default class Window {
   private dispose() {
     this.changeSubject.complete();
     this.positionChangeSubject.complete();
+    this.messageSubject.complete();
     this.metaDataSubject.complete();
     this.disposeSubject.complete();
   }

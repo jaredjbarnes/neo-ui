@@ -1,4 +1,8 @@
 import { Subject } from "rxjs";
+import AsyncAction from "../../utils/AsyncAction";
+
+// NOTE: TODO We need to remove all concepts of pages.
+// We should use the State pattern with three states, ready, pending, complete.
 
 export interface Cell {
   name: string;
@@ -30,8 +34,8 @@ export interface Sort {
   direction: "ASC" | "DESC";
 }
 
-export interface RequestOptions {
-  page: number;
+export interface RequestOptions<T> {
+  currentResults: Row<T>[];
   sorts: Sort[];
   keywords?: string;
 }
@@ -41,121 +45,67 @@ export interface LoadingPageEvent {
   state: "loading" | "loaded";
 }
 
-class PendingResponse<T> {
-  page = 0;
-  promise: Promise<Response<T>> | null;
+abstract class TableState<T> {
+  private context: TableMediator<T>;
+
+  constructor(context: TableMediator<T>) {
+    this.context = context;
+  }
+
+  abstract activate(): void;
+  abstract deactivate(): void;
+  abstract loadNextBatch(): void;
+  abstract reset(): void;
+}
+
+class ReadyState<T> extends TableState<T> {
+  activate() {}
+  deactivate() {}
+  loadNextBatch() {}
+  reset() {}
+}
+
+class PendingState<T> extends TableState<T> {
+  activate() {}
+  deactivate() {}
+  loadNextBatch() {}
+  reset() {}
+}
+
+class FinishedState<T> extends TableState<T> {
+  activate() {}
+  deactivate() {}
+  loadNextBatch() {}
+  reset() {}
 }
 
 export default class TableMediator<T> {
-  private responses = new Map<number, Response<T>>();
-  private isFinished = false;
+  private state: TableState<T>;
+  private readyState = new ReadyState(this);
+  private pendingState = new PendingState(this);
+  private finishedState = new FinishedState(this);
+  private responses: Row<T>[] = [];
   private keywords: string;
   private selectedRows = new Map<string, Row<T>>();
-  private onLoad: (request: RequestOptions) => Promise<Response<T>>;
+  private onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
   private onView: (item: T) => Promise<void>;
   private onAdd: () => Promise<void>;
   private onEdit: (item: T) => Promise<void>;
   private onDelete: (item: T) => Promise<void>;
   private currentSorts: Sort[] = [];
-  private pendingResponse = new PendingResponse<T>();
-  private pendingResponses: Promise<Response<T>>[] = [];
+  private pendingResponse: AsyncAction<T> | null = null;
   private loadingSubject = new Subject<LoadingPageEvent>();
   private columns: Column[] = [];
 
-  loadNextPage() {
-    if (!this.isFinished && this.pendingResponse == null) {
-      const page = this.getFurthestPage() + 1;
-      this.pendingResponse.page = page;
-
-      this.pendingResponse.promise = this.loadPage(page).finally(() => {
-        this.pendingResponse.promise = null;
-      });
-    }
+  constructor() {
+    this.state = this.readyState;
   }
 
-  private shouldLoadPage(page: number) {
-    const response = this.responses.get(page);
-
-    return (
-      response == null ||
-      response.error == null ||
-      page <= this.pendingResponse.page
-    );
+  loadNextBatch() {
+    return this.state.loadNextBatch();
   }
 
-  private loadPage(page: number, force?: boolean) {
-    // Short Circuit. No need to load twice.
-    if (
-      !this.shouldLoadPage(page) ||
-      (force && page > this.pendingResponse.page)
-    ) {
-      return;
-    }
-
-    this.loadingSubject.next({
-      page,
-      state: "loading",
-    });
-
-    const request = {
-      page: page,
-      keywords: this.keywords,
-      sorts: this.currentSorts,
-    };
-
-    const pendingResponse = this.onLoad(request)
-      .then((response) => {
-        response.page = page;
-        response.data.forEach((row) => (row.page = page));
-
-        this.responses.set(page, response);
-        this.isFinished = response.isLast;
-
-        return response;
-      })
-      .catch((error) => {
-        const response = {
-          data: [],
-          isLast: false,
-          error,
-          page,
-        };
-
-        this.responses.set(page, response);
-
-        return response;
-      })
-      .finally(() => {
-        const index = this.pendingResponses.indexOf(pendingResponse);
-
-        if (index > -1) {
-          this.pendingResponses.splice(index, 1);
-        }
-
-        if (this.pendingResponses.length === 0) {
-          this.loadingSubject.next({
-            page,
-            state: "loaded",
-          });
-        }
-      });
-
-    this.pendingResponses.push(pendingResponse);
-
-    return pendingResponse;
-  }
-
-  private getFurthestPage() {
-    return Array.from(this.responses.values()).reduce((lastPage, response) => {
-      return Math.max(lastPage, response.page);
-    }, 0);
-  }
-
-  refreshPage(page: number) {
-    this.loadPage(page, true);
-  }
-
-  setOnLoad(onLoad: (request: RequestOptions) => Promise<Response<T>>) {
+  setOnLoad(onLoad: (request: RequestOptions<T>) => Promise<Response<T>>) {
     this.onLoad = onLoad;
   }
 
@@ -186,7 +136,7 @@ export default class TableMediator<T> {
   search(keywords: string) {
     this.reset();
     this.keywords = keywords;
-    this.loadNextPage();
+    this.loadNextBatch();
   }
 
   selectRow(row: Row<T>) {
@@ -201,51 +151,15 @@ export default class TableMediator<T> {
     this.selectedRows.clear();
   }
 
-  viewRow(row: Row<T>) {
-    this.onView(row.value)
-      .then(() => {
-        this.refresh();
-      })
-      .catch(() => {
-        // Do nothing for now
-      });
-  }
+  viewSelectedRows(row: Row<T>) {}
 
-  deleteRow(row: Row<T>) {
-    this.onDelete(row.value)
-      .then(() => {
-        this.refresh();
-      })
-      .catch((error) => {
-        // Do nothing for now.
-      });
-  }
+  deleteSelectedRows(row: Row<T>) {}
 
-  editRow(row: Row<T>) {
-    this.onEdit(row.value)
-      .then(() => {
-        this.refresh();
-      })
-      .catch(() => {
-        // Do nothing for now
-      });
-  }
+  editSelectedRows() {}
 
-  addRow() {
-    this.onAdd()
-      .then(() => {
-        this.refresh();
-      })
-      .catch((error) => {});
-  }
+  addRow() {}
 
-  refresh() {
-    Array.from(this.responses.values()).forEach((response) => {
-      this.refreshPage(response.page);
-    });
-  }
-
-  sort(name: string, direction: "ASC" | "DESC") {
+  addSort(name: string, direction: "ASC" | "DESC") {
     const index = this.currentSorts.findIndex((sort) => {
       return sort.name === name;
     });
@@ -257,15 +171,24 @@ export default class TableMediator<T> {
     }
 
     this.reset();
-    this.loadNextPage();
+    this.loadNextBatch();
+  }
+
+  removeSort(name: string) {
+    const index = this.currentSorts.findIndex((sort) => {
+      return sort.name === name;
+    });
+
+    if (index > -1) {
+      this.currentSorts.splice(index, 1);
+
+      this.reset();
+      this.loadNextBatch();
+    }
   }
 
   reset() {
-    this.responses = new Map<number, Response<T>>();
-    this.pendingResponse.page = 0;
-    this.pendingResponse.promise = null;
-    this.pendingResponses = [];
-    this.isFinished = false;
+    return this.state.reset();
   }
 
   getTotalRowsLoaded() {

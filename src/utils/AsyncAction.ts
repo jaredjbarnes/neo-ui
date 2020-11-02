@@ -4,8 +4,8 @@ type OnCancelCallback = (reason: string | CancelledError) => void;
 
 export default class AsyncAction<T> {
   private action: (asyncAction: AsyncAction<T>) => Promise<T>;
-  private promise: Promise<T> | null;
-  private reject: (reason: any) => void;
+  private promise: Promise<T> | null = null;
+  private reject: (reason: any) => void = () => {};
   private error: Error | null = null;
   private onCancelCallbacks: OnCancelCallback[] = [];
 
@@ -44,7 +44,7 @@ export default class AsyncAction<T> {
     this.onCancelCallbacks.forEach((callback) => callback(error));
   }
 
-  onCancel(callback) {
+  onCancel(callback: OnCancelCallback) {
     this.onCancelCallbacks.push(callback);
   }
 

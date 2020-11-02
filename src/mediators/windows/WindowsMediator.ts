@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import Rect from "../../utils/Rect";
 
 export default class WindowsMediator {
-  private windows: Window[];
+  private windows: Window[] = [];
   private windowsChangeSubject = new Subject<Window[]>();
   private screenRect: Rect = { top: 0, left: 0, right: 0, bottom: 0 };
 
