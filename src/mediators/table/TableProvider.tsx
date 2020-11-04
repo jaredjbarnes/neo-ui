@@ -4,6 +4,7 @@ import TableMediator, {
   RequestOptions,
   Response,
   Column,
+  Row,
 } from "./TableMediator";
 
 const defaultTableMediator = new TableMediator<any>();
@@ -12,13 +13,11 @@ export const TableContext = React.createContext(defaultTableMediator);
 
 export interface TableProviderProps<T> {
   columns: Column[];
-  onLoad: (
-    request: RequestOptions<T>
-  ) => AsyncAction<Response<T>>;
-  onView: (item: T) => Promise<void>;
-  onAdd: () => Promise<void>;
-  onEdit: (item: T) => Promise<void>;
-  onDelete: (item: T) => Promise<void>;
+  onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>;
+  onView?: (item: Row<T>) => Promise<void>;
+  onAdd?: () => Promise<Row<T>>;
+  onEdit?: (item: Row<T>) => Promise<void>;
+  onDelete?: (item: Row<T>) => Promise<void>;
   children: React.ReactNode[] | React.ReactNode;
 }
 
@@ -44,20 +43,30 @@ function TableProvider<T>({
   }, [tableMediator, onLoad]);
 
   useEffect(() => {
-    tableMediator.setOnView(onView);
+    if (onView != null) {
+      tableMediator.setOnView(onView);
+    }
   }, [tableMediator, onView]);
 
   useEffect(() => {
-    tableMediator.setOnAdd(onAdd);
+    if (onAdd != null) {
+      tableMediator.setOnAdd(onAdd);
+    }
   }, [tableMediator, onAdd]);
 
   useEffect(() => {
-    tableMediator.setOnEdit(onEdit);
+    if (onEdit != null) {
+      tableMediator.setOnEdit(onEdit);
+    }
   }, [tableMediator, onEdit]);
 
   useEffect(() => {
-    tableMediator.setOnDelete(onDelete);
+    if (onDelete != null) {
+      tableMediator.setOnDelete(onDelete);
+    }
   }, [tableMediator, onDelete]);
+
+  useEffect(() => () => tableMediator.dispose(), [tableMediator]);
 
   return (
     <TableContext.Provider value={tableMediator}>

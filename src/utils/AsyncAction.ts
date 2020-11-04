@@ -53,4 +53,10 @@ export default class AsyncAction<T> {
       return Promise.resolve(value);
     });
   }
+
+  static reject<T>(error: Error) {
+    return new AsyncAction<T>(() => {
+      return Promise.reject(error);
+    });
+  }
 }

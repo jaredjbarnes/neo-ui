@@ -33,7 +33,7 @@ const Window = styled(Surface)`
   width: 500px;
   padding: 0px;
   margin: 0px;
-  height: 216px;
+  height: 248px;
   border-radius: 6px;
   box-sizing: border-box;
 `;
@@ -42,10 +42,10 @@ const Form = styled.div`
   display: grid;
   width: 100%;
   padding: 16px;
-  grid-row-gap: 8px;
+  grid-row-gap: 16px;
   box-sizing: border-box;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 59px 35px 35px;
+  grid-template-rows: 59px 35px 50px;
 `;
 
 const FirstNameField = styled(TextField)`
@@ -87,6 +87,7 @@ const SaveButton = styled(OutlineButton)`
   grid-row-start: 3;
   grid-row-end: 3;
   justify-self: end;
+  align-self: end;
 `;
 
 export default {

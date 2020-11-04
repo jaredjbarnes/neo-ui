@@ -305,7 +305,7 @@ export default class Window {
     }
   }
 
-  restoreTo(memento: WindowMediator) {
+  restoreTo(memento: WindowMemento) {
     Object.keys(memento).forEach(
       (key) => ((this as any)[key] = (memento as any)[key])
     );
@@ -327,7 +327,7 @@ export default class Window {
       minHeight: this.minHeight,
       isResizable: this.isResizable,
       isMovable: this.isMovable,
-    };
+    } as WindowMemento;
   }
 
   notifyChange() {
