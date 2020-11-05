@@ -6,13 +6,11 @@ import { makeStyledTransition } from "react-motion-ux";
 const useStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
     pressed: {
-      borderTop: "1px solid rgba(255, 255, 255, 0)",
       borderBottom: "1px solid rgba(190, 200, 215, 0)",
       borderLeft: "1px solid rgba(255, 255, 255, 0)",
       borderRight: "1px solid rgba(190, 200, 215, 0)",
     },
     released: {
-      borderTop: "1px solid rgba(255, 255, 255, 1)",
       borderBottom: "1px solid rgba(190, 200, 215, 1)",
       borderLeft: "1px solid rgba(255, 255, 255, 1)",
       borderRight: "1px solid rgba(190, 200, 215, 1)",
@@ -29,7 +27,6 @@ const ColumnContainer = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   color: rgba(100, 110, 140, 1);
-  border-top: 1px solid rgba(255, 255, 255, 1);
   border-bottom: 1px solid rgba(190, 200, 215, 1);
   border-left: 1px solid rgba(255, 255, 255, 1);
   border-right: 1px solid rgba(190, 200, 215, 1);
