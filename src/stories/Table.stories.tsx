@@ -3,10 +3,11 @@ import { Meta } from "@storybook/react/types-6-0";
 import Table from "../layouts/Table";
 import StoryBackdrop from "./StoryBackdrop";
 import TableHeader, { Props } from "../layouts/Table/TableHeader";
-import { Column, Response, Row, Cell } from "../mediators/table/TableMediator";
+import { Column, Response, Row } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
 import AsyncAction from "../utils/AsyncAction";
-import { create } from "domain";
+import Surface from "../core/Surface";
+import styled from "styled-components";
 
 export default {
   title: "Table",
@@ -20,6 +21,15 @@ class Person {
   lastName: string;
   age: number;
 }
+
+const TableHeaderContainer = styled(Surface)`
+  width: 400px;
+  height: 400px;
+  border: 2px ridge rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 1);
+`;
 
 const columns = [
   {
@@ -93,7 +103,9 @@ export function Baseline(props: Props) {
   return (
     <StoryBackdrop>
       <TableProvider columns={columns} onLoad={onLoad}>
-        <TableHeader />
+        <TableHeaderContainer mode="cutOut" insetOffset={2}>
+          <TableHeader />
+        </TableHeaderContainer>
       </TableProvider>
     </StoryBackdrop>
   );
