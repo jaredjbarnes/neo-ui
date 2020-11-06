@@ -9,7 +9,7 @@ import OutlineButton from "../../inputs/OutlineButton";
 const TableGrid = styled.div`
   position: relative;
   display: grid;
-  grid-template-columns: auto 150px;
+  grid-template-columns: auto 125px;
   grid-template-rows: 42px auto;
   min-width: 400px;
   min-height: 400px;
@@ -35,8 +35,8 @@ const SearchInput = styled(TextInput)`
 const TableActions = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: start;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-end;
   grid-column-start: 2;
   grid-column-end: 2;
   grid-row-start: 2;

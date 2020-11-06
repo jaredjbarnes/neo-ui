@@ -10,6 +10,7 @@ import TableProvider from "../mediators/table/TableProvider";
 import AsyncAction from "../utils/AsyncAction";
 import Surface from "../core/Surface";
 import styled from "styled-components";
+import FieldSet from "../inputs/FieldSet";
 
 export default {
   title: "Table",
@@ -129,9 +130,11 @@ export function BaseTableLayout(props: Props) {
 
   return (
     <StoryBackdrop>
-      <TableProvider columns={columns} onLoad={onLoad}>
-        <TableLayout style={{width: "500px", height: "400px"}} />
-      </TableProvider>
+      <FieldSet name="My Table">
+        <TableProvider columns={columns} onLoad={onLoad}>
+          <TableLayout style={{ width: "500px", height: "400px" }} />
+        </TableProvider>
+      </FieldSet>
     </StoryBackdrop>
   );
 }
