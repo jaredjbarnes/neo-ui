@@ -12,6 +12,7 @@ export function Baseline(props: Props) {
   return (
     <StoryBackdrop>
       <TextInput {...props} />
+      <TextInput {...props} disabled />
     </StoryBackdrop>
   );
 }

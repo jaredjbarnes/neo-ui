@@ -66,6 +66,10 @@ function TableProvider<T>({
     }
   }, [tableMediator, onDelete]);
 
+  useEffect(() => {
+    tableMediator.loadNextBatch();
+  }, [tableMediator]);
+
   useEffect(() => () => tableMediator.dispose(), [tableMediator]);
 
   return (

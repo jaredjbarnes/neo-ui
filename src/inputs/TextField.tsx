@@ -73,6 +73,7 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
     | ((instance: HTMLInputElement) => void)
     | React.MutableRefObject<HTMLInputElement>;
   large?: boolean;
+  disabled?:boolean;
 }
 
 const TextField = React.forwardRef<HTMLDivElement, Props>(function (

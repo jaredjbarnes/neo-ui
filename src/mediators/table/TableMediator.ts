@@ -22,7 +22,7 @@ export interface Response<T> {
 export interface Column {
   name: string;
   label: string;
-  width: number | string;
+  width: number;
   canSort: boolean;
 }
 
@@ -388,6 +388,10 @@ export default class TableMediator<T> {
     return this.state.reset();
   }
 
+  getLoadedLength() {
+    return this.rows.length;
+  }
+
   clearRows() {
     this.rows.length = 0;
   }
@@ -396,13 +400,43 @@ export default class TableMediator<T> {
     return this.rows.slice(start, end);
   }
 
-  getLoadedLength() {
-    return this.rows.length;
-  }
-
   loadRows(rows: Row<T>[]) {
     rows.forEach((r) => this.rows.push(r));
     this.loadedSubject.next(rows);
+  }
+
+  getRowsWithinRange(
+    offsetY: number,
+    rowHeight: number,
+    startY: number,
+    endY: number
+  ) {
+    startY = startY - offsetY;
+    endY = endY - offsetY;
+
+    let startIndex = Math.floor(startY / rowHeight);
+    let endIndex = Math.ceil(endY / rowHeight);
+
+    startIndex = Math.max(0, startIndex);
+    endIndex = Math.min(this.rows.length - 1, endIndex);
+
+    const width = this.getContentWidth();
+
+    return this.rows.slice(startIndex, endIndex).map((row, index) => {
+      return {
+        row: row,
+        x: 0,
+        y: (startIndex + index) * rowHeight + offsetY,
+        width,
+        height: rowHeight,
+      };
+    });
+  }
+
+  getContentWidth() {
+    return this.columns.reduce((acc, column) => {
+      return acc + column.width;
+    }, 0);
   }
 
   getState() {

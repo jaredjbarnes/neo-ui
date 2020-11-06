@@ -2,6 +2,7 @@ import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
 import Table from "../layouts/Table";
 import StoryBackdrop from "./StoryBackdrop";
+import TableDataScroller from "../layouts/Table/TableDataScroller";
 import TableHeader, { Props } from "../layouts/Table/TableHeader";
 import { Column, Response, Row } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
@@ -22,32 +23,23 @@ class Person {
   age: number;
 }
 
-const TableHeaderContainer = styled(Surface)`
-  width: 400px;
-  height: 400px;
-  border: 2px ridge rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 1);
-`;
-
 const columns = [
   {
     label: "First Name",
     name: "firstName",
-    width: "100px",
+    width: 100,
     canSort: false,
   },
   {
     label: "Last Name",
     name: "lastName",
-    width: "100px",
+    width: 100,
     canSort: false,
   },
   {
     label: "Age",
     name: "age",
-    width: "50px",
+    width: 50,
     canSort: false,
   },
 ] as Column[];
@@ -92,7 +84,7 @@ const createRows = (amount: number) => {
   return people;
 };
 
-export function Baseline(props: Props) {
+export function Header(props: Props) {
   const onLoad = () => {
     return AsyncAction.resolve<Response<Person>>({
       data: createRows(30),
@@ -103,9 +95,24 @@ export function Baseline(props: Props) {
   return (
     <StoryBackdrop>
       <TableProvider columns={columns} onLoad={onLoad}>
-        <TableHeaderContainer mode="cutOut" insetOffset={2}>
-          <TableHeader />
-        </TableHeaderContainer>
+        <TableHeader />
+      </TableProvider>
+    </StoryBackdrop>
+  );
+}
+
+export function DataScroller(props: Props) {
+  const onLoad = () => {
+    return AsyncAction.resolve<Response<Person>>({
+      data: createRows(30),
+      isLast: true,
+    });
+  };
+
+  return (
+    <StoryBackdrop>
+      <TableProvider columns={columns} onLoad={onLoad}>
+        <TableDataScroller style={{ width: "200px", height: "200px" }} />
       </TableProvider>
     </StoryBackdrop>
   );

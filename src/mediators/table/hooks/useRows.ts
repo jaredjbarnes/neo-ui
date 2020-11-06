@@ -1,20 +1,19 @@
 import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
 
-const useColumns = () => {
+const useRows = () => {
   const table = useTable();
-  const [columns, setColumns] = useState(table.getColumns());
+  const [rows, setRows] = useState(table.getRows());
 
   const subscription = useMemo(() => {
-    return table.onColumnsChange((column) => {
-      setColumns(column);
+    return table.onRowsLoaded((rows) => {
+      setRows(rows);
     });
   }, [table]);
 
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 
-  return columns;
+  return rows;
 };
 
-export default useColumns;
-
+export default useRows;

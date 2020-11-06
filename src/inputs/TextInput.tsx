@@ -85,6 +85,7 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
     | ((instance: HTMLInputElement) => void)
     | React.MutableRefObject<HTMLInputElement>;
   large?: boolean;
+  disabled?: boolean;
 }
 
 const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
@@ -97,6 +98,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
     textareaRef,
     placeholder,
     large,
+    disabled,
     ...props
   }: Props,
   ref
@@ -105,6 +107,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
   let containerRef = useContainerStyledTransition(isFocused, { ref });
 
   large = typeof large === "boolean" ? large : false;
+  disabled = typeof disabled === "boolean" ? disabled : false;
   containerRef = useTextAreaHeight(large.toString(), { ref: containerRef });
 
   const onInputChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +137,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
       ref={containerRef}
       className={className}
       style={{ ...style, minHeight: large ? "100px" : "35px" }}
-      mode="inset"
+      mode={disabled ? "flat" : "inset"}
       insetOffset={3}
       insetSpread={5}
       {...props}
@@ -148,6 +151,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
           value={value}
           onChange={onInputChangeWrapper}
           placeholder={placeholder}
+          disabled={disabled}
         />
       )}
       {large && (

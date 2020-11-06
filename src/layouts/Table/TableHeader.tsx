@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
-import Column from "./TableColumn";
+import TableColumn from "./TableColumn";
 
 const TableHeaderContainer = styled.div`
   display: grid;
@@ -20,25 +20,33 @@ export interface Props {
 const TableHeader = ({ className, style }: Props) => {
   const columns = useColumns();
 
-  useMemo(() => {
-    columns.push({
-      name: "",
-      label: "",
-      width: "auto",
-      canSort: false,
-    });
-  }, [columns]);
+  const barStyles = useMemo(() => {
+    const gridTemplateColumns =
+      columns
+        .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
+        .join(" ") + " auto";
 
-  const gridTemplateColumns = columns.map((c) => `${c.width}`).join(" ");
+    const minWidth = columns.reduce((acc, column) => {
+      return acc + column.width;
+    }, 0);
+
+    return {
+      minWidth,
+      gridTemplateColumns,
+    } as React.CSSProperties;
+  }, [columns]);
 
   return (
     <TableHeaderContainer
-      style={{ ...style, gridTemplateColumns }}
+      style={{ ...style, ...barStyles }}
       className={className}
     >
       {columns.map((c) => (
-        <Column style={{ width: c.width }}>{c.label}</Column>
+        <TableColumn key={c.name} style={{ width: c.width + "px" }}>
+          {c.label}
+        </TableColumn>
       ))}
+      <TableColumn style={{ width: "auto" }}></TableColumn>
     </TableHeaderContainer>
   );
 };

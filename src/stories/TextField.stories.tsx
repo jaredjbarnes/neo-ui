@@ -12,6 +12,7 @@ export function Baseline(props: Props) {
   return (
     <StoryBackdrop>
       <TextField name="First Name" placeholder="e.g. John" {...props} />
+      <TextField name="First Name" placeholder="e.g. John" {...props} disabled />
     </StoryBackdrop>
   );
 }

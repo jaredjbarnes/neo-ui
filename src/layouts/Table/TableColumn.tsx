@@ -1,25 +1,14 @@
-import React, { useState, useMemo } from "react";
-import useColumns from "../../mediators/table/hooks/useColumns";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { makeStyledTransition } from "react-motion-ux";
-
-const useStyledTransition = makeStyledTransition<HTMLDivElement>(
-  {
-    pressed: {
-      borderBottom: "1px solid rgba(190, 200, 215, 0)",
-      borderLeft: "1px solid rgba(255, 255, 255, 0)",
-      borderRight: "1px solid rgba(190, 200, 215, 0)",
-    },
-    released: {
-      borderBottom: "1px solid rgba(190, 200, 215, 1)",
-      borderLeft: "1px solid rgba(255, 255, 255, 1)",
-      borderRight: "1px solid rgba(190, 200, 215, 1)",
-    },
-  },
-  700
-);
 
 const ColumnContainer = styled.div`
+  :first-child {
+    border-left: 1px solid rgba(255, 255, 255, 0);
+  }
+  :last-child {
+    border-right: 1px solid rgba(190, 200, 215, 0);
+  }
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,9 +32,8 @@ export interface Props {
   className?: string;
 }
 
-const Column = ({ children, style, className }: Props) => {
+const TableColumn = ({ children, style, className }: Props) => {
   const [state, setState] = useState("released");
-  const ref = useStyledTransition(state);
 
   const press = () => {
     setState("pressed");
@@ -55,13 +43,26 @@ const Column = ({ children, style, className }: Props) => {
     setState("released");
   };
 
+  let activeStyle = {};
+
+  if (state === "pressed") {
+    activeStyle = {
+      top: "1px",
+      borderBottom: "1px solid rgba(190, 200, 215, 0)",
+    };
+  } else {
+    activeStyle = {
+      top: "0px",
+      borderBottom: "1px solid rgba(190, 200, 215, 1)",
+    };
+  }
+
   return (
     <ColumnContainer
-      ref={ref}
       onMouseDown={press}
       onMouseUp={release}
       onMouseLeave={release}
-      style={style}
+      style={{ ...style, ...activeStyle }}
       className={className}
     >
       {children}
@@ -69,4 +70,4 @@ const Column = ({ children, style, className }: Props) => {
   );
 };
 
-export default Column;
+export default TableColumn;
