@@ -10,6 +10,9 @@ const TableRowContainer = styled.div`
   height: 40px;
   min-width: 100%;
   border-bottom: 1px solid #ccc;
+  :hover {
+    background-color: rgba(30, 167, 253, 0.3);
+  }
 `;
 
 export interface Props {

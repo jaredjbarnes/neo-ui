@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
 import TableColumn from "./TableColumn";
+import { Column } from "../../mediators/table/TableMediator";
 
 const TableHeaderContainer = styled.div`
   display: grid;
@@ -11,6 +12,12 @@ const TableHeaderContainer = styled.div`
   background-color: #ecf0f3;
   border-bottom: 1px solid #999;
 `;
+
+const extraColumn = {
+  name: "extra",
+  label: "",
+  canSort: false,
+} as Column;
 
 export interface Props {
   className?: string;
@@ -42,11 +49,11 @@ const TableHeader = ({ className, style }: Props) => {
       className={className}
     >
       {columns.map((c, index) => (
-        <TableColumn key={index} style={{ width: c.width + "px" }}>
+        <TableColumn column={c} key={index} style={{ width: c.width + "px" }}>
           {c.label}
         </TableColumn>
       ))}
-      <TableColumn style={{ width: "auto" }}></TableColumn>
+      <TableColumn column={extraColumn} style={{ width: "auto" }}></TableColumn>
     </TableHeaderContainer>
   );
 };

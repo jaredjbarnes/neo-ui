@@ -174,6 +174,7 @@ export default class TableMediator<T> {
   private mutationErrorSubject = new Subject<MutationErrorEvent<T>>();
   private loadedSubject = new Subject<Row<T>[]>();
   private columnsSubject = new Subject<Column[]>();
+  private sortSubject = new Subject<Sort[]>();
 
   constructor() {
     this.state = this.readyState;
@@ -340,12 +341,13 @@ export default class TableMediator<T> {
       return sort.name === name;
     });
 
-    if (index === -1) {
+    if (index > -1) {
       this.currentSorts.splice(index, 1, { name, direction });
     } else {
       this.currentSorts.push({ name, direction });
     }
 
+    this.sortSubject.next(this.currentSorts.slice());
     this.reset();
     this.loadNextBatch();
   }
@@ -358,6 +360,7 @@ export default class TableMediator<T> {
     if (index > -1) {
       this.currentSorts.splice(index, 1);
 
+      this.sortSubject.next(this.currentSorts.slice());
       this.reset();
       this.loadNextBatch();
     }
@@ -447,6 +450,12 @@ export default class TableMediator<T> {
     });
   }
 
+  onSortChange(callback: (sorts: Sort[]) => void) {
+    return this.sortSubject.subscribe({
+      next: callback,
+    });
+  }
+
   onRowsLoaded(callback: (rows: Row<T>[]) => void) {
     return this.loadedSubject.subscribe({ next: callback });
   }
@@ -463,5 +472,6 @@ export default class TableMediator<T> {
     this.mutationErrorSubject.complete();
     this.columnsSubject.complete();
     this.loadedSubject.complete();
+    this.sortSubject.complete();
   }
 }

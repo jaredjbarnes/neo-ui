@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { Column } from "../../mediators/table/TableMediator";
+import useTable from "../../mediators/table/hooks/useTable";
+import useColumnSortDirection from "../../mediators/table/hooks/useColumnSortDirection";
 
 const ColumnContainer = styled.div`
   :first-child {
@@ -27,13 +30,16 @@ const ColumnContainer = styled.div`
 `;
 
 export interface Props {
+  column: Column;
   children?: React.ReactNode | React.ReactNode[];
   style?: React.CSSProperties;
   className?: string;
 }
 
-const TableColumn = ({ children, style, className }: Props) => {
+const TableColumn = ({ column, children, style, className }: Props) => {
+  const table = useTable();
   const [state, setState] = useState("released");
+  const direction = useColumnSortDirection(column.name);
 
   const press = () => {
     setState("pressed");
@@ -41,6 +47,14 @@ const TableColumn = ({ children, style, className }: Props) => {
 
   const release = () => {
     setState("released");
+  };
+
+  const toggleSortDirection = () => {
+    if (direction === "ASC") {
+      table.addSort(column.name, "DESC");
+    } else {
+      table.addSort(column.name, "ASC");
+    }
   };
 
   let activeStyle = {};
@@ -62,6 +76,7 @@ const TableColumn = ({ children, style, className }: Props) => {
       onMouseDown={press}
       onMouseUp={release}
       onMouseLeave={release}
+      onClick={toggleSortDirection}
       style={{ ...style, ...activeStyle }}
       className={className}
     >

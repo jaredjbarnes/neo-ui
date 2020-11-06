@@ -124,12 +124,35 @@ export function DataScroller(props: Props) {
 export function BaseTableLayout(props: Props) {
   const data = createRows(30);
 
-  const onLoad = ({ keywords }: RequestOptions<Person>) => {
+  const onLoad = ({ keywords, sorts }: RequestOptions<Person>) => {
     const results = data.filter(
       (r) =>
         r.value.firstName.includes(keywords) ||
         r.value.lastName.includes(keywords)
     );
+
+    results.sort((rowA, rowB) => {
+      let score = 0;
+      const personA = rowA.value;
+      const personB = rowB.value;
+
+      sorts.every((sort) => {
+        const propertyName = sort.name;
+        const direction = sort.direction === "ASC" ? 1 : -1;
+
+        if (personA[propertyName] < personB[propertyName]) {
+          score = -1 * direction;
+          return false;
+        } else if (personA[propertyName] > personB[propertyName]) {
+          score = 1 * direction;
+          return false;
+        } else {
+          return true;
+        }
+      });
+
+      return score;
+    });
 
     return AsyncAction.resolve<Response<Person>>({
       data: results,
