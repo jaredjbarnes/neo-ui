@@ -15,6 +15,7 @@ const TableCellContainer = styled.div`
   font-size: 14px;
   cursor: pointer;
   user-select: none;
+  background-color: rgba(0,0,0,0);
 `;
 
 export interface Props {

@@ -6,19 +6,26 @@ import TableRow from "./TableRow";
 import useRows from "../../mediators/table/hooks/useRows";
 import styled from "styled-components";
 
-const TableScrollerContainer = styled(Surface)`
+const TableScrollerSurface = styled(Surface)`
   position: relative;
   border: 4px ridge rgba(255, 255, 255, 0.25);
   border-radius: 8px;
-  overflow: auto;
+  overflow: hidden;
   background-color: rgba(255, 255, 255, 0.5);
   min-height: 200px;
   min-width: 200px;
 `;
 
+const TableScrollerContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+`;
+
 const TableSyledHeader = styled(TableHeader)`
   position: sticky;
   top: 0;
+  left: 0;
   min-width: 100%;
   z-index: 1;
 `;
@@ -40,6 +47,7 @@ interface Range {
   endY: number;
 }
 
+const OFFSET_Y = 25;
 const ROW_HEIGHT = 40;
 
 const TableDataScroller = ({ style, className }: Props) => {
@@ -49,7 +57,7 @@ const TableDataScroller = ({ style, className }: Props) => {
   const [range, setRange] = useState<Range>({ startY: 0, endY: 0 });
 
   const rowsData = table.getRowsWithinRange(
-    0,
+    OFFSET_Y,
     ROW_HEIGHT,
     range.startY,
     range.endY
@@ -60,7 +68,7 @@ const TableDataScroller = ({ style, className }: Props) => {
 
   const tableContentStyle = {
     width: width + "px",
-    height: height + "px",
+    height: height + OFFSET_Y + "px",
   };
 
   const updateRect = useCallback(() => {
@@ -95,31 +103,30 @@ const TableDataScroller = ({ style, className }: Props) => {
   }, [updateRect]);
 
   return (
-    <TableScrollerContainer
-      ref={tableScrollerRef}
+    <TableScrollerSurface
       mode="cutOut"
       insetOffset={2}
       className={className}
       style={style}
-      onScroll={onScroll}
     >
-      <TableSyledHeader />
-      <TableContent style={tableContentStyle}>
-        {rowsData.map((data, index) => {
-          const y = index * ROW_HEIGHT + range.startY;
+      <TableScrollerContainer ref={tableScrollerRef} onScroll={onScroll}>
+        <TableContent style={tableContentStyle}>
+          <TableSyledHeader />
+          {rowsData.map((data, index) => {
+            const y = index * ROW_HEIGHT + OFFSET_Y + range.startY;
 
-          const style = {
-            position: "absolute",
-            top: "0px",
-            left: "0px",
-            transform: `translate(${data.x}px, ${data.y}px)`,
-            width: "100%",
-          } as React.CSSProperties;
+            const style = {
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              transform: `translate(${data.x}px, ${data.y}px)`,
+            } as React.CSSProperties;
 
-          return <TableRow key={data.row.id} row={data.row} style={style} />;
-        })}
-      </TableContent>
-    </TableScrollerContainer>
+            return <TableRow key={data.row.id} row={data.row} style={style} />;
+          })}
+        </TableContent>
+      </TableScrollerContainer>
+    </TableScrollerSurface>
   );
 };
 

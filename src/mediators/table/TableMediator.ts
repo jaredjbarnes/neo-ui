@@ -93,7 +93,6 @@ class ReadyState<T> extends TableState<T> {
   reset() {
     this.context.clearRows();
     this.context.deselectAllRows();
-    this.context.loadNextBatch();
   }
 }
 
@@ -107,7 +106,6 @@ class PendingState<T> extends TableState<T> {
     this.context.clearRows();
     this.context.deselectAllRows();
     this.context.changeToReadyState();
-    this.context.loadNextBatch();
   }
 }
 
@@ -120,7 +118,6 @@ class FinishedState<T> extends TableState<T> {
     this.context.clearRows();
     this.context.deselectAllRows();
     this.context.changeToReadyState();
-    this.context.loadNextBatch();
   }
 }
 

@@ -11,6 +11,7 @@ import AsyncAction from "../utils/AsyncAction";
 import Surface from "../core/Surface";
 import styled from "styled-components";
 import FieldSet from "../inputs/FieldSet";
+import { RequestOptions } from "../mediators/table/TableMediator";
 
 export default {
   title: "Table",
@@ -121,9 +122,17 @@ export function DataScroller(props: Props) {
 }
 
 export function BaseTableLayout(props: Props) {
-  const onLoad = () => {
+  const data = createRows(30);
+
+  const onLoad = ({ keywords }: RequestOptions<Person>) => {
+    const results = data.filter(
+      (r) =>
+        r.value.firstName.includes(keywords) ||
+        r.value.lastName.includes(keywords)
+    );
+
     return AsyncAction.resolve<Response<Person>>({
-      data: createRows(30),
+      data: results,
       isLast: true,
     });
   };

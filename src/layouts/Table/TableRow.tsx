@@ -27,12 +27,12 @@ const TableRow = ({ row, className, style }: Props) => {
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
         .join(" ") + " auto";
 
-    const minWidth = columns.reduce((acc, column) => {
+    const width = columns.reduce((acc, column) => {
       return acc + column.width;
     }, 0);
 
     return {
-      minWidth,
+      width,
       gridTemplateColumns,
     } as React.CSSProperties;
   }, [columns]);
@@ -46,7 +46,7 @@ const TableRow = ({ row, className, style }: Props) => {
           {cells.find((cell) => cell.name === c.name).value}
         </TableCell>
       ))}
-      <TableCell style={{ width: "auto" }}></TableCell>
+      <TableCell style={{ width: "auto" }}>&nbsp;</TableCell>
     </TableRowContainer>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import useTable from "../../mediators/table/hooks/useTable";
 import TextInput from "../../inputs/TextInput";
@@ -44,13 +44,13 @@ const TableActions = styled.div`
 `;
 
 const StyledOutlineButton = styled(OutlineButton)`
-    display: block;
-    margin-bottom: 10px;
+  display: block;
+  margin-bottom: 10px;
 `;
 
 const StyledSolidButton = styled(SolidButton)`
-    display: block;
-    margin-bottom: 10px;
+  display: block;
+  margin-bottom: 10px;
 `;
 
 export interface Props {
@@ -60,11 +60,17 @@ export interface Props {
 
 function TableLayout<T>({ style, className }: Props) {
   const table = useTable();
-  const columns = table.getColumns();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const search = (value) => {
+    if (inputRef.current != null) {
+      table.search(value);
+    }
+  };
 
   return (
     <TableGrid className={className} style={style}>
-      <SearchInput />
+      <SearchInput inputRef={inputRef} onValueChange={search} />
       <TableDisplay />
       <TableActions>
         <StyledSolidButton>Add</StyledSolidButton>
