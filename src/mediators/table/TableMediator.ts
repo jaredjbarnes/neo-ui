@@ -267,6 +267,14 @@ export default class TableMediator<T> {
     this.selectedRows.set(row.id, row);
   }
 
+  updateRow(row: Row<T>) {
+    const index = this.rows.findIndex((r) => r.id === row.id);
+
+    if (index > -1) {
+      this.rows.splice(index, 1, row);
+    }
+  }
+
   deselectRow(row: Row<T>) {
     this.selectedRows.delete(row.id);
   }

@@ -31,19 +31,19 @@ const columns = [
     label: "First Name",
     name: "firstName",
     width: 100,
-    canSort: false,
+    canSort: true,
   },
   {
     label: "Last Name",
     name: "lastName",
     width: 100,
-    canSort: false,
+    canSort: true,
   },
   {
     label: "Age",
     name: "age",
     width: 50,
-    canSort: false,
+    canSort: true,
   },
 ] as Column[];
 
@@ -86,40 +86,6 @@ const createRows = (amount: number) => {
 
   return people;
 };
-
-export function Header(props: Props) {
-  const onLoad = () => {
-    return AsyncAction.resolve<Response<Person>>({
-      data: createRows(30),
-      isLast: true,
-    });
-  };
-
-  return (
-    <StoryBackdrop>
-      <TableProvider columns={columns} onLoad={onLoad}>
-        <TableHeader />
-      </TableProvider>
-    </StoryBackdrop>
-  );
-}
-
-export function DataScroller(props: Props) {
-  const onLoad = () => {
-    return AsyncAction.resolve<Response<Person>>({
-      data: createRows(30),
-      isLast: true,
-    });
-  };
-
-  return (
-    <StoryBackdrop>
-      <TableProvider columns={columns} onLoad={onLoad}>
-        <TableDataScroller style={{ width: "200px", height: "200px" }} />
-      </TableProvider>
-    </StoryBackdrop>
-  );
-}
 
 export function BaseTableLayout(props: Props) {
   const data = createRows(30);
@@ -167,6 +133,40 @@ export function BaseTableLayout(props: Props) {
           <TableLayout style={{ width: "500px", height: "400px" }} />
         </TableProvider>
       </FieldSet>
+    </StoryBackdrop>
+  );
+}
+
+export function Header(props: Props) {
+  const onLoad = () => {
+    return AsyncAction.resolve<Response<Person>>({
+      data: createRows(30),
+      isLast: true,
+    });
+  };
+
+  return (
+    <StoryBackdrop>
+      <TableProvider columns={columns} onLoad={onLoad}>
+        <TableHeader />
+      </TableProvider>
+    </StoryBackdrop>
+  );
+}
+
+export function DataScroller(props: Props) {
+  const onLoad = () => {
+    return AsyncAction.resolve<Response<Person>>({
+      data: createRows(30),
+      isLast: true,
+    });
+  };
+
+  return (
+    <StoryBackdrop>
+      <TableProvider columns={columns} onLoad={onLoad}>
+        <TableDataScroller style={{ width: "200px", height: "200px" }} />
+      </TableProvider>
     </StoryBackdrop>
   );
 }

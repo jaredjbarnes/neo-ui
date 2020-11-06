@@ -86,6 +86,8 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
     | React.MutableRefObject<HTMLInputElement>;
   large?: boolean;
   disabled?: boolean;
+  inputProps?: React.DOMAttributes<HTMLInputElement>;
+  textareaProps?: React.DOMAttributes<HTMLTextAreaElement>;
 }
 
 const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
@@ -99,6 +101,8 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
     placeholder,
     large,
     disabled,
+    inputProps,
+    textareaProps,
     ...props
   }: Props,
   ref
@@ -152,6 +156,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
           onChange={onInputChangeWrapper}
           placeholder={placeholder}
           disabled={disabled}
+          {...inputProps}
         />
       )}
       {large && (
@@ -162,6 +167,8 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
           value={value}
           onChange={onTextChangeWrapper}
           placeholder={placeholder}
+          disabled={disabled}
+          {...textareaProps}
         />
       )}
     </InputContainer>

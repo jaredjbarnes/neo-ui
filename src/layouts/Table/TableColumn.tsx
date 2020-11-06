@@ -42,14 +42,26 @@ const TableColumn = ({ column, children, style, className }: Props) => {
   const direction = useColumnSortDirection(column.name);
 
   const press = () => {
+    if (!column.canSort) {
+      return;
+    }
+
     setState("pressed");
   };
 
   const release = () => {
+    if (!column.canSort) {
+      return;
+    }
+
     setState("released");
   };
 
   const toggleSortDirection = () => {
+    if (!column.canSort) {
+      return;
+    }
+
     if (direction === "ASC") {
       table.addSort(column.name, "DESC");
     } else {
@@ -63,11 +75,13 @@ const TableColumn = ({ column, children, style, className }: Props) => {
     activeStyle = {
       top: "1px",
       borderBottom: "1px solid rgba(190, 200, 215, 0)",
+      cursor: column.canSort ? "pointer" : "default",
     };
   } else {
     activeStyle = {
       top: "0px",
       borderBottom: "1px solid rgba(190, 200, 215, 1)",
+      cursor: column.canSort ? "pointer" : "default",
     };
   }
 

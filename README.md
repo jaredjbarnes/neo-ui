@@ -69,31 +69,22 @@ interface Page {
 interface TableProps<T> {
     onLoad: (page: Page)=>Promise<Results<T>>
     columns: Column[];
-    onView: (item: T) => void;
-    onAdd: (item: T) => Promise<void>;
-    onEdit: (item: T) => Promise<void>;
-    onDelete: (item: T) => Promise<void>;
-    canView: boolean;
-    canAdd: boolean;
-    canEdit: boolean;
-    canDelete: boolean;
-    rowHeight: number;
+    onView?: (item: T) => void;
+    onAdd?: (item: T) => Promise<void>;
+    onEdit?: (item: T) => Promise<void>;
+    onDelete?: (item: T) => Promise<void>;
+    canView?: boolean;
+    canAdd?: boolean;
+    canEdit?: boolean;
+    canDelete?: boolean;
+    rowHeight?: number;
 }
 //
 
 <Table
-    onInitialize={}
-    onSearch={}
-    columns={}
-    onView={}
-    onAdd={}
-    onEdit={}
-    onDelete={}
-    onSearch={}
-    canView={}
-    canAdd={}
-    canEdit={}
-    canDelete={}
-    rowHeight={}
+    onLoad={({rows, keywords })=>{
+
+        return Promise.resolve([]);
+    }}
  />
 ```
