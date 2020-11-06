@@ -2,9 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 const TableCellContainer = styled.div`
-  :last-child {
-    border-right: 1px solid rgba(190, 200, 215, 0);
-  }
   position: relative;
   display: flex;
   justify-content: center;
@@ -13,10 +10,9 @@ const TableCellContainer = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   color: rgba(100, 110, 140, 1);
-  border-right: 1px solid rgba(190, 200, 215, 1);
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   cursor: pointer;
   user-select: none;
 `;

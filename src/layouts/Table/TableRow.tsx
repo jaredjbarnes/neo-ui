@@ -9,7 +9,7 @@ const TableRowContainer = styled.div`
   position: relative;
   height: 40px;
   min-width: 100%;
-  border-bottom: 1px solid #999;
+  border-bottom: 1px solid #ccc;
 `;
 
 export interface Props {

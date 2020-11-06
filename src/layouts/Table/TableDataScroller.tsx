@@ -50,7 +50,7 @@ const TableDataScroller = ({ style, className }: Props) => {
   const [range, setRange] = useState<Range>({ startY: 0, endY: 0 });
 
   const rowsData = table.getRowsWithinRange(
-    OFFSET_Y,
+    0,
     ROW_HEIGHT,
     range.startY,
     range.endY
@@ -61,7 +61,7 @@ const TableDataScroller = ({ style, className }: Props) => {
 
   const tableContentStyle = {
     width: width + "px",
-    height: height + OFFSET_Y + "px",
+    height: height + "px",
   };
 
   const updateRect = useCallback(() => {
@@ -94,8 +94,8 @@ const TableDataScroller = ({ style, className }: Props) => {
       style={style}
       onScroll={onScroll}
     >
+      <TableSyledHeader />
       <TableContent style={tableContentStyle}>
-        <TableSyledHeader />
         {rowsData.map((data, index) => {
           const y = index * ROW_HEIGHT + range.startY;
 

@@ -422,7 +422,7 @@ export default class TableMediator<T> {
 
     const width = this.getContentWidth();
 
-    return this.rows.slice(startIndex, endIndex).map((row, index) => {
+    return this.rows.slice(startIndex, endIndex + 1).map((row, index) => {
       return {
         row: row,
         x: 0,
