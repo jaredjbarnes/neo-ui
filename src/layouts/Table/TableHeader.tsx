@@ -41,8 +41,8 @@ const TableHeader = ({ className, style }: Props) => {
       style={{ ...style, ...barStyles }}
       className={className}
     >
-      {columns.map((c) => (
-        <TableColumn key={c.name} style={{ width: c.width + "px" }}>
+      {columns.map((c, index) => (
+        <TableColumn key={index} style={{ width: c.width + "px" }}>
           {c.label}
         </TableColumn>
       ))}

@@ -122,6 +122,8 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
         onFocus={onFocus}
         onBlur={onBlur}
         tabIndex={0}
+        raisedOffset={5}
+        raisedSpread={10}
       >
         <ContentContainer ref={contentRef}>{children}</ContentContainer>
       </ButtonContainer>

@@ -6,7 +6,7 @@ import { makeStyledTransition } from "react-motion-ux";
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
     focused: {
-      border: "2px ridge rgba(30, 167, 253, 0.9)",
+      border: "2px ridge rgba(30, 167, 253, 0.5)",
     },
     normal: {
       border: "2px ridge rgba(255, 255, 255, 0.15)",
@@ -31,7 +31,7 @@ const InputContainer = styled(Surface)`
   border-radius: 8px;
   width: 150px;
   height: 35px;
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.5);
   border: 2px ridge rgba(255, 255, 255, 0.15);
   box-sizing: border-box;
 `;

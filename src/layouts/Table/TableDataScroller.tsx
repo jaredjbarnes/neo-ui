@@ -8,7 +8,7 @@ import styled from "styled-components";
 
 const TableScrollerContainer = styled(Surface)`
   position: relative;
-  border: 2px ridge rgba(255, 255, 255, 0.15);
+  border: 4px ridge rgba(255, 255, 255, 0.25);
   border-radius: 8px;
   overflow: auto;
   background-color: rgba(255, 255, 255, 0.5);
@@ -40,7 +40,6 @@ interface Range {
   endY: number;
 }
 
-const OFFSET_Y = 25;
 const ROW_HEIGHT = 40;
 
 const TableDataScroller = ({ style, className }: Props) => {
@@ -77,13 +76,23 @@ const TableDataScroller = ({ style, className }: Props) => {
     }
   }, []);
 
+  const onScroll = () => {
+    updateRect();
+  };
+
   useEffect(() => {
     updateRect();
   }, []);
 
-  const onScroll = () => {
-    updateRect();
-  };
+  useEffect(() => {
+    const observer = new (ResizeObserver as any)(() => {
+      updateRect();
+    });
+
+    observer.observe(tableScrollerRef.current);
+
+    return () => observer.disconnect();
+  }, [updateRect]);
 
   return (
     <TableScrollerContainer
@@ -104,8 +113,7 @@ const TableDataScroller = ({ style, className }: Props) => {
             top: "0px",
             left: "0px",
             transform: `translate(${data.x}px, ${data.y}px)`,
-            width: `${data.width}px`,
-            height: `${data.height}px`,
+            width: "100%",
           } as React.CSSProperties;
 
           return <TableRow key={data.row.id} row={data.row} style={style} />;

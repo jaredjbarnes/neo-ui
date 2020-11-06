@@ -24,6 +24,7 @@ export interface Column {
   label: string;
   width: number;
   canSort: boolean;
+  alignment: "left" | "center" | "right";
 }
 
 export interface Sort {

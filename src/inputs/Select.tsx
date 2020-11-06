@@ -7,7 +7,7 @@ import { makeStyledTransition } from "react-motion-ux";
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
     focused: {
-      border: "2px ridge rgba(30, 167, 253, 0.9)",
+      border: "2px ridge rgba(30, 167, 253, 0.5)",
     },
     normal: {
       border: "2px ridge rgba(255, 255, 255, 0.15)",

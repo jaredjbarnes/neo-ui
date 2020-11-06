@@ -41,8 +41,8 @@ const TableRow = ({ row, className, style }: Props) => {
 
   return (
     <TableRowContainer style={{ ...style, ...rowStyles }} className={className}>
-      {columns.map((c) => (
-        <TableCell style={{ width: c.width + "px" }}>
+      {columns.map((c, index) => (
+        <TableCell key={index} style={{ width: c.width + "px" }}>
           {cells.find((cell) => cell.name === c.name).value}
         </TableCell>
       ))}

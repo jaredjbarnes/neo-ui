@@ -3,6 +3,7 @@ import { Meta } from "@storybook/react/types-6-0";
 import Table from "../layouts/Table";
 import StoryBackdrop from "./StoryBackdrop";
 import TableDataScroller from "../layouts/Table/TableDataScroller";
+import TableLayout from "../layouts/Table/TableLayout";
 import TableHeader, { Props } from "../layouts/Table/TableHeader";
 import { Column, Response, Row } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
@@ -113,6 +114,23 @@ export function DataScroller(props: Props) {
     <StoryBackdrop>
       <TableProvider columns={columns} onLoad={onLoad}>
         <TableDataScroller style={{ width: "200px", height: "200px" }} />
+      </TableProvider>
+    </StoryBackdrop>
+  );
+}
+
+export function BaseTableLayout(props: Props) {
+  const onLoad = () => {
+    return AsyncAction.resolve<Response<Person>>({
+      data: createRows(30),
+      isLast: true,
+    });
+  };
+
+  return (
+    <StoryBackdrop>
+      <TableProvider columns={columns} onLoad={onLoad}>
+        <TableLayout style={{width: "500px", height: "400px"}} />
       </TableProvider>
     </StoryBackdrop>
   );
