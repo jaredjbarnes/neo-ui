@@ -14,6 +14,8 @@ const TableScrollerSurface = styled(Surface)`
   background-color: rgba(255, 255, 255, 0.5);
   min-height: 200px;
   min-width: 200px;
+  width: 100px;
+  height: 100px;
 `;
 
 const TableScrollerContainer = styled.div`

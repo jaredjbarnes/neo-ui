@@ -236,6 +236,10 @@ export default class TableMediator<T> {
     if (!this.areColumnsEqual(this.columns, columns)) {
       this.columns = columns;
       this.columnsSubject.next(columns.slice());
+      this.currentSorts = this.columns
+        .filter((c) => c.canSort)
+        .map((c) => ({ name: c.name, direction: "ASC" }));
+      this.sortSubject.next(this.currentSorts.slice());
     }
   }
 
