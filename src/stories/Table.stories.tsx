@@ -48,7 +48,7 @@ const columns = [
 ] as Column[];
 
 const firstNames = ["Justin", "Jared", "Jeff", "Jocelyn", "Jaelyn", "Jerika"];
-const lastNames = ["Barnes", "Lovell", "Bulloch"];
+const lastNames = ["Barnes", "Lovell", "Bulloch","Superlonglastname"];
 
 const getRandomFirstName = () => {
   return firstNames[Math.floor(Math.random() * firstNames.length)];
@@ -90,14 +90,18 @@ const createRows = (amount: number) => {
 export function BaseTableLayout(props: Props) {
   const data = createRows(30);
 
-  const onLoad = ({ keywords, sorts }: RequestOptions<Person>) => {
-    const results = data.filter(
+  const onLoad = ({ rows, keywords, sorts }: RequestOptions<Person>) => {
+    let results;
+    let isLast = false;
+    let pageSize = 10;
+
+    const filteredResults = data.filter(
       (r) =>
-        r.value.firstName.includes(keywords) ||
-        r.value.lastName.includes(keywords)
+        r.value.firstName.toLowerCase().includes(keywords.toLowerCase()) ||
+        r.value.lastName.toLowerCase().includes(keywords.toLowerCase())
     );
 
-    results.sort((rowA, rowB) => {
+    filteredResults.sort((rowA, rowB) => {
       let score = 0;
       const personA = rowA.value;
       const personB = rowB.value;
@@ -120,10 +124,16 @@ export function BaseTableLayout(props: Props) {
       return score;
     });
 
-    return AsyncAction.resolve<Response<Person>>({
-      data: results,
-      isLast: true,
-    });
+    results = filteredResults.slice(rows.length, rows.length + pageSize);
+    isLast = results.length + rows.length >= filteredResults.length;
+
+    return AsyncAction.delay<Response<Person>>(
+      Math.floor(Math.random() * 1000),
+      {
+        data: results,
+        isLast: isLast,
+      }
+    );
   };
 
   return (

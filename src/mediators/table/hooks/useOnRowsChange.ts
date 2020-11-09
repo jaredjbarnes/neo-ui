@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
 
-const useRows = () => {
+const useOnRowsChange = () => {
   const table = useTable();
   const [rows, setRows] = useState(table.getRows());
 
   const subscription = useMemo(() => {
-    return table.onRowsLoaded((rows) => {
+    return table.onRowsChange((rows) => {
       setRows(rows);
     });
   }, [table]);
@@ -16,4 +16,4 @@ const useRows = () => {
   return rows;
 };
 
-export default useRows;
+export default useOnRowsChange;

@@ -12,9 +12,8 @@ const ColumnContainer = styled.div`
     border-right: 1px solid rgba(190, 200, 215, 0);
   }
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  text-align: center;
+  line-height: 25px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

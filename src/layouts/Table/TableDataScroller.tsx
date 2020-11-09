@@ -3,7 +3,7 @@ import TableHeader from "./TableHeader";
 import Surface from "../../core/Surface";
 import useTable from "../../mediators/table/hooks/useTable";
 import TableRow from "./TableRow";
-import useRows from "../../mediators/table/hooks/useRows";
+import useOnRowsChange from "../../mediators/table/hooks/useOnRowsChange";
 import styled from "styled-components";
 import TableStatus from "./TableStatus";
 
@@ -46,7 +46,7 @@ const StyledTableStatus = styled(TableStatus)`
   left: 0px;
   height: 25px;
   width: 100%;
-  z-index:2;
+  z-index: 2;
 `;
 
 interface Props {
@@ -64,7 +64,7 @@ const ROW_HEIGHT = 40;
 const STATUS_HEIGHT = 25;
 
 const TableDataScroller = ({ style, className }: Props) => {
-  useRows();
+  useOnRowsChange();
   const table = useTable();
   const tableScrollerRef = useRef<HTMLDivElement>();
   const [range, setRange] = useState<Range>({ startY: 0, endY: 0 });
@@ -95,10 +95,18 @@ const TableDataScroller = ({ style, className }: Props) => {
         endY: rect.height + scrollTop,
       });
     }
-  }, []);
+  }, [table]);
 
   const onScroll = () => {
+    const element = tableScrollerRef.current;
     updateRect();
+
+    if (
+      element != null &&
+      element.scrollTop === element.scrollHeight - element.offsetHeight
+    ) {
+      table.loadNextBatch();
+    }
   };
 
   useEffect(() => {

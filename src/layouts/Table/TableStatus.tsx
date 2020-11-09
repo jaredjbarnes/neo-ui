@@ -14,6 +14,7 @@ const TableStatusContainer = styled.div`
   border-top: 4px ridge rgba(255, 255, 255, 0.15);
   font-size: 10px;
   color: rgba(100, 110, 140, 1);
+  font-family: Verdana, Geneva, sans-serif;
 `;
 
 const Status = styled.span`

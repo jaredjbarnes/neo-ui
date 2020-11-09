@@ -3,9 +3,8 @@ import styled from "styled-components";
 
 const TableCellContainer = styled.div`
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  text-align: center;
+  line-height: 40px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

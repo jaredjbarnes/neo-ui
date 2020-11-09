@@ -71,11 +71,13 @@ class ReadyState<T> extends TableState<T> {
 
     this.context.changeToPendingState();
 
-    onLoad({
+    this.context.currentAsyncAction = onLoad({
       rows,
       sorts,
       keywords,
-    })
+    });
+
+    this.context.currentAsyncAction
       .execute()
       .then((response) => {
         if (!response.isLast) {
@@ -86,8 +88,7 @@ class ReadyState<T> extends TableState<T> {
 
         this.context.loadRows(response.data);
       })
-      .catch(() => {})
-      .finally();
+      .catch(() => {});
   }
 
   reset() {
@@ -101,7 +102,7 @@ class PendingState<T> extends TableState<T> {
     // Do nothing.
   }
   reset() {
-    this.context.getPendingRequest()?.cancel();
+    this.context.currentAsyncAction?.cancel();
 
     this.context.clearRows();
     this.context.deselectAllRows();
@@ -152,6 +153,8 @@ function sortColumns(a: Column, b: Column) {
 }
 
 export default class TableMediator<T> {
+  public currentAsyncAction: AsyncAction<Response<T>> | null = null;
+
   private state: TableState<T>;
   private readyState = new ReadyState<T>(this);
   private pendingState = new PendingState<T>(this);
@@ -160,7 +163,6 @@ export default class TableMediator<T> {
   private keywords: string = "";
   private selectedRows = new Map<string, Row<T>>();
   private currentSorts: Sort[] = [];
-  private pendingResponse: AsyncAction<T> | null = null;
   private columns: Column[] = [];
   private onLoad: (
     request: RequestOptions<T>
@@ -172,7 +174,7 @@ export default class TableMediator<T> {
   private stateSubject = new StatefulSubject<TableStateEvent>("ready");
   private mutationSubject = new Subject<MutationEvent<T>>();
   private mutationErrorSubject = new Subject<MutationErrorEvent<T>>();
-  private loadedSubject = new Subject<Row<T>[]>();
+  private rowsChangeSubject = new Subject<Row<T>[]>();
   private columnsSubject = new Subject<Column[]>();
   private sortSubject = new Subject<Sort[]>();
 
@@ -255,10 +257,6 @@ export default class TableMediator<T> {
       .join(",");
 
     return stringA === stringB;
-  }
-
-  getPendingRequest() {
-    return this.pendingResponse;
   }
 
   search(keywords: string) {
@@ -407,6 +405,7 @@ export default class TableMediator<T> {
 
   clearRows() {
     this.rows.length = 0;
+    this.rowsChangeSubject.next(this.rows.slice());
   }
 
   getRows(start?: number, end?: number) {
@@ -415,7 +414,7 @@ export default class TableMediator<T> {
 
   loadRows(rows: Row<T>[]) {
     rows.forEach((r) => this.rows.push(r));
-    this.loadedSubject.next(rows);
+    this.rowsChangeSubject.next(this.rows.slice());
   }
 
   getRowsWithinRange(
@@ -464,8 +463,8 @@ export default class TableMediator<T> {
     return this.sortSubject.subscribe({ next: callback });
   }
 
-  onRowsLoaded(callback: (rows: Row<T>[]) => void) {
-    return this.loadedSubject.subscribe({ next: callback });
+  onRowsChange(callback: (rows: Row<T>[]) => void) {
+    return this.rowsChangeSubject.subscribe({ next: callback });
   }
 
   onColumnsChange(callback: (columns: Column[]) => void) {
@@ -481,7 +480,7 @@ export default class TableMediator<T> {
     this.mutationSubject.complete();
     this.mutationErrorSubject.complete();
     this.columnsSubject.complete();
-    this.loadedSubject.complete();
+    this.rowsChangeSubject.complete();
     this.sortSubject.complete();
   }
 }

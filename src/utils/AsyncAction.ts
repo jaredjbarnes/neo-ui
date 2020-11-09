@@ -1,3 +1,4 @@
+import delayAsync from "./delayAsync";
 export class CancelledError extends Error {}
 
 type OnCancelCallback = (reason: string | CancelledError) => void;
@@ -48,9 +49,15 @@ export default class AsyncAction<T> {
     this.onCancelCallbacks.push(callback);
   }
 
+  static delay<T>(milliseconds: number, value: T) {
+    return new AsyncAction<T>(() => {
+      return delayAsync<T>(milliseconds, value);
+    });
+  }
+
   static resolve<T>(value: T) {
-    return new AsyncAction(() => {
-      return Promise.resolve(value);
+    return new AsyncAction<T>(() => {
+      return Promise.resolve<T>(value);
     });
   }
 
