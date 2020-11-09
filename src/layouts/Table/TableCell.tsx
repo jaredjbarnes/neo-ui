@@ -14,7 +14,6 @@ const TableCellContainer = styled.div`
   font-family: Verdana, Geneva, sans-serif;
   font-size: 14px;
   cursor: pointer;
-  user-select: none;
   background-color: rgba(0,0,0,0);
 `;
 

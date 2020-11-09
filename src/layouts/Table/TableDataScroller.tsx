@@ -5,6 +5,7 @@ import useTable from "../../mediators/table/hooks/useTable";
 import TableRow from "./TableRow";
 import useRows from "../../mediators/table/hooks/useRows";
 import styled from "styled-components";
+import TableStatus from "./TableStatus";
 
 const TableScrollerSurface = styled(Surface)`
   position: relative;
@@ -39,6 +40,15 @@ const TableContent = styled.div`
   z-index: 0;
 `;
 
+const StyledTableStatus = styled(TableStatus)`
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  height: 25px;
+  width: 100%;
+  z-index:2;
+`;
+
 interface Props {
   style?: React.CSSProperties;
   className?: string;
@@ -51,6 +61,7 @@ interface Range {
 
 const OFFSET_Y = 25;
 const ROW_HEIGHT = 40;
+const STATUS_HEIGHT = 25;
 
 const TableDataScroller = ({ style, className }: Props) => {
   useRows();
@@ -65,12 +76,12 @@ const TableDataScroller = ({ style, className }: Props) => {
     range.endY
   );
 
-  const height = table.getLoadedLength() * ROW_HEIGHT;
+  const height = table.getLoadedRowsLength() * ROW_HEIGHT;
   const width = table.getContentWidth();
 
   const tableContentStyle = {
     width: width + "px",
-    height: height + OFFSET_Y + "px",
+    height: height + OFFSET_Y + STATUS_HEIGHT + "px",
   };
 
   const updateRect = useCallback(() => {
@@ -128,6 +139,7 @@ const TableDataScroller = ({ style, className }: Props) => {
           })}
         </TableContent>
       </TableScrollerContainer>
+      <StyledTableStatus />
     </TableScrollerSurface>
   );
 };

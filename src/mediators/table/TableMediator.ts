@@ -38,7 +38,7 @@ export interface RequestOptions<T> {
   keywords?: string;
 }
 
-type TableStateEvent = "pending" | "ready" | "finished";
+type TableStateEvent = "pending" | "ready" | "finished" | "error";
 
 interface MutationEvent<T> {
   type: "added" | "edited" | "deleted";
@@ -401,7 +401,7 @@ export default class TableMediator<T> {
     return this.state.reset();
   }
 
-  getLoadedLength() {
+  getLoadedRowsLength() {
     return this.rows.length;
   }
 
@@ -457,15 +457,11 @@ export default class TableMediator<T> {
   }
 
   onRowMutation(callback: (event: MutationEvent<T>) => void) {
-    return this.mutationSubject.subscribe({
-      next: callback,
-    });
+    return this.mutationSubject.subscribe({ next: callback });
   }
 
   onSortChange(callback: (sorts: Sort[]) => void) {
-    return this.sortSubject.subscribe({
-      next: callback,
-    });
+    return this.sortSubject.subscribe({ next: callback });
   }
 
   onRowsLoaded(callback: (rows: Row<T>[]) => void) {
@@ -473,9 +469,11 @@ export default class TableMediator<T> {
   }
 
   onColumnsChange(callback: (columns: Column[]) => void) {
-    return this.columnsSubject.subscribe({
-      next: callback,
-    });
+    return this.columnsSubject.subscribe({ next: callback });
+  }
+
+  onStateChange(callback: (event: TableStateEvent) => void) {
+    return this.stateSubject.subscribe({ next: callback });
   }
 
   dispose() {
