@@ -9,7 +9,7 @@ const TableCellContainer = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: rgba(100, 110, 140, 1);
+  color: rgba(100, 110, 140, 0.8);
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 14px;

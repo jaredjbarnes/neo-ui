@@ -1,16 +1,15 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
 import TableColumn from "./TableColumn";
-import { Column } from "../../mediators/table/TableMediator";
+import Surface from "../../core/Surface";
 
-const TableHeaderContainer = styled.div`
+const TableHeaderContainer = styled(Surface)`
   display: grid;
   position: relative;
   height: 25px;
   min-width: 100%;
   background-color: #ecf0f3;
-  border-bottom: 1px solid #999;
 `;
 
 export interface Props {
@@ -41,6 +40,9 @@ const TableHeader = ({ className, style }: Props) => {
     <TableHeaderContainer
       style={{ ...style, ...barStyles }}
       className={className}
+      mode="popOut"
+      raisedSpread={4}
+      raisedOffset={2}
     >
       {columns.map((c, index) => (
         <TableColumn
