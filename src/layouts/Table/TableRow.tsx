@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
 import TableCell from "./TableCell";
-import { Row } from "../../mediators/table/TableMediator";
+import { Row, Column } from "../../mediators/table/TableMediator";
 import RowProvider from "../../mediators/table/RowProvider";
 
 const TableRowContainer = styled.div`
@@ -11,9 +11,6 @@ const TableRowContainer = styled.div`
   height: 40px;
   min-width: 100%;
   border-bottom: 1px solid #ccc;
-  :hover {
-    background-color: rgba(30, 167, 253, 0.3);
-  }
 `;
 
 export interface Props {
@@ -50,11 +47,25 @@ const TableRow = ({ row, className, style }: Props) => {
         className={className}
       >
         {columns.map((c, index) => (
-          <TableCell key={index} style={{ width: c.width + "px" }}>
+          <TableCell
+            column={c}
+            key={index}
+            style={{
+              gridColumnStart: index + 1,
+              gridColumnEnd: index + 1,
+              width: c.width + "px",
+            }}
+          >
             {cells.find((cell) => cell.name === c.name).value}
           </TableCell>
         ))}
-        <TableCell style={{ width: "auto" }}>&nbsp;</TableCell>
+        <div
+          style={{
+            gridColumnStart: columns.length + 1,
+            gridColumnEnd: columns.length + 1,
+            padding: 0,
+          }}
+        ></div>
       </TableRowContainer>
     </RowProvider>
   );

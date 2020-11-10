@@ -24,6 +24,7 @@ const ColumnContainer = styled.div`
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 11px;
+  padding: 0px 8px;
   cursor: pointer;
   user-select: none;
 `;
@@ -68,19 +69,21 @@ const TableColumn = ({ column, children, style, className }: Props) => {
     }
   };
 
-  let activeStyle = {};
+  let activeStyle = {} as React.CSSProperties;
 
   if (state === "pressed") {
     activeStyle = {
       top: "1px",
       borderBottom: "1px solid rgba(190, 200, 215, 0)",
       cursor: column.canSort ? "pointer" : "default",
+      textAlign: column.alignment,
     };
   } else {
     activeStyle = {
       top: "0px",
       borderBottom: "1px solid rgba(190, 200, 215, 1)",
       cursor: column.canSort ? "pointer" : "default",
+      textAlign: column.alignment,
     };
   }
 

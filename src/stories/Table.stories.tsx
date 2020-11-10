@@ -32,23 +32,26 @@ const columns = [
     name: "firstName",
     width: 100,
     canSort: true,
+    alignment: "center",
   },
   {
     label: "Last Name",
     name: "lastName",
     width: 100,
     canSort: true,
+    alignment: "left",
   },
   {
     label: "Age",
     name: "age",
     width: 50,
     canSort: true,
+    alignment: "right",
   },
 ] as Column[];
 
 const firstNames = ["Justin", "Jared", "Jeff", "Jocelyn", "Jaelyn", "Jerika"];
-const lastNames = ["Barnes", "Lovell", "Bulloch","Superlonglastname"];
+const lastNames = ["Barnes", "Lovell", "Bulloch", "Superlonglastname"];
 
 const getRandomFirstName = () => {
   return firstNames[Math.floor(Math.random() * firstNames.length)];

@@ -15,9 +15,6 @@ export interface TableProviderProps<T> {
   columns: Column[];
   onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>;
   onView?: (item: Row<T>) => Promise<void>;
-  onAdd?: () => Promise<Row<T>>;
-  onEdit?: (item: Row<T>) => Promise<void>;
-  onDelete?: (item: Row<T>) => Promise<void>;
   children: React.ReactNode[] | React.ReactNode;
 }
 
@@ -25,9 +22,6 @@ function TableProvider<T>({
   columns,
   onLoad,
   onView,
-  onAdd,
-  onEdit,
-  onDelete,
   children,
 }: TableProviderProps<T>) {
   const tableMediator = useMemo(() => {
@@ -47,24 +41,6 @@ function TableProvider<T>({
       tableMediator.setOnView(onView);
     }
   }, [tableMediator, onView]);
-
-  useEffect(() => {
-    if (onAdd != null) {
-      tableMediator.setOnAdd(onAdd);
-    }
-  }, [tableMediator, onAdd]);
-
-  useEffect(() => {
-    if (onEdit != null) {
-      tableMediator.setOnEdit(onEdit);
-    }
-  }, [tableMediator, onEdit]);
-
-  useEffect(() => {
-    if (onDelete != null) {
-      tableMediator.setOnDelete(onDelete);
-    }
-  }, [tableMediator, onDelete]);
 
   useEffect(() => {
     tableMediator.loadNextBatch();

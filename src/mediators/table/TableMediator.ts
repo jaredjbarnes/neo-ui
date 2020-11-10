@@ -1,6 +1,16 @@
 import StatefulSubject from "../../utils/StatefulSubject";
 import AsyncAction from "../../utils/AsyncAction";
 import { Subject } from "rxjs";
+import TableLoadingState, {
+  LoadingReadyState,
+  LoadingPendingState,
+  LoadingFinishedState,
+} from "./TableLoadingState";
+
+import TableActionState, {
+  ActionReadyState,
+  ActionPendingState,
+} from "./TableActionState";
 
 export interface Cell {
   name: string;
@@ -38,7 +48,15 @@ export interface RequestOptions<T> {
   keywords?: string;
 }
 
-type TableStateEvent = "pending" | "ready" | "finished" | "error";
+export interface Action<T> {
+  name: string;
+  label: string;
+  shouldRefetchDataAfterAction: boolean;
+  handler: (selectedRows: Row<T>[]) => AsyncAction<void>;
+}
+
+type TableLoadingStateEvent = "pending" | "ready" | "finished" | "error";
+type TableActionStateEvent = "pending" | "ready";
 
 interface MutationEvent<T> {
   type: "added" | "edited" | "deleted";
@@ -51,95 +69,12 @@ interface MutationErrorEvent<T> {
   error: Error;
 }
 
-abstract class TableState<T> {
-  protected context: TableMediator<T>;
-
-  constructor(context: TableMediator<T>) {
-    this.context = context;
-  }
-
-  abstract loadNextBatch(): void;
-  abstract reset(): void;
-}
-
-class ReadyState<T> extends TableState<T> {
-  loadNextBatch() {
-    const onLoad = this.context.getOnLoad();
-    const rows = this.context.getRows();
-    const sorts = this.context.getSorts();
-    const keywords = this.context.getKeywords();
-
-    this.context.changeToPendingState();
-
-    this.context.currentAsyncAction = onLoad({
-      rows,
-      sorts,
-      keywords,
-    });
-
-    this.context.currentAsyncAction
-      .execute()
-      .then((response) => {
-        if (!response.isLast) {
-          this.context.changeToReadyState();
-        } else {
-          this.context.changeToFinishedState();
-        }
-
-        this.context.loadRows(response.data);
-      })
-      .catch(() => {});
-  }
-
-  reset() {
-    this.context.clearRows();
-    this.context.deselectAllRows();
-  }
-}
-
-class PendingState<T> extends TableState<T> {
-  loadNextBatch() {
-    // Do nothing.
-  }
-  reset() {
-    this.context.currentAsyncAction?.cancel();
-
-    this.context.clearRows();
-    this.context.deselectAllRows();
-    this.context.changeToReadyState();
-  }
-}
-
-class FinishedState<T> extends TableState<T> {
-  loadNextBatch() {
-    // Do nothing
-  }
-
-  reset() {
-    this.context.clearRows();
-    this.context.deselectAllRows();
-    this.context.changeToReadyState();
-  }
-}
-
 const nullableOnViewFunction = () => {
   return Promise.reject(new Error("No OnView Handler Found."));
 };
 
-const nullableOnEditFunction = () => {
-  return Promise.reject(new Error("No OnEdit Handler Found."));
-};
-
-const nullableOnDeleteFunction = () => {
-  return Promise.reject(new Error("No OnDelete Handler Found."));
-};
-
 function nullableOnLoadFunction<T>() {
   return AsyncAction.reject<Response<T>>(new Error("No OnLoad Handler Found."));
-}
-
-function nullableOnAddFunction() {
-  return Promise.reject(new Error("No OnAdd Handler Found."));
 }
 
 function sortColumns(a: Column, b: Column) {
@@ -153,12 +88,24 @@ function sortColumns(a: Column, b: Column) {
 }
 
 export default class TableMediator<T> {
-  public currentAsyncAction: AsyncAction<Response<T>> | null = null;
+  public loadingAsyncAction: AsyncAction<Response<T>> | null = null;
+  public actionAsyncAction: AsyncAction<void> | null = null;
 
-  private state: TableState<T>;
-  private readyState = new ReadyState<T>(this);
-  private pendingState = new PendingState<T>(this);
-  private finishedState = new FinishedState<T>(this);
+  private loadingState: TableLoadingState<T>;
+  private loadingReadyState = new LoadingReadyState<T>(this);
+  private loadingPendingState = new LoadingPendingState<T>(this);
+  private loadingFinishedState = new LoadingFinishedState<T>(this);
+  private loadingStateSubject = new StatefulSubject<TableLoadingStateEvent>(
+    "ready"
+  );
+
+  private actionState: TableActionState<T>;
+  private actionPendingState = new ActionPendingState(this);
+  private actionReadyState = new ActionReadyState(this);
+  private actionStateSubject = new StatefulSubject<TableActionStateEvent>(
+    "ready"
+  );
+
   private rows: Row<T>[] = [];
   private keywords: string = "";
   private selectedRows = new Map<string, Row<T>>();
@@ -168,26 +115,45 @@ export default class TableMediator<T> {
     request: RequestOptions<T>
   ) => AsyncAction<Response<T>> = nullableOnLoadFunction;
   private onView: (item: Row<T>) => Promise<void> = nullableOnViewFunction;
-  private onAdd: () => Promise<Row<T>> = nullableOnAddFunction;
-  private onEdit: (item: Row<T>) => Promise<void> = nullableOnEditFunction;
-  private onDelete: (item: Row<T>) => Promise<void> = nullableOnDeleteFunction;
-  private stateSubject = new StatefulSubject<TableStateEvent>("ready");
+
   private mutationSubject = new Subject<MutationEvent<T>>();
   private mutationErrorSubject = new Subject<MutationErrorEvent<T>>();
   private rowsChangeSubject = new Subject<Row<T>[]>();
   private columnsSubject = new Subject<Column[]>();
   private sortSubject = new Subject<Sort[]>();
+  private actions: Action<T>[] = [];
 
   constructor() {
-    this.state = this.readyState;
+    this.loadingState = this.loadingReadyState;
+    this.actionState = this.actionReadyState;
   }
 
   loadNextBatch() {
-    return this.state.loadNextBatch();
+    return this.loadingState.loadNextBatch();
   }
 
   getKeywords() {
     return this.keywords;
+  }
+
+  getActions() {
+    return this.actions.slice();
+  }
+
+  getActionByName(name: string) {
+    return this.actions.find((a) => a.name === name);
+  }
+
+  setActions(value: Action<T>[]) {
+    this.actions = value.slice();
+  }
+
+  performAction(name: string, rows: Row<T>[]) {
+    this.actionState.performAction(name, rows);
+  }
+
+  performActionOnSelectedRows(name: string) {
+    this.actionState.performAction(name, this.getSelectedRows());
   }
 
   setOnLoad(onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>) {
@@ -204,30 +170,6 @@ export default class TableMediator<T> {
 
   getOnView() {
     return this.onView;
-  }
-
-  setOnAdd(onAdd: () => Promise<Row<T>>) {
-    this.onAdd = onAdd;
-  }
-
-  getOnAdd() {
-    return this.onAdd;
-  }
-
-  setOnEdit(onEdit: (item: Row<T>) => Promise<void>) {
-    this.onEdit = onEdit;
-  }
-
-  getOnEdit() {
-    return this.onEdit;
-  }
-
-  setOnDelete(onDelete: (item: Row<T>) => Promise<void>) {
-    this.onDelete = onDelete;
-  }
-
-  getOnDelete() {
-    return this.onDelete;
   }
 
   getColumns() {
@@ -265,16 +207,16 @@ export default class TableMediator<T> {
     this.loadNextBatch();
   }
 
-  selectRow(row: Row<T>) {
-    this.selectedRows.set(row.id, row);
-  }
-
   updateRow(row: Row<T>) {
     const index = this.rows.findIndex((r) => r.id === row.id);
 
     if (index > -1) {
       this.rows.splice(index, 1, row);
     }
+  }
+
+  selectRow(row: Row<T>) {
+    this.selectedRows.set(row.id, row);
   }
 
   deselectRow(row: Row<T>) {
@@ -285,65 +227,14 @@ export default class TableMediator<T> {
     this.selectedRows.clear();
   }
 
+  getSelectedRows() {
+    return Array.from(this.selectedRows.values());
+  }
+
   viewSelectedRows() {
     this.selectedRows.forEach((row) => {
       this.onView(row);
     });
-  }
-
-  deleteSelectedRows() {
-    this.selectedRows.forEach((row) => {
-      this.onDelete(row)
-        .then(() => {
-          this.mutationSubject.next({
-            type: "deleted",
-            row,
-          });
-        })
-        .catch((error) => {
-          this.mutationErrorSubject.next({
-            type: "deleted",
-            row,
-            error,
-          });
-        });
-    });
-  }
-
-  editSelectedRows() {
-    this.selectedRows.forEach((row) => {
-      this.onEdit(row)
-        .then(() => {
-          this.mutationSubject.next({
-            type: "edited",
-            row,
-          });
-        })
-        .catch((error) => {
-          this.mutationErrorSubject.next({
-            type: "edited",
-            row,
-            error,
-          });
-        });
-    });
-  }
-
-  addRow() {
-    this.onAdd()
-      .then((row) => {
-        this.mutationSubject.next({
-          type: "added",
-          row,
-        });
-      })
-      .catch((error) => {
-        this.mutationErrorSubject.next({
-          type: "added",
-          row: null,
-          error,
-        });
-      });
   }
 
   addSort(name: string, direction: "ASC" | "DESC") {
@@ -376,19 +267,29 @@ export default class TableMediator<T> {
     }
   }
 
-  changeToPendingState() {
-    this.state = this.pendingState;
-    this.stateSubject.next("pending");
+  changeLoadingStateToPending() {
+    this.loadingState = this.loadingPendingState;
+    this.loadingStateSubject.next("pending");
   }
 
-  changeToReadyState() {
-    this.state = this.readyState;
-    this.stateSubject.next("ready");
+  changeLoadingStateToReady() {
+    this.loadingState = this.loadingReadyState;
+    this.loadingStateSubject.next("ready");
   }
 
-  changeToFinishedState() {
-    this.state = this.finishedState;
-    this.stateSubject.next("finished");
+  changeLoadingStateToFinished() {
+    this.loadingState = this.loadingFinishedState;
+    this.loadingStateSubject.next("finished");
+  }
+
+  changeActionStateToPending() {
+    this.loadingState = this.loadingPendingState;
+    this.loadingStateSubject.next("pending");
+  }
+
+  changeActionStateToReady() {
+    this.loadingState = this.loadingReadyState;
+    this.loadingStateSubject.next("ready");
   }
 
   getSorts() {
@@ -396,7 +297,7 @@ export default class TableMediator<T> {
   }
 
   reset() {
-    return this.state.reset();
+    return this.loadingState.reset();
   }
 
   getLoadedRowsLength() {
@@ -405,7 +306,7 @@ export default class TableMediator<T> {
 
   clearRows() {
     this.rows.length = 0;
-    this.rowsChangeSubject.next(this.rows.slice());
+    this.notifyRowsChange();
   }
 
   getRows(start?: number, end?: number) {
@@ -414,7 +315,7 @@ export default class TableMediator<T> {
 
   loadRows(rows: Row<T>[]) {
     rows.forEach((r) => this.rows.push(r));
-    this.rowsChangeSubject.next(this.rows.slice());
+    this.notifyRowsChange();
   }
 
   getRowsWithinRange(
@@ -452,7 +353,11 @@ export default class TableMediator<T> {
   }
 
   getState() {
-    return this.stateSubject.getState();
+    return this.loadingStateSubject.getState();
+  }
+
+  notifyRowsChange() {
+    this.rowsChangeSubject.next(this.rows.slice());
   }
 
   onRowMutation(callback: (event: MutationEvent<T>) => void) {
@@ -471,12 +376,12 @@ export default class TableMediator<T> {
     return this.columnsSubject.subscribe({ next: callback });
   }
 
-  onStateChange(callback: (event: TableStateEvent) => void) {
-    return this.stateSubject.subscribe({ next: callback });
+  onStateChange(callback: (event: TableLoadingStateEvent) => void) {
+    return this.loadingStateSubject.subscribe({ next: callback });
   }
 
   dispose() {
-    this.stateSubject.complete();
+    this.loadingStateSubject.complete();
     this.mutationSubject.complete();
     this.mutationErrorSubject.complete();
     this.columnsSubject.complete();

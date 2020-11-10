@@ -6,6 +6,7 @@ import TableRow from "./TableRow";
 import useOnRowsChange from "../../mediators/table/hooks/useOnRowsChange";
 import styled from "styled-components";
 import TableStatus from "./TableStatus";
+import TableLoadingRow from "./TableLoadingRow";
 
 const TableScrollerSurface = styled(Surface)`
   position: relative;
@@ -20,8 +21,11 @@ const TableScrollerSurface = styled(Surface)`
 `;
 
 const TableScrollerContainer = styled.div`
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0px;
+  bottom: 25px;
+  left: 0px;
+  right: 0px;
   overflow: auto;
 `;
 
@@ -61,7 +65,7 @@ interface Range {
 
 const OFFSET_Y = 25;
 const ROW_HEIGHT = 40;
-const STATUS_HEIGHT = 25;
+const STATUS_HEIGHT = 40;
 
 const TableDataScroller = ({ style, className }: Props) => {
   useOnRowsChange();
@@ -76,13 +80,27 @@ const TableDataScroller = ({ style, className }: Props) => {
     range.endY
   );
 
+  const tableState = table.getState();
+  const isFinished = tableState === "finished";
   const height = table.getLoadedRowsLength() * ROW_HEIGHT;
   const width = table.getContentWidth();
 
   const tableContentStyle = {
     width: width + "px",
-    height: height + OFFSET_Y + STATUS_HEIGHT + "px",
+    height: height + OFFSET_Y + (isFinished ? 0 : STATUS_HEIGHT) + "px",
   };
+
+  const tableLoadingRowStyle = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    display: "none",
+  } as React.CSSProperties;
+
+  if (tableState === "pending") {
+    tableLoadingRowStyle.transform = `translate(0px, ${height + OFFSET_Y}px)`;
+    tableLoadingRowStyle.display = "grid";
+  }
 
   const updateRect = useCallback(() => {
     if (tableScrollerRef.current != null) {
@@ -145,6 +163,7 @@ const TableDataScroller = ({ style, className }: Props) => {
 
             return <TableRow key={data.row.id} row={data.row} style={style} />;
           })}
+          {!isFinished && <TableLoadingRow style={tableLoadingRowStyle} />}
         </TableContent>
       </TableScrollerContainer>
       <StyledTableStatus />

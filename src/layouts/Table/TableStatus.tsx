@@ -13,7 +13,7 @@ const TableStatusContainer = styled.div`
   background-color: #ecf0f3;
   border-top: 4px ridge rgba(255, 255, 255, 0.15);
   font-size: 10px;
-  color: rgba(100, 110, 140, 1);
+  color: rgba(100, 110, 140, 0.8);
   font-family: Verdana, Geneva, sans-serif;
 `;
 
