@@ -33,6 +33,7 @@ const PulsingSection = styled.div`
   animation-name: ${pulse};
   animation-duration: 2s;
   animation-iteration-count: infinite;
+  border-radius: 8px;
 `;
 
 export interface Props {
