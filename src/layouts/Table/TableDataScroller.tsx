@@ -13,7 +13,6 @@ const TableScrollerSurface = styled(Surface)`
   border: 4px ridge rgba(255, 255, 255, 0.25);
   border-radius: 8px;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.5);
   min-height: 200px;
   min-width: 200px;
   width: 100px;
@@ -70,7 +69,7 @@ const STATUS_HEIGHT = 40;
 const TableDataScroller = ({ style, className }: Props) => {
   useOnRowsChange();
   const table = useTable();
-  const tableScrollerRef = useRef<HTMLDivElement>();
+  const tableScrollerRef = useRef<HTMLDivElement | null>(null);
   const [range, setRange] = useState<Range>({ startY: 0, endY: 0 });
 
   const rowsData = table.getRowsWithinRange(

@@ -17,7 +17,7 @@ const ColumnContainer = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: rgba(100, 110, 140, 1);
+  color: rgba(100, 110, 140, 0.9);
   border-bottom: 1px solid rgba(190, 200, 215, 1);
   border-left: 1px solid rgba(255, 255, 255, 1);
   border-right: 1px solid rgba(190, 200, 215, 1);

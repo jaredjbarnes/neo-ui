@@ -1,8 +1,6 @@
 import React, { useState, useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled, { keyframes } from "styled-components";
-import TableCell from "./TableCell";
-import { Column } from "../../mediators/table/TableMediator";
 
 const TableRowContainer = styled.div`
   display: grid;
@@ -10,19 +8,20 @@ const TableRowContainer = styled.div`
   height: 40px;
   min-width: 100%;
   border-bottom: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.5);
 `;
 
 const pulse = keyframes`
   0% {
-    background-color: #ededed;
+    background-color: rgba(190, 200, 215, 0.5);
   }
 
   70% {
-    background-color: #ccc;
+    background-color: rgba(190, 200, 215, 0.15);
   }
 
   100% {
-    background-color: #ededed;
+    background-color: rgba(190, 200, 215, 0.5);
   }
 `;
 

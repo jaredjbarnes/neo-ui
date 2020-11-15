@@ -14,7 +14,7 @@ import TableActionState, {
 
 export interface Cell {
   name: string;
-  value: string | React.Component;
+  value: string | React.ReactNode;
 }
 
 export interface Row<T> {
@@ -51,12 +51,13 @@ export interface RequestOptions<T> {
 export interface Action<T> {
   name: string;
   label: string;
-  shouldRefetchDataAfterAction: boolean;
+  isPrimary: boolean;
+  shouldReloadRowsAfterAction: boolean;
   handler: (selectedRows: Row<T>[]) => AsyncAction<void>;
 }
 
 type TableLoadingStateEvent = "pending" | "ready" | "finished" | "error";
-type TableActionStateEvent = "pending" | "ready";
+type TableActionStateEvent = "pending" | "ready" | "error";
 
 interface MutationEvent<T> {
   type: "added" | "edited" | "deleted";
@@ -283,13 +284,13 @@ export default class TableMediator<T> {
   }
 
   changeActionStateToPending() {
-    this.loadingState = this.loadingPendingState;
-    this.loadingStateSubject.next("pending");
+    this.actionState = this.actionPendingState;
+    this.actionStateSubject.next("pending");
   }
 
   changeActionStateToReady() {
-    this.loadingState = this.loadingReadyState;
-    this.loadingStateSubject.next("ready");
+    this.actionState = this.actionReadyState;
+    this.actionStateSubject.next("ready");
   }
 
   getSorts() {

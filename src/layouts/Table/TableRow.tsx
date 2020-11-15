@@ -2,15 +2,18 @@ import React, { useState, useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
 import TableCell from "./TableCell";
-import { Row, Column } from "../../mediators/table/TableMediator";
+import { Row } from "../../mediators/table/TableMediator";
+import Surface from "../../core/Surface";
 import RowProvider from "../../mediators/table/RowProvider";
 
-const TableRowContainer = styled.div`
+const TableRowContainer = styled(Surface)`
   display: grid;
   position: relative;
   height: 40px;
   min-width: 100%;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 2px ridge rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
 `;
 
 export interface Props {
@@ -20,7 +23,16 @@ export interface Props {
 }
 
 const TableRow = ({ row, className, style }: Props) => {
+  const [mode, setMode] = useState<"flat" | "raised" | "inset">("flat");
   const columns = useColumns();
+
+  const flatten = () => {
+    setMode("flat");
+  };
+
+  const indent = () => {
+    setMode("inset");
+  };
 
   const rowStyles = useMemo(() => {
     const gridTemplateColumns =
@@ -40,11 +52,22 @@ const TableRow = ({ row, className, style }: Props) => {
 
   const cells = row.cells;
 
+  if (mode === "inset") {
+    rowStyles.paddingTop = "1px";
+  } else {
+    rowStyles.paddingTop = "0px";
+  }
+
   return (
     <RowProvider row={row}>
       <TableRowContainer
+        mode={mode}
         style={{ ...style, ...rowStyles }}
         className={className}
+        onMouseDown={indent}
+        onMouseUp={flatten}
+        insetOffset={2}
+        insetSpread={3}
       >
         {columns.map((c, index) => (
           <TableCell
@@ -56,7 +79,7 @@ const TableRow = ({ row, className, style }: Props) => {
               width: c.width + "px",
             }}
           >
-            {cells.find((cell) => cell.name === c.name).value}
+            {cells.find((cell) => cell.name === c.name)?.value}
           </TableCell>
         ))}
         <div

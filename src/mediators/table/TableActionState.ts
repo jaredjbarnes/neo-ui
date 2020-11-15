@@ -19,3 +19,13 @@ export class ActionPendingState<T> extends TableActionState<T> {
     // Do nothing.
   }
 }
+
+export class ActionErrorState<T> extends TableActionState<T> {
+  performAction(name: string, rows: Row<T>[]) {
+    // Do nothing.
+  }
+
+  retry(){
+    
+  }
+}

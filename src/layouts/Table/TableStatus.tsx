@@ -11,7 +11,7 @@ const TableStatusContainer = styled.div`
   height: 25px;
   min-width: 100%;
   background-color: #ecf0f3;
-  border-top: 4px ridge rgba(255, 255, 255, 0.15);
+  border-top: 4px ridge rgba(255, 255, 255, 0.25);
   font-size: 10px;
   color: rgba(100, 110, 140, 0.8);
   font-family: Verdana, Geneva, sans-serif;
