@@ -1,13 +1,13 @@
 import { Subject } from "rxjs";
 import AsyncAction from "../utils/AsyncAction";
 
-type StateEvent = "ready" | "pending" | "error" | "disabled" | string;
+export type StateEvent = "ready" | "pending" | "error" | "disabled" | string;
 
-export abstract class AsyncActionStateMachine<T> {
+export default class AsyncActionStateMachine<T> {
   protected state: State<T> = new ReadyState(this);
   protected subject = new Subject<StateEvent>();
-  protected action: AsyncAction<T>;
-  protected value: T | null;
+  protected action!: AsyncAction<T>;
+  protected value: T | null = null;
 
   getAction() {
     return this.action;
@@ -56,6 +56,14 @@ export abstract class AsyncActionStateMachine<T> {
   getError() {
     return this.state.getError();
   }
+
+  onChange(callback: (event: StateEvent) => void) {
+    return this.subject.subscribe({ next: callback });
+  }
+
+  dispose() {
+    this.subject.complete();
+  }
 }
 
 abstract class State<T> {
@@ -80,7 +88,7 @@ abstract class State<T> {
   resolveError() {
     // Do nothing.
   }
-  getError() {
+  getError(): Error | null {
     return null;
   }
 }
@@ -99,7 +107,7 @@ class ReadyState<T> extends State<T> {
       .then(() => {
         this.context.changeState(new ReadyState(this.context));
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         this.context.changeState(new ErrorState(this.context, error));
       });
   }
@@ -118,6 +126,7 @@ class PendingState<T> extends State<T> {
 
 class ErrorState<T> extends State<T> {
   private error: Error;
+
   constructor(context: AsyncActionStateMachine<T>, error: Error) {
     super(context);
     this.error = error;

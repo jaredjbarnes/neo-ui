@@ -1,16 +1,8 @@
-import StatefulSubject from "../../utils/StatefulSubject";
 import AsyncAction from "../../utils/AsyncAction";
+import AsyncActionStateMachine, {
+  StateEvent,
+} from "../../utils/AsyncActionStateMachine";
 import { Subject } from "rxjs";
-import TableLoadingState, {
-  LoadingReadyState,
-  LoadingPendingState,
-  LoadingFinishedState,
-} from "./TableLoadingState";
-
-import TableActionState, {
-  ActionReadyState,
-  ActionPendingState,
-} from "./TableActionState";
 
 export interface Cell {
   name: string;
@@ -56,9 +48,6 @@ export interface Action<T> {
   handler: (selectedRows: Row<T>[]) => AsyncAction<void>;
 }
 
-type TableLoadingStateEvent = "pending" | "ready" | "finished" | "error";
-type TableActionStateEvent = "pending" | "ready" | "error";
-
 interface MutationEvent<T> {
   type: "added" | "edited" | "deleted";
   row: Row<T>;
@@ -75,7 +64,7 @@ const nullableOnViewFunction = () => {
 };
 
 function nullableOnLoadFunction<T>() {
-  return AsyncAction.reject<Response<T>>(new Error("No OnLoad Handler Found."));
+  return Promise.reject<Response<T>>(new Error("No OnLoad Handler Found."));
 }
 
 function sortColumns(a: Column, b: Column) {
@@ -89,24 +78,8 @@ function sortColumns(a: Column, b: Column) {
 }
 
 export default class TableMediator<T> {
-  public loadingAsyncAction: AsyncAction<Response<T>> | null = null;
-  public actionAsyncAction: AsyncAction<void> | null = null;
-
-  private loadingState: TableLoadingState<T>;
-  private loadingReadyState = new LoadingReadyState<T>(this);
-  private loadingPendingState = new LoadingPendingState<T>(this);
-  private loadingFinishedState = new LoadingFinishedState<T>(this);
-  private loadingStateSubject = new StatefulSubject<TableLoadingStateEvent>(
-    "ready"
-  );
-
-  private actionState: TableActionState<T>;
-  private actionPendingState = new ActionPendingState(this);
-  private actionReadyState = new ActionReadyState(this);
-  private actionStateSubject = new StatefulSubject<TableActionStateEvent>(
-    "ready"
-  );
-
+  private loadingStateMachine = new AsyncActionStateMachine<Response<T>>();
+  private actionStateMachine = new AsyncActionStateMachine<Response<T>>();
   private rows: Row<T>[] = [];
   private keywords: string = "";
   private selectedRows = new Map<string, Row<T>>();
@@ -114,7 +87,7 @@ export default class TableMediator<T> {
   private columns: Column[] = [];
   private onLoad: (
     request: RequestOptions<T>
-  ) => AsyncAction<Response<T>> = nullableOnLoadFunction;
+  ) => Promise<Response<T>> = nullableOnLoadFunction;
   private onView: (item: Row<T>) => Promise<void> = nullableOnViewFunction;
 
   private mutationSubject = new Subject<MutationEvent<T>>();
@@ -124,13 +97,25 @@ export default class TableMediator<T> {
   private sortSubject = new Subject<Sort[]>();
   private actions: Action<T>[] = [];
 
-  constructor() {
-    this.loadingState = this.loadingReadyState;
-    this.actionState = this.actionReadyState;
-  }
-
   loadNextBatch() {
-    return this.loadingState.loadNextBatch();
+    const onLoad = this.getOnLoad();
+    const rows = this.getRows();
+    const sorts = this.getSorts();
+    const keywords = this.getKeywords();
+
+    const action = new AsyncAction(() => {
+      return onLoad({
+        rows,
+        sorts,
+        keywords,
+      }).then((response) => {
+        this.loadRows(response.data);
+        this.notifyRowsChange();
+        return response;
+      });
+    });
+
+    this.loadingStateMachine.execute(action);
   }
 
   getKeywords() {
@@ -149,15 +134,11 @@ export default class TableMediator<T> {
     this.actions = value.slice();
   }
 
-  performAction(name: string, rows: Row<T>[]) {
-    this.actionState.performAction(name, rows);
-  }
+  performAction(name: string, rows: Row<T>[]) {}
 
-  performActionOnSelectedRows(name: string) {
-    this.actionState.performAction(name, this.getSelectedRows());
-  }
+  performActionOnSelectedRows(name: string) {}
 
-  setOnLoad(onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>) {
+  setOnLoad(onLoad: (request: RequestOptions<T>) => Promise<Response<T>>) {
     this.onLoad = onLoad;
   }
 
@@ -238,7 +219,7 @@ export default class TableMediator<T> {
     });
   }
 
-  addSort(name: string, direction: "ASC" | "DESC") {
+  setSort(name: string, direction: "ASC" | "DESC") {
     const index = this.currentSorts.findIndex((sort) => {
       return sort.name === name;
     });
@@ -268,37 +249,14 @@ export default class TableMediator<T> {
     }
   }
 
-  changeLoadingStateToPending() {
-    this.loadingState = this.loadingPendingState;
-    this.loadingStateSubject.next("pending");
-  }
-
-  changeLoadingStateToReady() {
-    this.loadingState = this.loadingReadyState;
-    this.loadingStateSubject.next("ready");
-  }
-
-  changeLoadingStateToFinished() {
-    this.loadingState = this.loadingFinishedState;
-    this.loadingStateSubject.next("finished");
-  }
-
-  changeActionStateToPending() {
-    this.actionState = this.actionPendingState;
-    this.actionStateSubject.next("pending");
-  }
-
-  changeActionStateToReady() {
-    this.actionState = this.actionReadyState;
-    this.actionStateSubject.next("ready");
-  }
-
   getSorts() {
     return this.currentSorts.slice();
   }
 
   reset() {
-    return this.loadingState.reset();
+    this.loadingStateMachine.cancel();
+    this.loadingStateMachine.resolveError();
+    this.clearRows();
   }
 
   getLoadedRowsLength() {
@@ -353,8 +311,12 @@ export default class TableMediator<T> {
     }, 0);
   }
 
-  getState() {
-    return this.loadingStateSubject.getState();
+  getLoadingState() {
+    return this.loadingStateMachine.getState().getName();
+  }
+
+  getActionState() {
+    return this.actionStateMachine.getState().getName();
   }
 
   notifyRowsChange() {
@@ -377,12 +339,18 @@ export default class TableMediator<T> {
     return this.columnsSubject.subscribe({ next: callback });
   }
 
-  onStateChange(callback: (event: TableLoadingStateEvent) => void) {
-    return this.loadingStateSubject.subscribe({ next: callback });
+  onLoadingStateChange(callback: (event: StateEvent) => void) {
+    return this.loadingStateMachine.onChange(callback);
+  }
+
+  onActionStateChange(callback: (event: StateEvent) => void) {
+    return this.loadingStateMachine.onChange(callback);
   }
 
   dispose() {
-    this.loadingStateSubject.complete();
+    this.loadingStateMachine.dispose();
+    this.actionStateMachine.dispose();
+    
     this.mutationSubject.complete();
     this.mutationErrorSubject.complete();
     this.columnsSubject.complete();
