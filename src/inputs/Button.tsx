@@ -30,7 +30,6 @@ const ButtonContainer = styled(Surface)`
   color: rgba(0, 0, 0, 0.6);
   cursor: pointer;
   outline-style: none;
-  border: 2px ridge rgba(255, 255, 255, 0.25);
 `;
 
 const ContentContainer = styled(Surface)`

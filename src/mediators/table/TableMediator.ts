@@ -108,7 +108,12 @@ export default class TableMediator<T> {
         rows,
         sorts,
         keywords,
-      }).then((response) => {
+      });
+    });
+
+    this.loadingStateMachine
+      .execute(action)
+      .then((response) => {
         this.loadRows(response.data);
         if (response.isLast) {
           this.loadingStateMachine.disable();
@@ -116,10 +121,10 @@ export default class TableMediator<T> {
 
         this.notifyRowsChange();
         return response;
+      })
+      .catch(() => {
+        // Do nothing.
       });
-    });
-
-    this.loadingStateMachine.execute(action);
   }
 
   getKeywords() {
@@ -188,8 +193,9 @@ export default class TableMediator<T> {
   }
 
   search(keywords: string) {
-    this.reset();
     this.keywords = keywords;
+
+    this.reset();
     this.loadNextBatch();
   }
 
@@ -258,10 +264,8 @@ export default class TableMediator<T> {
   }
 
   reset() {
-    this.loadingStateMachine.enable();
-    this.loadingStateMachine.cancel();
-    this.loadingStateMachine.resolveError();
     this.clearRows();
+    this.loadingStateMachine.restore();
   }
 
   getLoadedRowsLength() {

@@ -34,7 +34,7 @@ export default class AsyncActionStateMachine<T> {
     return this.state.enable();
   }
 
-  execute(action: AsyncAction<T>) {
+  execute(action: AsyncAction<T>): Promise<T> {
     return this.state.execute(action);
   }
 
@@ -52,6 +52,11 @@ export default class AsyncActionStateMachine<T> {
 
   getError() {
     return this.state.getError();
+  }
+
+  restore() {
+    this.state.cancel();
+    this.changeState(new ReadyState<T>(this));
   }
 
   onChange(callback: (event: StateEvent) => void) {
@@ -82,7 +87,7 @@ abstract class State<T> {
   }
 
   execute(action: AsyncAction<T>) {
-    // Do nothing.
+    return Promise.reject<T>(new Error("Not yet implemented."));
   }
   cancel() {
     // Do nothing.
@@ -104,22 +109,25 @@ class ReadyState<T> extends State<T> {
   }
 
   disable() {
-    this.context.changeState(new DisabledState(this.context));
+    this.context.changeState(new DisabledState<T>(this.context));
   }
 
   execute(action: AsyncAction<T>) {
     this.context.setAction(action);
 
-    this.context.changeState(new PendingState(this.context));
-    return action
-      .execute()
-      .then(() => {
-        this.context.changeState(new ReadyState(this.context));
+    this.context.changeState(new PendingState<T>(this.context));
+    const result = action.execute();
+
+    return result
+      .then((value: T) => {
+        this.context.changeState(new ReadyState<T>(this.context));
+        return value;
       })
       .catch((error: Error) => {
         if (!(error instanceof CancelledError)) {
-          this.context.changeState(new ErrorState(this.context, error));
+          this.context.changeState(new ErrorState<T>(this.context, error));
         }
+        throw error;
       });
   }
 }
@@ -127,6 +135,12 @@ class ReadyState<T> extends State<T> {
 class PendingState<T> extends State<T> {
   getName() {
     return "pending" as StateEvent;
+  }
+
+  execute(action: AsyncAction<T>) {
+    this.context.getAction().cancel();
+    this.context.changeState(new ReadyState(this.context));
+    return this.context.execute(action);
   }
 
   cancel() {
@@ -146,6 +160,11 @@ class ErrorState<T> extends State<T> {
   constructor(context: AsyncActionStateMachine<T>, error: Error) {
     super(context);
     this.error = error;
+  }
+
+  execute(action: AsyncAction<T>) {
+    this.context.changeState(new ReadyState(this.context));
+    return this.context.execute(action);
   }
 
   getName() {
@@ -173,6 +192,12 @@ class ErrorState<T> extends State<T> {
 class DisabledState<T> extends State<T> {
   getName() {
     return "disabled" as StateEvent;
+  }
+
+  execute() {
+    return Promise.reject(
+      new Error("Cannot execute an action, it is disabled.")
+    );
   }
 
   enable() {
