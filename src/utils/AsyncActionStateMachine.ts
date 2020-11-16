@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import AsyncAction from "../utils/AsyncAction";
+import AsyncAction, { CancelledError } from "../utils/AsyncAction";
 
 export type StateEvent = "ready" | "pending" | "error" | "disabled" | string;
 
@@ -117,7 +117,9 @@ class ReadyState<T> extends State<T> {
         this.context.changeState(new ReadyState(this.context));
       })
       .catch((error: Error) => {
-        this.context.changeState(new ErrorState(this.context, error));
+        if (!(error instanceof CancelledError)) {
+          this.context.changeState(new ErrorState(this.context, error));
+        }
       });
   }
 }

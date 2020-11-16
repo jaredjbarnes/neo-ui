@@ -13,7 +13,7 @@ export const TableContext = React.createContext(defaultTableMediator);
 
 export interface TableProviderProps<T> {
   columns: Column[];
-  onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>;
+  onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
   onView?: (item: Row<T>) => Promise<void>;
   children: React.ReactNode[] | React.ReactNode;
 }

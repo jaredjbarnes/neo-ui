@@ -110,6 +110,10 @@ export default class TableMediator<T> {
         keywords,
       }).then((response) => {
         this.loadRows(response.data);
+        if (response.isLast) {
+          this.loadingStateMachine.disable();
+        }
+
         this.notifyRowsChange();
         return response;
       });
@@ -254,6 +258,7 @@ export default class TableMediator<T> {
   }
 
   reset() {
+    this.loadingStateMachine.enable();
     this.loadingStateMachine.cancel();
     this.loadingStateMachine.resolveError();
     this.clearRows();
@@ -350,7 +355,7 @@ export default class TableMediator<T> {
   dispose() {
     this.loadingStateMachine.dispose();
     this.actionStateMachine.dispose();
-    
+
     this.mutationSubject.complete();
     this.mutationErrorSubject.complete();
     this.columnsSubject.complete();

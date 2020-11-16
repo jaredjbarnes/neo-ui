@@ -8,10 +8,9 @@ import TableHeader, { Props } from "../layouts/Table/TableHeader";
 import { Column, Response, Row } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
 import AsyncAction from "../utils/AsyncAction";
-import Surface from "../core/Surface";
-import styled from "styled-components";
 import FieldSet from "../inputs/FieldSet";
 import { RequestOptions } from "../mediators/table/TableMediator";
+import delayAsync from "../utils/delayAsync";
 
 export default {
   title: "Table",
@@ -20,10 +19,10 @@ export default {
 } as Meta;
 
 class Person {
-  id: number;
-  firstName: string;
-  lastName: string;
-  age: number;
+  id: number | undefined;
+  firstName: string | undefined;
+  lastName: string | undefined;
+  age: number | undefined;
 }
 
 const columns = [
@@ -74,7 +73,7 @@ const createRows = (amount: number) => {
     const cells = Object.keys(person).map((key) => {
       return {
         name: key,
-        value: person[key],
+        value: person[key].toString(),
       };
     });
 
@@ -130,13 +129,10 @@ export function BaseTableLayout(props: Props) {
     results = filteredResults.slice(rows.length, rows.length + pageSize);
     isLast = results.length + rows.length >= filteredResults.length;
 
-    return AsyncAction.delay<Response<Person>>(
-      Math.floor(Math.random() * 1000),
-      {
-        data: results,
-        isLast: isLast,
-      }
-    );
+    return delayAsync<Response<Person>>(Math.floor(Math.random() * 1000), {
+      data: results,
+      isLast: isLast,
+    });
   };
 
   return (
@@ -152,7 +148,7 @@ export function BaseTableLayout(props: Props) {
 
 export function Header(props: Props) {
   const onLoad = () => {
-    return AsyncAction.resolve<Response<Person>>({
+    return Promise.resolve<Response<Person>>({
       data: createRows(30),
       isLast: true,
     });
@@ -169,7 +165,7 @@ export function Header(props: Props) {
 
 export function DataScroller(props: Props) {
   const onLoad = () => {
-    return AsyncAction.resolve<Response<Person>>({
+    return Promise.resolve<Response<Person>>({
       data: createRows(30),
       isLast: true,
     });
