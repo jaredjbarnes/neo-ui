@@ -80,7 +80,7 @@ const TableDataScroller = ({ style, className }: Props) => {
   );
 
   const tableState = table.getLoadingState();
-  const isFinished = tableState === "finished";
+  const isFinished = tableState === "disabled";
   const height = table.getLoadedRowsLength() * ROW_HEIGHT;
   const width = table.getContentWidth();
 

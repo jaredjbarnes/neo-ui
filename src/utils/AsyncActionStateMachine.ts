@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 import AsyncAction, { CancelledError } from "../utils/AsyncAction";
 
-export type StateEvent = "ready" | "pending" | "error" | "disabled" | string;
+export type StateEvent = "ready" | "pending" | "error" | "disabled";
 
 export default class AsyncActionStateMachine<T> {
   protected state: State<T> = new ReadyState(this);
@@ -71,7 +71,7 @@ abstract class State<T> {
     this.context = context;
   }
 
-  abstract getName(): string;
+  abstract getName(): StateEvent;
 
   enable() {
     // Do Nothing.
@@ -100,7 +100,7 @@ abstract class State<T> {
 
 class ReadyState<T> extends State<T> {
   getName() {
-    return "ready";
+    return "ready" as StateEvent;
   }
 
   disable() {
@@ -126,7 +126,7 @@ class ReadyState<T> extends State<T> {
 
 class PendingState<T> extends State<T> {
   getName() {
-    return "pending";
+    return "pending" as StateEvent;
   }
 
   cancel() {
@@ -149,7 +149,7 @@ class ErrorState<T> extends State<T> {
   }
 
   getName() {
-    return "error";
+    return "error" as StateEvent;
   }
 
   getError() {
@@ -172,7 +172,7 @@ class ErrorState<T> extends State<T> {
 
 class DisabledState<T> extends State<T> {
   getName() {
-    return "disabled";
+    return "disabled" as StateEvent;
   }
 
   enable() {

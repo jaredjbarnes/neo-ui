@@ -52,12 +52,6 @@ const TableRow = ({ row, className, style }: Props) => {
 
   const cells = row.cells;
 
-  if (mode === "inset") {
-    rowStyles.paddingTop = "1px";
-  } else {
-    rowStyles.paddingTop = "0px";
-  }
-
   return (
     <RowProvider row={row}>
       <TableRowContainer

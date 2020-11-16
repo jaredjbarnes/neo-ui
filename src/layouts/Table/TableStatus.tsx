@@ -32,7 +32,7 @@ interface Props {
 
 const textMap = {
   ready: "Idle",
-  finished: "Complete",
+  disabled: "Complete",
   pending: "Loading",
   error: "Error",
 };

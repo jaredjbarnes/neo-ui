@@ -63,9 +63,9 @@ const TableColumn = ({ column, children, style, className }: Props) => {
     }
 
     if (direction === "ASC") {
-      table.addSort(column.name, "DESC");
+      table.setSort(column.name, "DESC");
     } else {
-      table.addSort(column.name, "ASC");
+      table.setSort(column.name, "ASC");
     }
   };
 
