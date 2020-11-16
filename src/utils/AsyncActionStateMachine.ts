@@ -27,14 +27,11 @@ export default class AsyncActionStateMachine<T> {
   }
 
   disable() {
-    this.cancel();
-    this.changeState(new DisabledState(this));
+    return this.state.disable();
   }
 
   enable() {
-    if (this.state.getName() === "disabled") {
-      this.changeState(new ReadyState(this));
-    }
+    return this.state.enable();
   }
 
   execute(action: AsyncAction<T>) {
@@ -76,6 +73,14 @@ abstract class State<T> {
 
   abstract getName(): string;
 
+  enable() {
+    // Do Nothing.
+  }
+
+  disable() {
+    // Do Nothing.
+  }
+
   execute(action: AsyncAction<T>) {
     // Do nothing.
   }
@@ -96,6 +101,10 @@ abstract class State<T> {
 class ReadyState<T> extends State<T> {
   getName() {
     return "ready";
+  }
+
+  disable() {
+    this.context.changeState(new DisabledState(this.context));
   }
 
   execute(action: AsyncAction<T>) {
@@ -121,6 +130,11 @@ class PendingState<T> extends State<T> {
   cancel() {
     this.context.getAction().cancel();
     this.context.changeState(new ReadyState(this.context));
+  }
+
+  disable() {
+    this.context.getAction().cancel();
+    this.context.changeState(new DisabledState(this.context));
   }
 }
 
@@ -148,10 +162,18 @@ class ErrorState<T> extends State<T> {
   resolveError() {
     return this.context.changeState(new ReadyState(this.context));
   }
+
+  disable() {
+    this.context.changeState(new DisabledState(this.context));
+  }
 }
 
 class DisabledState<T> extends State<T> {
   getName() {
     return "disabled";
+  }
+
+  enable() {
+    this.context.changeState(new ReadyState(this.context));
   }
 }
