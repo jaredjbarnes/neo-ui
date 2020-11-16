@@ -344,7 +344,7 @@ export default class TableMediator<T> {
   }
 
   onActionStateChange(callback: (event: StateEvent) => void) {
-    return this.loadingStateMachine.onChange(callback);
+    return this.actionStateMachine.onChange(callback);
   }
 
   dispose() {
