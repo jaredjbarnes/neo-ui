@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
 import TableColumn from "./TableColumn";
@@ -31,7 +31,7 @@ const TableHeader = ({ className, style }: Props) => {
     }, 0);
 
     return {
-      minWidth,
+      minWidth: `${minWidth}px`,
       gridTemplateColumns,
     } as React.CSSProperties;
   }, [columns]);
@@ -59,8 +59,6 @@ const TableHeader = ({ className, style }: Props) => {
       ))}
       <div
         style={{
-          borderBottom: "1px solid rgba(190, 200, 215, 0.25)",
-          borderLeft: "1px solid rgba(255, 255, 255, 0.25)",
           gridColumnStart: columns.length + 1,
           gridColumnEnd: columns.length + 1,
           padding: 0,

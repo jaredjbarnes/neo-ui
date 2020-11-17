@@ -3,24 +3,16 @@ import styled from "styled-components";
 import { Column } from "../../mediators/table/TableMediator";
 import useTable from "../../mediators/table/hooks/useTable";
 import useColumnSortDirection from "../../mediators/table/hooks/useColumnSortDirection";
+import Surface from "../../core/Surface";
 
-const ColumnContainer = styled.div`
-  :first-child {
-    border-left: 1px solid rgba(255, 255, 255, 0);
-  }
-  :last-child {
-    border-right: 1px solid rgba(190, 200, 215, 0);
-  }
+const ColumnContainer = styled(Surface)`
+  border-radius: 4px;
   position: relative;
   text-align: center;
   line-height: 25px;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
   color: rgba(100, 110, 140, 0.9);
-  border-bottom: 2px solid rgba(190, 200, 215, 0.45);
-  border-left: 2px solid rgba(255, 255, 255, 0.45);
-  border-right: 2px solid rgba(190, 200, 215, 0.45);
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 11px;
@@ -38,7 +30,7 @@ export interface Props {
 
 const TableColumn = ({ column, children, style, className }: Props) => {
   const table = useTable();
-  const [state, setState] = useState("released");
+  const [state, setState] = useState<"flat" | "inset" | "raised">("flat");
   const direction = useColumnSortDirection(column.name);
 
   const press = () => {
@@ -46,7 +38,7 @@ const TableColumn = ({ column, children, style, className }: Props) => {
       return;
     }
 
-    setState("pressed");
+    setState("inset");
   };
 
   const release = () => {
@@ -54,7 +46,7 @@ const TableColumn = ({ column, children, style, className }: Props) => {
       return;
     }
 
-    setState("released");
+    setState("flat");
   };
 
   const toggleSortDirection = () => {
@@ -69,32 +61,19 @@ const TableColumn = ({ column, children, style, className }: Props) => {
     }
   };
 
-  let activeStyle = {} as React.CSSProperties;
-
-  if (state === "pressed") {
-    activeStyle = {
-      top: "1px",
-      borderBottom: "1px solid rgba(190, 200, 215, 0)",
-      cursor: column.canSort ? "pointer" : "default",
-      textAlign: column.alignment,
-    };
-  } else {
-    activeStyle = {
-      top: "0px",
-      borderBottom: "1px solid rgba(190, 200, 215, 0.45)",
-      cursor: column.canSort ? "pointer" : "default",
-      textAlign: column.alignment,
-    };
-  }
-
   return (
     <ColumnContainer
       onMouseDown={press}
       onMouseUp={release}
       onMouseLeave={release}
+      mode={state}
       onClick={toggleSortDirection}
-      style={{ ...style, ...activeStyle }}
+      style={{ ...style }}
       className={className}
+      insetOffset={2}
+      insetSpread={4}
+      raisedOffset={2}
+      raisedSpread={4}
     >
       {children}
     </ColumnContainer>

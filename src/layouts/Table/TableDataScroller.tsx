@@ -13,14 +13,13 @@ const RaisedContainer = styled(Surface)`
   min-width: 200px;
   width: 200px;
   height: 200px;
-  border-radius: 8px;
   padding: 3px;
+  border-radius: 8px;
 `;
 
 const InsetContainer = styled(Surface)`
   position: relative;
   border-radius: 8px;
-  overflow: hidden;
   width: 100%;
   height: 100%;
 `;
