@@ -19,7 +19,6 @@ const RaisedContainer = styled(Surface)`
 
 const InsetContainer = styled(Surface)`
   position: relative;
-  border: 4px ridge rgba(255, 255, 255, 0.25);
   border-radius: 8px;
   overflow: hidden;
   width: 100%;
