@@ -18,9 +18,9 @@ const ColumnContainer = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   color: rgba(100, 110, 140, 0.9);
-  border-bottom: 1px solid rgba(190, 200, 215, 1);
-  border-left: 1px solid rgba(255, 255, 255, 1);
-  border-right: 1px solid rgba(190, 200, 215, 1);
+  border-bottom: 2px solid rgba(190, 200, 215, 0.45);
+  border-left: 2px solid rgba(255, 255, 255, 0.45);
+  border-right: 2px solid rgba(190, 200, 215, 0.45);
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 11px;
@@ -81,7 +81,7 @@ const TableColumn = ({ column, children, style, className }: Props) => {
   } else {
     activeStyle = {
       top: "0px",
-      borderBottom: "1px solid rgba(190, 200, 215, 1)",
+      borderBottom: "1px solid rgba(190, 200, 215, 0.45)",
       cursor: column.canSort ? "pointer" : "default",
       textAlign: column.alignment,
     };

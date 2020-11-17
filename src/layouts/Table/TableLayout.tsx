@@ -11,7 +11,7 @@ const TableGrid = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: auto 125px;
-  grid-template-rows: 35px 8px auto;
+  grid-template-rows: 35px 16px auto;
   min-width: 400px;
   min-height: 400px;
 `;
@@ -88,7 +88,7 @@ function TableLayout<T>({ style, className }: Props) {
   const table = useTable();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const search = (value) => {
+  const search = (value: string) => {
     if (inputRef.current != null) {
       table.search(value);
     }

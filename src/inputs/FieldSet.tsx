@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const StyledFieldSet = styled.fieldset`
-  border: 4px ridge rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(190, 200, 215, 0.45);
   border-radius: 8px;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 16px;

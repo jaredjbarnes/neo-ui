@@ -59,8 +59,8 @@ const TableHeader = ({ className, style }: Props) => {
       ))}
       <div
         style={{
-          borderBottom: "1px solid rgba(190, 200, 215, 1)",
-          borderLeft: "1px solid rgba(255, 255, 255, 1)",
+          borderBottom: "1px solid rgba(190, 200, 215, 0.25)",
+          borderLeft: "1px solid rgba(255, 255, 255, 0.25)",
           gridColumnStart: columns.length + 1,
           gridColumnEnd: columns.length + 1,
           padding: 0,

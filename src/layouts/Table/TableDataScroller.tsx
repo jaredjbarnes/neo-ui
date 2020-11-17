@@ -8,15 +8,22 @@ import styled from "styled-components";
 import TableStatus from "./TableStatus";
 import TableLoadingRow from "./TableLoadingRow";
 
-const TableScrollerSurface = styled(Surface)`
+const RaisedContainer = styled(Surface)`
+  min-height: 200px;
+  min-width: 200px;
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  padding: 3px;
+`;
+
+const InsetContainer = styled(Surface)`
   position: relative;
   border: 4px ridge rgba(255, 255, 255, 0.25);
   border-radius: 8px;
   overflow: hidden;
-  min-height: 200px;
-  min-width: 200px;
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
 `;
 
 const TableScrollerContainer = styled.div`
@@ -141,32 +148,37 @@ const TableDataScroller = ({ style, className }: Props) => {
   }, [updateRect]);
 
   return (
-    <TableScrollerSurface
-      mode="cutOut"
-      insetOffset={2}
+    <RaisedContainer
       className={className}
       style={style}
+      mode="raised"
+      raisedOffset={4}
+      raisedSpread={10}
     >
-      <TableScrollerContainer ref={tableScrollerRef} onScroll={onScroll}>
-        <TableContent style={tableContentStyle}>
-          <TableSyledHeader />
-          {rowsData.map((data, index) => {
-            const y = index * ROW_HEIGHT + OFFSET_Y + range.startY;
+      <InsetContainer mode="cutOut" insetOffset={2}>
+        <TableScrollerContainer ref={tableScrollerRef} onScroll={onScroll}>
+          <TableContent style={tableContentStyle}>
+            <TableSyledHeader />
+            {rowsData.map((data, index) => {
+              const y = index * ROW_HEIGHT + OFFSET_Y + range.startY;
 
-            const style = {
-              position: "absolute",
-              top: "0px",
-              left: "0px",
-              transform: `translate(${data.x}px, ${data.y}px)`,
-            } as React.CSSProperties;
+              const style = {
+                position: "absolute",
+                top: "0px",
+                left: "0px",
+                transform: `translate(${data.x}px, ${data.y}px)`,
+              } as React.CSSProperties;
 
-            return <TableRow key={data.row.id} row={data.row} style={style} />;
-          })}
-          {!isFinished && <TableLoadingRow style={tableLoadingRowStyle} />}
-        </TableContent>
-      </TableScrollerContainer>
-      <StyledTableStatus />
-    </TableScrollerSurface>
+              return (
+                <TableRow key={data.row.id} row={data.row} style={style} />
+              );
+            })}
+            {!isFinished && <TableLoadingRow style={tableLoadingRowStyle} />}
+          </TableContent>
+        </TableScrollerContainer>
+        <StyledTableStatus />
+      </InsetContainer>
+    </RaisedContainer>
   );
 };
 

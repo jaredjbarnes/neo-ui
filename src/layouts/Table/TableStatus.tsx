@@ -19,10 +19,12 @@ const TableStatusContainer = styled.div`
 
 const Status = styled.span`
   padding-left: 4px;
+  user-select: none;
 `;
 
 const Loaded = styled.span`
   padding-right: 4px;
+  user-select: none;
 `;
 
 interface Props {

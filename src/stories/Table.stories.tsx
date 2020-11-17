@@ -7,7 +7,6 @@ import TableLayout from "../layouts/Table/TableLayout";
 import TableHeader, { Props } from "../layouts/Table/TableHeader";
 import { Column, Response, Row } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
-import AsyncAction from "../utils/AsyncAction";
 import FieldSet from "../inputs/FieldSet";
 import { RequestOptions } from "../mediators/table/TableMediator";
 import delayAsync from "../utils/delayAsync";
@@ -19,10 +18,10 @@ export default {
 } as Meta;
 
 class Person {
-  id: number | undefined;
-  firstName: string | undefined;
-  lastName: string | undefined;
-  age: number | undefined;
+  id!: number;
+  firstName!: string;
+  lastName!: string;
+  age!: number;
 }
 
 const columns = [
@@ -98,7 +97,7 @@ export function BaseTableLayout(props: Props) {
     let pageSize = 10;
 
     const filteredResults = data.filter(
-      (r) =>
+      (r: Row<Person>) =>
         r.value.firstName.toLowerCase().includes(keywords.toLowerCase()) ||
         r.value.lastName.toLowerCase().includes(keywords.toLowerCase())
     );

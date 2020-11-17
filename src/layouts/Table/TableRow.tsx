@@ -11,7 +11,7 @@ const TableRowContainer = styled(Surface)`
   position: relative;
   height: 40px;
   min-width: 100%;
-  border-bottom: 2px ridge rgba(255, 255, 255, 0.5);
+  border-bottom: 2px ridge rgba(255, 255, 255, 0.35);
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
 `;
@@ -60,6 +60,7 @@ const TableRow = ({ row, className, style }: Props) => {
         className={className}
         onMouseDown={indent}
         onMouseUp={flatten}
+        onMouseLeave={flatten}
         insetOffset={2}
         insetSpread={3}
       >
