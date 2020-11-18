@@ -8,7 +8,7 @@ const TableStatusContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   position: relative;
-  height: 25px;
+  height: 34px;
   min-width: 100%;
   background-color: #ecf0f3;
   border-top: 4px ridge rgba(255, 255, 255, 0.25);

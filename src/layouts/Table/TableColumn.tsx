@@ -6,7 +6,7 @@ import useColumnSortDirection from "../../mediators/table/hooks/useColumnSortDir
 import Surface from "../../core/Surface";
 
 const ColumnContainer = styled(Surface)`
-  border-radius: 8px;
+  border-radius: 6px;
   position: relative;
   text-align: center;
   line-height: 25px;
@@ -15,7 +15,7 @@ const ColumnContainer = styled(Surface)`
   color: rgba(100, 110, 140, 0.8);
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   padding: 0px 8px;
   cursor: pointer;
   user-select: none;
@@ -30,7 +30,7 @@ export interface Props {
 
 const TableColumn = ({ column, children, style, className }: Props) => {
   const table = useTable();
-  const [state, setState] = useState<"flat" | "inset" | "raised">("flat");
+  const [state, setState] = useState<"flat" | "inset">("flat");
   const direction = useColumnSortDirection(column.name);
 
   const press = () => {

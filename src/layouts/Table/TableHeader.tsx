@@ -7,9 +7,10 @@ import Surface from "../../core/Surface";
 const TableHeaderContainer = styled(Surface)`
   display: grid;
   position: relative;
-  height: 25px;
+  height: 37px;
   min-width: 100%;
   background-color: #ecf0f3;
+  grid-template-rows: 6px 25px 6px;
 `;
 
 export interface Props {
@@ -49,6 +50,8 @@ const TableHeader = ({ className, style }: Props) => {
           column={c}
           key={index}
           style={{
+            gridRowStart: 2,
+            gridRowEnd: 2,
             gridColumnStart: index + 1,
             gridColumnEnd: index + 1,
             width: c.width + "px",
@@ -59,6 +62,8 @@ const TableHeader = ({ className, style }: Props) => {
       ))}
       <div
         style={{
+          gridRowStart: 2,
+          gridRowEnd: 2,
           gridColumnStart: columns.length + 1,
           gridColumnEnd: columns.length + 1,
           padding: 0,

@@ -13,7 +13,7 @@ const RaisedContainer = styled(Surface)`
   min-width: 200px;
   width: 200px;
   height: 200px;
-  padding: 3px;
+  padding: 0px 6px;
   border-radius: 8px;
 `;
 
@@ -27,7 +27,7 @@ const InsetContainer = styled(Surface)`
 const TableScrollerContainer = styled.div`
   position: absolute;
   top: 0px;
-  bottom: 25px;
+  bottom: 34px;
   left: 0px;
   right: 0px;
   overflow: auto;
@@ -52,7 +52,7 @@ const StyledTableStatus = styled(TableStatus)`
   position: absolute;
   bottom: 0px;
   left: 0px;
-  height: 25px;
+  height: 34px;
   width: 100%;
   z-index: 2;
 `;
@@ -67,7 +67,7 @@ interface Range {
   endY: number;
 }
 
-const OFFSET_Y = 25;
+const OFFSET_Y = 37;
 const ROW_HEIGHT = 40;
 const STATUS_HEIGHT = 40;
 
