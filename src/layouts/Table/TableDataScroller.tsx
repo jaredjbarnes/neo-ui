@@ -124,6 +124,7 @@ const TableDataScroller = ({ style, className }: Props) => {
     updateRect();
 
     if (
+      !isFinished && 
       element != null &&
       element.scrollTop >= element.scrollHeight - element.offsetHeight
     ) {

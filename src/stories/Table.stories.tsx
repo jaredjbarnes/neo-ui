@@ -93,8 +93,8 @@ const actions: Action<Person>[] = [
   },
 ];
 
-const createRows = (amount: number) => {
-  const people: Row<Person>[] = [];
+const createPeople = (amount: number) => {
+  const people: Person[] = [];
 
   for (let x = 0; x < amount; x++) {
     const person: any = new Person();
@@ -103,52 +103,68 @@ const createRows = (amount: number) => {
     person.lastName = getRandomLastName();
     person.age = Math.round(Math.random() * 100);
 
-    const cells = Object.keys(person).map((key) => {
+    people.push(person);
+  }
+  return people;
+};
+
+function convertToRows<T>(data: T[]) {
+  const rows: Row<T>[] = [];
+
+  for (let x = 0; x < data.length; x++) {
+    const item: any = data[x];
+    const cells = Object.keys(item).map((key) => {
       return {
         name: key,
-        value: person[key],
+        value: item[key],
       };
     });
 
     const row = {
-      id: person.id.toString(),
-      value: person,
+      id: item.id.toString() || x.toString(),
+      value: item,
       cells,
-    } as Row<Person>;
+    } as Row<T>;
 
-    people.push(row);
+    rows.push(row);
   }
 
-  return people;
-};
+  return rows;
+}
 
-export function BaseTableLayout(props: Props) {
-  const data = createRows(30);
-
-  const onLoad = ({ rows, keywords, sorts }: RequestOptions<Person>) => {
+function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
+  return ({ rows, keywords, sorts }: RequestOptions<T>) => {
     let results;
     let isLast = false;
     let pageSize = 10;
 
-    const filteredResults = data.filter(
-      (r: Row<Person>) =>
-        r.value.firstName.toLowerCase().includes(keywords.toLowerCase()) ||
-        r.value.lastName.toLowerCase().includes(keywords.toLowerCase())
-    );
+    const filteredResults = data.filter((item: any) => {
+      return columns.some((column) => {
+        if (
+          typeof item[column.name] === "string" ||
+          item[column.name] === "number" ||
+          item[column.name] === "boolean"
+        ) {
+          return item[column.name]
+            .toString()
+            .toLowerCase()
+            .includes(keywords.toLowerCase());
+        }
+        return false;
+      });
+    });
 
-    filteredResults.sort((rowA, rowB) => {
+    filteredResults.sort((itemA: any, itemB: any) => {
       let score = 0;
-      const personA: any = rowA.value;
-      const personB: any = rowB.value;
 
       sorts.every((sort) => {
         const propertyName = sort.name;
         const direction = sort.direction === "ASC" ? 1 : -1;
 
-        if (personA[propertyName] < personB[propertyName]) {
+        if (itemA[propertyName] < itemB[propertyName]) {
           score = -1 * direction;
           return false;
-        } else if (personA[propertyName] > personB[propertyName]) {
+        } else if (itemA[propertyName] > itemB[propertyName]) {
           score = 1 * direction;
           return false;
         } else {
@@ -162,15 +178,31 @@ export function BaseTableLayout(props: Props) {
     results = filteredResults.slice(rows.length, rows.length + pageSize);
     isLast = results.length + rows.length >= filteredResults.length;
 
-    return delayAsync<Response<Person>>(Math.floor(Math.random() * 1000), {
-      data: results,
-      isLast: isLast,
-    });
+    if (maxLatency === 0) {
+      return Promise.resolve({
+        data: convertToRows(results),
+        isLast: isLast,
+      });
+    } else {
+      return delayAsync<Response<T>>(Math.floor(Math.random() * 1000), {
+        data: convertToRows(results),
+        isLast: isLast,
+      });
+    }
   };
+}
+
+export function BaseTableLayout(props: Props) {
+  const people = createPeople(30);
+  const onLoad = onLoadGenerator(people, columns, 1000);
 
   return (
     <StoryBackdrop>
-      <Surface style={{ borderRadius: "20px", padding: "30px" }} mode="popOut" raisedOffset={5}>
+      <Surface
+        style={{ borderRadius: "20px", padding: "30px" }}
+        mode="popOut"
+        raisedOffset={5}
+      >
         <TableProvider columns={columns} onLoad={onLoad} actions={actions}>
           <TableLayout style={{ width: "500px", height: "400px" }} />
         </TableProvider>
@@ -180,12 +212,8 @@ export function BaseTableLayout(props: Props) {
 }
 
 export function DataScroller(props: Props) {
-  const onLoad = () => {
-    return Promise.resolve<Response<Person>>({
-      data: createRows(30),
-      isLast: true,
-    });
-  };
+  const people = createPeople(30);
+  const onLoad = onLoadGenerator(people, columns, 1000);
 
   return (
     <StoryBackdrop>
@@ -199,7 +227,7 @@ export function DataScroller(props: Props) {
 export function Header(props: Props) {
   const onLoad = () => {
     return Promise.resolve<Response<Person>>({
-      data: createRows(30),
+      data: [],
       isLast: true,
     });
   };
