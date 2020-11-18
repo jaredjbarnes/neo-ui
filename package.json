@@ -52,7 +52,7 @@
     "webpack-cli": "^3.3.12"
   },
   "scripts": {
-    "bundle": "webpack",
+    "bundle": "webpack --mode=production",
     "build": "./node_modules/.bin/babel src --out-dir lib --extensions \".ts,.tsx\"",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"

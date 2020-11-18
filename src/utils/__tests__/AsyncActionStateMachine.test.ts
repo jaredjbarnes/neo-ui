@@ -18,7 +18,7 @@ describe("AsyncActionStateMachine", () => {
       return Promise.resolve("Hello World!");
     });
 
-    stateMachine.onChange((state) => {
+    stateMachine.onStateChange((state) => {
       record.push(state);
     });
 
@@ -39,7 +39,7 @@ describe("AsyncActionStateMachine", () => {
       return Promise.reject(new Error("Hello Error!"));
     });
 
-    stateMachine.onChange((state) => {
+    stateMachine.onStateChange((state) => {
       record.push(state);
     });
 
@@ -67,7 +67,7 @@ describe("AsyncActionStateMachine", () => {
       return Promise.reject(new Error("Hello Error!"));
     });
 
-    stateMachine.onChange((state) => {
+    stateMachine.onStateChange((state) => {
       record.push(state);
     });
 
@@ -100,7 +100,7 @@ describe("AsyncActionStateMachine", () => {
       return activePromise;
     });
 
-    stateMachine.onChange((state) => {
+    stateMachine.onStateChange((state) => {
       record.push(state);
     });
 

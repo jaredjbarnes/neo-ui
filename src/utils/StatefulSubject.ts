@@ -40,33 +40,37 @@ export default class StatefulSubject<T> extends Subject<T> {
 
 // m.name.value = "Brent";
 
-// const createStatefulSubjectHook = (useMediatorHook, propertyName) => {
+// function createStatefulSubjectHook<T>(useMediatorHook, propertyName) {
 //   return () => {
-//     const mediator = useMediator();
-//     const [state, setState] = useState();
-  
+//     const mediator = useMediatorHook();
+//     const [state, setState] = useState(mediator[propertyName].value);
+
 //     const subscription = useMemo(() => {
 //       return mediator[propertyName].onChange((value) => {
 //         setState(value);
 //       });
 //     }, []);
-  
+
 //     useEffect(() => {
 //       return () => {
 //         subscription.unsubscribe();
 //       };
 //     }, [subscription]);
-  
-//     return mediator[propertyName].value;
+
+//     return mediator[propertyName].value as T;
 //   };
-// };
+// }
 
-// const createAsyncActionStateMachineHook = () => {}
+// //import useMediator from "./useMediator";
 
+// import {useContext} from "react";
+// import {MediatorContext} from ".Provider";
+// import createStatefulSubjectHook from "./createStatefulSubjectHook";
 
-// import useMediator from "./useMediator";
-// import createHook from "./createHook";
-
-// const nameHook =  createHook(useMediator, "name");
+// export const useMediator = ()=>{
+//   return useContext(MediatorContext);
+// }
+// export const nameHook = createStatefulSubjectHook<T>(useMediator, "name");
+// export const nameHook = createStatefulSubjectHook<T>(useMediator, "property2");
 
 // export default nameHook;

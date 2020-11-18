@@ -8,8 +8,9 @@ import TableHeader, { Props } from "../layouts/Table/TableHeader";
 import { Column, Response, Row } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
 import FieldSet from "../inputs/FieldSet";
-import { RequestOptions } from "../mediators/table/TableMediator";
+import { RequestOptions, Action } from "../mediators/table/TableMediator";
 import delayAsync from "../utils/delayAsync";
+import Surface from "../core/Surface";
 
 export default {
   title: "Table",
@@ -58,6 +59,39 @@ const getRandomFirstName = () => {
 const getRandomLastName = () => {
   return lastNames[Math.floor(Math.random() * lastNames.length)];
 };
+
+const actions: Action<Person>[] = [
+  {
+    name: "add",
+    label: "Add",
+    isPrimary: true,
+    canActOn: () => true,
+    handler: () => {
+      return Promise.resolve(undefined);
+    },
+    shouldReloadRowsAfterAction: true,
+  },
+  {
+    name: "edit",
+    label: "Edit",
+    isPrimary: false,
+    canActOn: () => true,
+    handler: () => {
+      return Promise.resolve(undefined);
+    },
+    shouldReloadRowsAfterAction: false,
+  },
+  {
+    name: "delete",
+    label: "Delete",
+    isPrimary: false,
+    canActOn: () => true,
+    handler: () => {
+      return Promise.resolve(undefined);
+    },
+    shouldReloadRowsAfterAction: true,
+  },
+];
 
 const createRows = (amount: number) => {
   const people: Row<Person>[] = [];
@@ -136,11 +170,11 @@ export function BaseTableLayout(props: Props) {
 
   return (
     <StoryBackdrop>
-      <FieldSet name="My Table">
-        <TableProvider columns={columns} onLoad={onLoad}>
+      <Surface style={{ borderRadius: "20px", padding: "30px" }} mode="popOut" raisedOffset={5}>
+        <TableProvider columns={columns} onLoad={onLoad} actions={actions}>
           <TableLayout style={{ width: "500px", height: "400px" }} />
         </TableProvider>
-      </FieldSet>
+      </Surface>
     </StoryBackdrop>
   );
 }

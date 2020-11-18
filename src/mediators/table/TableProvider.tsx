@@ -5,6 +5,7 @@ import TableMediator, {
   Response,
   Column,
   Row,
+  Action,
 } from "./TableMediator";
 
 const defaultTableMediator = new TableMediator<any>();
@@ -13,16 +14,16 @@ export const TableContext = React.createContext(defaultTableMediator);
 
 export interface TableProviderProps<T> {
   columns: Column[];
+  actions?: Action<T>[];
   onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
-  onView?: (item: Row<T>) => Promise<void>;
   children: React.ReactNode[] | React.ReactNode;
 }
 
 function TableProvider<T>({
   columns,
   onLoad,
-  onView,
   children,
+  actions,
 }: TableProviderProps<T>) {
   const tableMediator = useMemo(() => {
     return new TableMediator<T>();
@@ -33,14 +34,14 @@ function TableProvider<T>({
   }, [tableMediator, columns]);
 
   useEffect(() => {
-    tableMediator.setOnLoad(onLoad);
-  }, [tableMediator, onLoad]);
+    if (Array.isArray(actions)) {
+      tableMediator.setActions(actions);
+    }
+  }, [tableMediator, actions]);
 
   useEffect(() => {
-    if (onView != null) {
-      tableMediator.setOnView(onView);
-    }
-  }, [tableMediator, onView]);
+    tableMediator.setOnLoad(onLoad);
+  }, [tableMediator, onLoad]);
 
   useEffect(() => {
     tableMediator.loadNextBatch();

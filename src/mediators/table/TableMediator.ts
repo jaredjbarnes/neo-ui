@@ -46,24 +46,9 @@ export interface Action<T> {
   label: string;
   isPrimary: boolean;
   shouldReloadRowsAfterAction: boolean;
-  canActOn: (selectedRows: Row<T>) => boolean;
-  handler: (selectedRows: Row<T>[]) => AsyncAction<void>;
+  canActOn: (selectedRows: Row<T>[]) => boolean;
+  handler: (selectedRows: Row<T>[]) => Promise<void>;
 }
-
-interface MutationEvent<T> {
-  type: "added" | "edited" | "deleted";
-  row: Row<T>;
-}
-
-interface MutationErrorEvent<T> {
-  type: "added" | "edited" | "deleted";
-  row: Row<T> | null;
-  error: Error;
-}
-
-const nullableOnViewFunction = () => {
-  return Promise.reject(new Error("No OnView Handler Found."));
-};
 
 function nullableOnLoadFunction<T>() {
   return Promise.reject<Response<T>>(new Error("No OnLoad Handler Found."));
@@ -85,19 +70,17 @@ export default class TableMediator<T> {
   private rows: Row<T>[] = [];
   private keywords: string = "";
   private selectedRows = new Map<string, Row<T>>();
+  private actions: Map<string, Action<T>> = new Map();
   private currentSorts: Sort[] = [];
   private columns: Column[] = [];
   private onLoad: (
     request: RequestOptions<T>
   ) => Promise<Response<T>> = nullableOnLoadFunction;
-  private onView: (item: Row<T>) => Promise<void> = nullableOnViewFunction;
 
-  private mutationSubject = new Subject<MutationEvent<T>>();
-  private mutationErrorSubject = new Subject<MutationErrorEvent<T>>();
   private rowsChangeSubject = new Subject<Row<T>[]>();
   private columnsSubject = new Subject<Column[]>();
   private sortSubject = new Subject<Sort[]>();
-  private actions: Action<T>[] = [];
+  private actionsSubject = new Subject<Action<T>[]>();
 
   loadNextBatch() {
     const onLoad = this.getOnLoad();
@@ -134,20 +117,55 @@ export default class TableMediator<T> {
   }
 
   getActions() {
-    return this.actions.slice();
+    return Array.from(this.actions.values());
   }
 
   getActionByName(name: string) {
-    return this.actions.find((a) => a.name === name);
+    return this.actions.get(name);
   }
 
-  setActions(value: Action<T>[]) {
-    this.actions = value.slice();
+  setActions(actions: Action<T>[]) {
+    if (!this.areActionsEqual(actions)) {
+      this.actions.clear();
+      actions.forEach((a) => this.actions.set(a.name, a));
+      this.actionsSubject.next(actions);
+    }
   }
 
-  performAction(name: string, rows: Row<T>[]) {}
+  areActionsEqual(actions: Action<T>[]) {
+    const newActionsLength = actions.length;
+    const currentActionsLength = this.actions.size;
 
-  performActionOnSelectedRows(name: string) {}
+    return (
+      newActionsLength === currentActionsLength &&
+      actions.every((a) => {
+        return this.actions.has(a.name);
+      })
+    );
+  }
+
+  performAction(name: string, rows: Row<T>[]) {
+    const action = this.actions.get(name);
+
+    if (action != null) {
+      const dynamicAction = new AsyncAction(() => action.handler(rows));
+
+      this.actionStateMachine.execute(dynamicAction).then(() => {
+        if (action.shouldReloadRowsAfterAction) {
+          this.reset();
+          this.loadNextBatch();
+        } else {
+          this.notifyRowsChange();
+        }
+      });
+    } else {
+      throw new Error(`Unable to find action by name of '${name}'.`);
+    }
+  }
+
+  performActionOnSelectedRows(name: string) {
+    this.performAction(name, Array.from(this.selectedRows.values()));
+  }
 
   setOnLoad(onLoad: (request: RequestOptions<T>) => Promise<Response<T>>) {
     this.onLoad = onLoad;
@@ -155,14 +173,6 @@ export default class TableMediator<T> {
 
   getOnLoad() {
     return this.onLoad;
-  }
-
-  setOnView(onView: (item: Row<T>) => Promise<void>) {
-    this.onView = onView;
-  }
-
-  getOnView() {
-    return this.onView;
   }
 
   getColumns() {
@@ -223,12 +233,6 @@ export default class TableMediator<T> {
 
   getSelectedRows() {
     return Array.from(this.selectedRows.values());
-  }
-
-  viewSelectedRows() {
-    this.selectedRows.forEach((row) => {
-      this.onView(row);
-    });
   }
 
   setSort(name: string, direction: "ASC" | "DESC") {
@@ -334,10 +338,6 @@ export default class TableMediator<T> {
     this.rowsChangeSubject.next(this.rows.slice());
   }
 
-  onRowMutation(callback: (event: MutationEvent<T>) => void) {
-    return this.mutationSubject.subscribe({ next: callback });
-  }
-
   onSortChange(callback: (sorts: Sort[]) => void) {
     return this.sortSubject.subscribe({ next: callback });
   }
@@ -348,6 +348,10 @@ export default class TableMediator<T> {
 
   onColumnsChange(callback: (columns: Column[]) => void) {
     return this.columnsSubject.subscribe({ next: callback });
+  }
+
+  onActionsChange(callback: (actions: Action<T>[]) => void) {
+    return this.actionsSubject.subscribe({ next: callback });
   }
 
   onLoadingStateChange(callback: (event: StateEvent) => void) {
@@ -362,10 +366,9 @@ export default class TableMediator<T> {
     this.loadingStateMachine.dispose();
     this.actionStateMachine.dispose();
 
-    this.mutationSubject.complete();
-    this.mutationErrorSubject.complete();
     this.columnsSubject.complete();
     this.rowsChangeSubject.complete();
     this.sortSubject.complete();
+    this.actionsSubject.complete();
   }
 }

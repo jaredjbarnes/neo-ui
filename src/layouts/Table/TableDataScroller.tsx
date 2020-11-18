@@ -150,8 +150,8 @@ const TableDataScroller = ({ style, className }: Props) => {
       className={className}
       style={style}
       mode="raised"
-      raisedOffset={4}
-      raisedSpread={10}
+      raisedOffset={7}
+      raisedSpread={14}
     >
       <InsetContainer mode="cutOut" insetOffset={2}>
         <TableScrollerContainer ref={tableScrollerRef} onScroll={onScroll}>

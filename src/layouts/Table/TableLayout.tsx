@@ -5,7 +5,9 @@ import TextInput from "../../inputs/TextInput";
 import TableDataScroller from "./TableDataScroller";
 import SolidButton from "../../inputs/SolidButton";
 import OutlineButton from "../../inputs/OutlineButton";
+import TableActions from "./TableActions";
 import Search from "@material-ui/icons/Search";
+import { Tab } from "@material-ui/core";
 
 const TableGrid = styled.div`
   position: relative;
@@ -25,7 +27,7 @@ const TableDisplay = styled(TableDataScroller)`
   height: 100%;
 `;
 
-const TableActions = styled.div`
+const StyledTableActions = styled(TableActions)`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -103,11 +105,7 @@ function TableLayout<T>({ style, className }: Props) {
         <SearchInput inputRef={inputRef} onValueChange={search} />
       </SearchContainer>
       <TableDisplay />
-      <TableActions>
-        <StyledSolidButton>Add</StyledSolidButton>
-        <StyledOutlineButton>Edit</StyledOutlineButton>
-        <StyledOutlineButton>Delete</StyledOutlineButton>
-      </TableActions>
+      <StyledTableActions />
     </TableGrid>
   );
 }

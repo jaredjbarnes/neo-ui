@@ -14,6 +14,7 @@ const TableRowContainer = styled(Surface)`
   border-bottom: 2px ridge rgba(255, 255, 255, 0.35);
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
+  user-select: none;
 `;
 
 export interface Props {
