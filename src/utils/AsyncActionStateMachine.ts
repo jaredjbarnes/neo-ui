@@ -4,10 +4,13 @@ import AsyncAction, { CancelledError } from "../utils/AsyncAction";
 export type StateEvent = "ready" | "pending" | "error" | "disabled";
 
 export default class AsyncActionStateMachine<T> {
-  protected state: State<T> = new ReadyState(this);
-  protected subject = new Subject<StateEvent>();
-  protected action!: AsyncAction<T>;
-  protected value: T | null = null;
+  private state: State<T> = new ReadyState(this);
+  private stateSubject = new Subject<StateEvent>();
+  private valueSubject = new Subject<T | null>();
+  private errorSubject = new Subject<Error | null>();
+  private action: AsyncAction<T> | null = null;
+  private value: T | null = null;
+  private error: Error | null = null;
 
   getAction() {
     return this.action;
@@ -17,13 +20,39 @@ export default class AsyncActionStateMachine<T> {
     this.action = action;
   }
 
-  changeState(state: State<T>) {
-    this.state = state;
-    this.subject.next(state.getName());
+  getValue() {
+    return this.value;
+  }
+
+  setValue(value: T | null) {
+    if (value !== this.value) {
+      this.value = value;
+      this.valueSubject.next(value);
+    }
+  }
+
+  getError() {
+    return this.error;
+  }
+
+  setError(error: Error | null) {
+    if (error != this.error) {
+      this.error = error;
+      this.errorSubject.next(error);
+    }
   }
 
   getState() {
     return this.state;
+  }
+
+  changeState(state: State<T>) {
+    this.state = state;
+    this.stateSubject.next(state.getName());
+  }
+
+  getStateName() {
+    return this.state.getName();
   }
 
   disable() {
@@ -50,21 +79,25 @@ export default class AsyncActionStateMachine<T> {
     return this.state.resolveError();
   }
 
-  getError() {
-    return this.state.getError();
-  }
-
   restore() {
     this.state.cancel();
     this.changeState(new ReadyState<T>(this));
   }
 
-  onChange(callback: (event: StateEvent) => void) {
-    return this.subject.subscribe({ next: callback });
+  onStateChange(callback: (event: StateEvent) => void) {
+    return this.stateSubject.subscribe({ next: callback });
+  }
+
+  onValueChange(callback: (value: T | null) => void) {
+    return this.valueSubject.subscribe({ next: callback });
+  }
+
+  onErrorChange(callback: (error: Error | null) => void) {
+    return this.errorSubject.subscribe({ next: callback });
   }
 
   dispose() {
-    this.subject.complete();
+    this.stateSubject.complete();
   }
 }
 
@@ -89,17 +122,23 @@ abstract class State<T> {
   execute(action: AsyncAction<T>) {
     return Promise.reject<T>(new Error("Not yet implemented."));
   }
+
   cancel() {
     // Do nothing.
   }
+
   retry() {
-    // Do nothing.
+    const action = this.context.getAction();
+
+    if (action) {
+      return action.execute();
+    } else {
+      return Promise.reject<T>(new Error("There was no action to retry."));
+    }
   }
+
   resolveError() {
     // Do nothing.
-  }
-  getError(): Error | null {
-    return null;
   }
 }
 
@@ -121,12 +160,15 @@ class ReadyState<T> extends State<T> {
     return result
       .then((value: T) => {
         this.context.changeState(new ReadyState<T>(this.context));
+        this.context.setValue(value);
         return value;
       })
       .catch((error: Error) => {
         if (!(error instanceof CancelledError)) {
           this.context.changeState(new ErrorState<T>(this.context, error));
+          this.context.setError(error);
         }
+
         throw error;
       });
   }
@@ -138,18 +180,28 @@ class PendingState<T> extends State<T> {
   }
 
   execute(action: AsyncAction<T>) {
-    this.context.getAction().cancel();
+    this.context.getAction()?.cancel();
     this.context.changeState(new ReadyState(this.context));
     return this.context.execute(action);
   }
 
+  retry() {
+    const action = this.context.getAction();
+
+    if (action != null) {
+      return action.execute();
+    } else {
+      return Promise.reject<T>(new Error("There was no action to retry."));
+    }
+  }
+
   cancel() {
-    this.context.getAction().cancel();
+    this.context?.getAction()?.cancel();
     this.context.changeState(new ReadyState(this.context));
   }
 
   disable() {
-    this.context.getAction().cancel();
+    this.context?.getAction()?.cancel();
     this.context.changeState(new DisabledState(this.context));
   }
 }
@@ -163,6 +215,7 @@ class ErrorState<T> extends State<T> {
   }
 
   execute(action: AsyncAction<T>) {
+    this.context.setError(null);
     this.context.changeState(new ReadyState(this.context));
     return this.context.execute(action);
   }
@@ -171,16 +224,20 @@ class ErrorState<T> extends State<T> {
     return "error" as StateEvent;
   }
 
-  getError() {
-    return this.error;
-  }
-
   retry() {
+    this.context.setError(null);
     this.context.changeState(new ReadyState(this.context));
-    return this.context.execute(this.context.getAction());
+    const action = this.context.getAction();
+
+    if (action != null) {
+      return this.context.execute(action);
+    } else {
+      return Promise.reject<T>(new Error("There was no action to retry."));
+    }
   }
 
   resolveError() {
+    this.context.setError(null);
     return this.context.changeState(new ReadyState(this.context));
   }
 
@@ -195,8 +252,14 @@ class DisabledState<T> extends State<T> {
   }
 
   execute() {
-    return Promise.reject(
-      new Error("Cannot execute an action, it is disabled.")
+    return Promise.reject<T>(
+      new Error("Cannot execute the action, it is disabled.")
+    );
+  }
+
+  retry() {
+    return Promise.reject<T>(
+      new Error("Cannot retry the action, it is disabled.")
     );
   }
 

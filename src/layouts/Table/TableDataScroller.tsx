@@ -125,7 +125,7 @@ const TableDataScroller = ({ style, className }: Props) => {
 
     if (
       element != null &&
-      element.scrollTop === element.scrollHeight - element.offsetHeight
+      element.scrollTop >= element.scrollHeight - element.offsetHeight
     ) {
       table.loadNextBatch();
     }

@@ -71,7 +71,7 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
     | React.MutableRefObject<HTMLTextAreaElement>;
   inputRef?:
     | ((instance: HTMLInputElement) => void)
-    | React.MutableRefObject<HTMLInputElement>;
+    | React.MutableRefObject<HTMLInputElement | null>;
   large?: boolean;
   disabled?:boolean;
 }

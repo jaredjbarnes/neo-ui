@@ -6,13 +6,13 @@ import useColumnSortDirection from "../../mediators/table/hooks/useColumnSortDir
 import Surface from "../../core/Surface";
 
 const ColumnContainer = styled(Surface)`
-  border-radius: 4px;
+  border-radius: 8px;
   position: relative;
   text-align: center;
   line-height: 25px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: rgba(100, 110, 140, 0.9);
+  color: rgba(100, 110, 140, 0.8);
   box-sizing: border-box;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 11px;

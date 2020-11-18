@@ -63,7 +63,7 @@ const createRows = (amount: number) => {
   const people: Row<Person>[] = [];
 
   for (let x = 0; x < amount; x++) {
-    const person = new Person();
+    const person: any = new Person();
     person.id = x;
     person.firstName = getRandomFirstName();
     person.lastName = getRandomLastName();
@@ -72,7 +72,7 @@ const createRows = (amount: number) => {
     const cells = Object.keys(person).map((key) => {
       return {
         name: key,
-        value: person[key].toString(),
+        value: person[key],
       };
     });
 
@@ -104,8 +104,8 @@ export function BaseTableLayout(props: Props) {
 
     filteredResults.sort((rowA, rowB) => {
       let score = 0;
-      const personA = rowA.value;
-      const personB = rowB.value;
+      const personA: any = rowA.value;
+      const personB: any = rowB.value;
 
       sorts.every((sort) => {
         const propertyName = sort.name;
@@ -145,23 +145,6 @@ export function BaseTableLayout(props: Props) {
   );
 }
 
-export function Header(props: Props) {
-  const onLoad = () => {
-    return Promise.resolve<Response<Person>>({
-      data: createRows(30),
-      isLast: true,
-    });
-  };
-
-  return (
-    <StoryBackdrop>
-      <TableProvider columns={columns} onLoad={onLoad}>
-        <TableHeader />
-      </TableProvider>
-    </StoryBackdrop>
-  );
-}
-
 export function DataScroller(props: Props) {
   const onLoad = () => {
     return Promise.resolve<Response<Person>>({
@@ -174,6 +157,23 @@ export function DataScroller(props: Props) {
     <StoryBackdrop>
       <TableProvider columns={columns} onLoad={onLoad}>
         <TableDataScroller style={{ width: "200px", height: "200px" }} />
+      </TableProvider>
+    </StoryBackdrop>
+  );
+}
+
+export function Header(props: Props) {
+  const onLoad = () => {
+    return Promise.resolve<Response<Person>>({
+      data: createRows(30),
+      isLast: true,
+    });
+  };
+
+  return (
+    <StoryBackdrop>
+      <TableProvider columns={columns} onLoad={onLoad}>
+        <TableHeader />
       </TableProvider>
     </StoryBackdrop>
   );

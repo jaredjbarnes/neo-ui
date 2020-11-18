@@ -20,6 +20,7 @@ function resolveShadowColor(color: string | null | undefined) {
 const Container = styled.div`
   display: inline-block;
   box-sizing: border-box;
+  background-color: #ecf0f3;
 `;
 
 const useStyledTransition = makeStyledTransition<HTMLDivElement>(

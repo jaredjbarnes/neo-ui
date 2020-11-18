@@ -3,6 +3,7 @@ import AsyncActionStateMachine, {
   StateEvent,
 } from "../../utils/AsyncActionStateMachine";
 import { Subject } from "rxjs";
+import StatefulSubject from "../../utils/StatefulSubject";
 
 export interface Cell {
   name: string;
@@ -37,7 +38,7 @@ export interface Sort {
 export interface RequestOptions<T> {
   rows: Row<T>[];
   sorts: Sort[];
-  keywords?: string;
+  keywords: string;
 }
 
 export interface Action<T> {
@@ -45,6 +46,7 @@ export interface Action<T> {
   label: string;
   isPrimary: boolean;
   shouldReloadRowsAfterAction: boolean;
+  canActOn: (selectedRows: Row<T>) => boolean;
   handler: (selectedRows: Row<T>[]) => AsyncAction<void>;
 }
 
@@ -79,7 +81,7 @@ function sortColumns(a: Column, b: Column) {
 
 export default class TableMediator<T> {
   private loadingStateMachine = new AsyncActionStateMachine<Response<T>>();
-  private actionStateMachine = new AsyncActionStateMachine<Response<T>>();
+  private actionStateMachine = new AsyncActionStateMachine<void>();
   private rows: Row<T>[] = [];
   private keywords: string = "";
   private selectedRows = new Map<string, Row<T>>();
@@ -349,11 +351,11 @@ export default class TableMediator<T> {
   }
 
   onLoadingStateChange(callback: (event: StateEvent) => void) {
-    return this.loadingStateMachine.onChange(callback);
+    return this.loadingStateMachine.onStateChange(callback);
   }
 
   onActionStateChange(callback: (event: StateEvent) => void) {
-    return this.actionStateMachine.onChange(callback);
+    return this.actionStateMachine.onStateChange(callback);
   }
 
   dispose() {

@@ -30,6 +30,7 @@ const ButtonContainer = styled(Surface)`
   color: rgba(0, 0, 0, 0.6);
   cursor: pointer;
   outline-style: none;
+  background-color: rgba(0, 0, 0, 0);
 `;
 
 const ContentContainer = styled(Surface)`
@@ -41,6 +42,7 @@ const ContentContainer = styled(Surface)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  background-color: rgba(0, 0, 0, 0);
 `;
 
 export type { Props };
