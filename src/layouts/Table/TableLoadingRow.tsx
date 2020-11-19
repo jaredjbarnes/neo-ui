@@ -70,6 +70,18 @@ const TableRow = ({ className, style }: Props) => {
 
   return (
     <TableRowContainer style={{ ...style, ...rowStyles }} className={className}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gridColumnStart: 1,
+          gridColumnEnd: 1,
+          padding: 0,
+        }}
+      >
+        <PulsingSection style={{ width: "60%" }} />
+      </div>
       {columns.map((c, index) => (
         <div
           key={index}
