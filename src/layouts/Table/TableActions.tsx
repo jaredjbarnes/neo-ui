@@ -3,6 +3,7 @@ import styled from "styled-components";
 import SolidButton from "../../inputs/SolidButton";
 import OutlineButton from "../../inputs/OutlineButton";
 import useActions from "../../mediators/table/hooks/useActions";
+import useTable from "../../mediators/table/hooks/useTable";
 
 const ActionsContainer = styled.div`
   width: 100%;
@@ -27,15 +28,26 @@ interface Props {
 const TableActions = React.forwardRef<HTMLDivElement, Props>(
   ({ style, className }: Props, ref) => {
     const actions = useActions();
+    const table = useTable();
 
     return (
       <ActionsContainer ref={ref} style={style} className={className}>
         {actions.map((action, index) => {
+          const onClick = () => {
+            table.performActionOnSelectedRows(action.name);
+          };
+
           if (action.isPrimary) {
-            return <PrimaryButton key={index}>{action.label}</PrimaryButton>;
+            return (
+              <PrimaryButton onClick={onClick} key={index}>
+                {action.label}
+              </PrimaryButton>
+            );
           } else {
             return (
-              <SecondaryButton key={index}>{action.label}</SecondaryButton>
+              <SecondaryButton onClick={onClick} key={index}>
+                {action.label}
+              </SecondaryButton>
             );
           }
         })}

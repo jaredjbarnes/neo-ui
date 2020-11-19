@@ -5,8 +5,9 @@ import TableCell from "./TableCell";
 import { Row } from "../../mediators/table/TableMediator";
 import Surface from "../../core/Surface";
 import RowProvider from "../../mediators/table/RowProvider";
+import Checkbox from "../../inputs/Checkbox";
 
-const TableRowContainer = styled(Surface)`
+const TableRowContainer = styled.div`
   display: grid;
   position: relative;
   height: 40px;
@@ -24,29 +25,23 @@ export interface Props {
 }
 
 const TableRow = ({ row, className, style }: Props) => {
-  const [mode, setMode] = useState<"flat" | "raised" | "inset">("flat");
   const columns = useColumns();
-
-  const flatten = () => {
-    setMode("flat");
-  };
-
-  const indent = () => {
-    setMode("inset");
-  };
 
   const rowStyles = useMemo(() => {
     const gridTemplateColumns =
+      "50px " +
       columns
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
-        .join(" ") + " auto";
+        .join(" ") +
+      " auto";
 
-    const width = columns.reduce((acc, column) => {
-      return acc + column.width;
-    }, 0);
+    const width =
+      columns.reduce((acc, column) => {
+        return acc + column.width;
+      }, 0) + 50;
 
     return {
-      width,
+      width: `${width}px`,
       gridTemplateColumns,
     } as React.CSSProperties;
   }, [columns]);
@@ -56,22 +51,28 @@ const TableRow = ({ row, className, style }: Props) => {
   return (
     <RowProvider row={row}>
       <TableRowContainer
-        mode={mode}
         style={{ ...style, ...rowStyles }}
         className={className}
-        onMouseDown={indent}
-        onMouseUp={flatten}
-        onMouseLeave={flatten}
-        insetOffset={2}
-        insetSpread={3}
       >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gridColumnStart: 1,
+            gridColumnEnd: 1,
+            padding: 0,
+          }}
+        >
+          <Checkbox />
+        </div>
         {columns.map((c, index) => (
           <TableCell
             column={c}
             key={index}
             style={{
-              gridColumnStart: index + 1,
-              gridColumnEnd: index + 1,
+              gridColumnStart: index + 2,
+              gridColumnEnd: index + 2,
               width: c.width + "px",
             }}
           >
@@ -80,8 +81,8 @@ const TableRow = ({ row, className, style }: Props) => {
         ))}
         <div
           style={{
-            gridColumnStart: columns.length + 1,
-            gridColumnEnd: columns.length + 1,
+            gridColumnStart: columns.length + 2,
+            gridColumnEnd: columns.length + 2,
             padding: 0,
           }}
         ></div>

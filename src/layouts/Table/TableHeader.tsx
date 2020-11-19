@@ -3,6 +3,7 @@ import useColumns from "../../mediators/table/hooks/useColumns";
 import styled from "styled-components";
 import TableColumn from "./TableColumn";
 import Surface from "../../core/Surface";
+import Checkbox from "../../inputs/Checkbox";
 
 const TableHeaderContainer = styled(Surface)`
   display: grid;
@@ -23,16 +24,19 @@ const TableHeader = ({ className, style }: Props) => {
 
   const barStyles = useMemo(() => {
     const gridTemplateColumns =
+      "50px " +
       columns
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
-        .join(" ") + " auto";
+        .join(" ") +
+      " auto";
 
-    const minWidth = columns.reduce((acc, column) => {
-      return acc + column.width;
-    }, 0);
+    const width =
+      columns.reduce((acc, column) => {
+        return acc + column.width;
+      }, 0) + 50;
 
     return {
-      minWidth: `${minWidth}px`,
+      width: `${width}px`,
       gridTemplateColumns,
     } as React.CSSProperties;
   }, [columns]);
@@ -45,6 +49,20 @@ const TableHeader = ({ className, style }: Props) => {
       raisedSpread={4}
       raisedOffset={2}
     >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gridColumnStart: 1,
+          gridColumnEnd: 1,
+          gridRowStart: 2,
+          gridRowEnd: 2,
+          padding: 0,
+        }}
+      >
+        <Checkbox />
+      </div>
       {columns.map((c, index) => (
         <TableColumn
           column={c}
@@ -52,9 +70,10 @@ const TableHeader = ({ className, style }: Props) => {
           style={{
             gridRowStart: 2,
             gridRowEnd: 2,
-            gridColumnStart: index + 1,
-            gridColumnEnd: index + 1,
+            gridColumnStart: index + 2,
+            gridColumnEnd: index + 2,
             width: c.width + "px",
+            textAlign: c.alignment,
           }}
         >
           {c.label}
@@ -64,8 +83,8 @@ const TableHeader = ({ className, style }: Props) => {
         style={{
           gridRowStart: 2,
           gridRowEnd: 2,
-          gridColumnStart: columns.length + 1,
-          gridColumnEnd: columns.length + 1,
+          gridColumnStart: columns.length + 2,
+          gridColumnEnd: columns.length + 2,
           padding: 0,
         }}
       ></div>

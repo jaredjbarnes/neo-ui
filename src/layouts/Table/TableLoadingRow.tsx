@@ -35,6 +35,12 @@ const PulsingSection = styled.div`
   border-radius: 8px;
 `;
 
+const alignmentMap = {
+  left: "flex-start",
+  center: "center",
+  right: "flex-end",
+};
+
 export interface Props {
   className?: string;
   style?: React.CSSProperties;
@@ -45,16 +51,19 @@ const TableRow = ({ className, style }: Props) => {
 
   const rowStyles = useMemo(() => {
     const gridTemplateColumns =
+      "50px " +
       columns
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
-        .join(" ") + " auto";
+        .join(" ") +
+      " auto";
 
-    const width = columns.reduce((acc, column) => {
-      return acc + column.width;
-    }, 0);
+    const width =
+      columns.reduce((acc, column) => {
+        return acc + column.width;
+      }, 0) + 50;
 
     return {
-      width,
+      width: `${width}px`,
       gridTemplateColumns,
     } as React.CSSProperties;
   }, [columns]);
@@ -65,12 +74,12 @@ const TableRow = ({ className, style }: Props) => {
         <div
           key={index}
           style={{
-            gridColumnStart: index + 1,
-            gridColumnEnd: index + 1,
+            gridColumnStart: index + 2,
+            gridColumnEnd: index + 2,
             width: c.width + "px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: alignmentMap[c.alignment],
           }}
         >
           <PulsingSection />
@@ -78,8 +87,8 @@ const TableRow = ({ className, style }: Props) => {
       ))}
       <div
         style={{
-          gridColumnStart: columns.length + 1,
-          gridColumnEnd: columns.length + 1,
+          gridColumnStart: columns.length + 2,
+          gridColumnEnd: columns.length + 2,
           padding: 0,
         }}
       ></div>

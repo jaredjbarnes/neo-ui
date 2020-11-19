@@ -31,7 +31,7 @@ const columns = [
     name: "firstName",
     width: 100,
     canSort: true,
-    alignment: "center",
+    alignment: "left",
   },
   {
     label: "Last Name",
@@ -45,12 +45,12 @@ const columns = [
     name: "age",
     width: 50,
     canSort: true,
-    alignment: "right",
+    alignment: "center",
   },
 ] as Column[];
 
 const firstNames = ["Justin", "Jared", "Jeff", "Jocelyn", "Jaelyn", "Jerika"];
-const lastNames = ["Barnes", "Lovell", "Bulloch", "Superlonglastname"];
+const lastNames = ["Barnes", "Lovell", "Bulloch", "Kaffenberger"];
 
 const getRandomFirstName = () => {
   return firstNames[Math.floor(Math.random() * firstNames.length)];
@@ -184,7 +184,7 @@ function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
         isLast: isLast,
       });
     } else {
-      return delayAsync<Response<T>>(Math.floor(Math.random() * 1000), {
+      return delayAsync<Response<T>>(Math.floor(Math.random() * maxLatency), {
         data: convertToRows(results),
         isLast: isLast,
       });
@@ -204,6 +204,25 @@ export function BaseTableLayout(props: Props) {
         raisedOffset={5}
       >
         <TableProvider columns={columns} onLoad={onLoad} actions={actions}>
+          <TableLayout style={{ width: "500px", height: "400px" }} />
+        </TableProvider>
+      </Surface>
+    </StoryBackdrop>
+  );
+}
+
+export function TableLayoutWithoutActions(props: Props) {
+  const people = createPeople(30);
+  const onLoad = onLoadGenerator(people, columns, 1000);
+
+  return (
+    <StoryBackdrop>
+      <Surface
+        style={{ borderRadius: "20px", padding: "30px" }}
+        mode="popOut"
+        raisedOffset={5}
+      >
+        <TableProvider columns={columns} onLoad={onLoad}>
           <TableLayout style={{ width: "500px", height: "400px" }} />
         </TableProvider>
       </Surface>

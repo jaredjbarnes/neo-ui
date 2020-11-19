@@ -8,6 +8,7 @@ import OutlineButton from "../../inputs/OutlineButton";
 import TableActions from "./TableActions";
 import Search from "@material-ui/icons/Search";
 import { Tab } from "@material-ui/core";
+import useActions from "../../mediators/table/hooks/useActions";
 
 const TableGrid = styled.div`
   position: relative;
@@ -88,7 +89,9 @@ export interface Props {
 
 function TableLayout<T>({ style, className }: Props) {
   const table = useTable();
+  const actions = useActions();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const showActions = actions.length > 0;
 
   const search = (value: string) => {
     if (inputRef.current != null) {
@@ -96,8 +99,16 @@ function TableLayout<T>({ style, className }: Props) {
     }
   };
 
+  const gridStyles = {
+    gridTemplateColumns: "auto 125px",
+  };
+
+  if (!showActions) {
+    gridStyles.gridTemplateColumns = "100%";
+  }
+
   return (
-    <TableGrid className={className} style={style}>
+    <TableGrid className={className} style={{ ...style, ...gridStyles }}>
       <SearchContainer>
         <SearchIconContainer>
           <SearchIcon />
@@ -105,7 +116,7 @@ function TableLayout<T>({ style, className }: Props) {
         <SearchInput inputRef={inputRef} onValueChange={search} />
       </SearchContainer>
       <TableDisplay />
-      <StyledTableActions />
+      {showActions && <StyledTableActions />}
     </TableGrid>
   );
 }
