@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
+import useTable from "../../mediators/table/hooks/useTable";
+import useIsRowSelected from "../../mediators/table/hooks/useIsRowSelected";
 import styled from "styled-components";
 import TableCell from "./TableCell";
 import { Row } from "../../mediators/table/TableMediator";
-import Surface from "../../core/Surface";
 import RowProvider from "../../mediators/table/RowProvider";
 import Checkbox from "../../inputs/Checkbox";
 
@@ -12,7 +13,7 @@ const TableRowContainer = styled.div`
   position: relative;
   height: 40px;
   min-width: 100%;
-  border-bottom: 2px ridge rgba(255, 255, 255, 0.35);
+  border-bottom: 2px ridge rgba(255, 255, 255, 0.65);
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   user-select: none;
@@ -26,6 +27,8 @@ export interface Props {
 
 const TableRow = ({ row, className, style }: Props) => {
   const columns = useColumns();
+  const table = useTable();
+  const isSelected = useIsRowSelected(row);
 
   const rowStyles = useMemo(() => {
     const gridTemplateColumns =
@@ -48,6 +51,14 @@ const TableRow = ({ row, className, style }: Props) => {
 
   const cells = row.cells;
 
+  const onCheckboxClick = () => {
+    if (table.isRowSelected(row)) {
+      table.deselectRow(row);
+    } else {
+      table.selectRow(row);
+    }
+  };
+
   return (
     <RowProvider row={row}>
       <TableRowContainer
@@ -64,7 +75,7 @@ const TableRow = ({ row, className, style }: Props) => {
             padding: 0,
           }}
         >
-          <Checkbox />
+          <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
         </div>
         {columns.map((c, index) => (
           <TableCell

@@ -152,12 +152,12 @@ const Switch = React.forwardRef<HTMLDivElement, Props>(function (
 ) {
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
   const containerRef = useContainerStyledTransition(isFocused, { ref });
-  const secureChecked = typeof checked === "boolean" ? checked : false;
-  const [isChecked, setIsChecked] = useState(secureChecked);
+  const verifiedValue = typeof checked === "boolean" ? checked : false;
+  const [isChecked, setIsChecked] = useState(verifiedValue);
 
   useEffect(() => {
-    setIsChecked(secureChecked);
-  }, [secureChecked]);
+    setIsChecked(verifiedValue);
+  }, [verifiedValue]);
 
   const state = isChecked ? "on" : "off";
   const onRef = useOnStyledTransition(state);

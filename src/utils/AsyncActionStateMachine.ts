@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import AsyncAction, { CancelledError } from "../utils/AsyncAction";
+import AsyncAction, { CancelledError } from "./AsyncAction";
 
 export type StateEvent = "ready" | "pending" | "error" | "disabled";
 
@@ -36,7 +36,7 @@ export default class AsyncActionStateMachine<T> {
   }
 
   setError(error: Error | null) {
-    if (error != this.error) {
+    if (error !== this.error) {
       this.error = error;
       this.errorSubject.next(error);
     }
@@ -81,6 +81,7 @@ export default class AsyncActionStateMachine<T> {
 
   restore() {
     this.state.cancel();
+    this.state.resolveError();
     this.changeState(new ReadyState<T>(this));
   }
 

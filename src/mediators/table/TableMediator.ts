@@ -81,6 +81,7 @@ export default class TableMediator<T> {
   private columnsSubject = new Subject<Column[]>();
   private sortSubject = new Subject<Sort[]>();
   private actionsSubject = new Subject<Action<T>[]>();
+  private selectionSubject = new Subject<Row<T>[]>();
 
   loadNextBatch() {
     const onLoad = this.getOnLoad();
@@ -221,18 +222,33 @@ export default class TableMediator<T> {
 
   selectRow(row: Row<T>) {
     this.selectedRows.set(row.id, row);
+    this.selectionSubject.next(this.getSelectedRows());
   }
 
   deselectRow(row: Row<T>) {
     this.selectedRows.delete(row.id);
+    this.selectionSubject.next(this.getSelectedRows());
   }
 
   deselectAllRows() {
     this.selectedRows.clear();
+    this.selectionSubject.next(this.getSelectedRows());
+  }
+
+  selectedAllRows() {
+    this.rows.forEach((row) => {
+      this.selectedRows.set(row.id, row);
+    });
+
+    this.selectionSubject.next(this.getSelectedRows());
   }
 
   getSelectedRows() {
     return Array.from(this.selectedRows.values());
+  }
+
+  isRowSelected(row: Row<T>) {
+    return this.selectedRows.has(row.id);
   }
 
   setSort(name: string, direction: "ASC" | "DESC") {
@@ -360,6 +376,10 @@ export default class TableMediator<T> {
 
   onActionStateChange(callback: (event: StateEvent) => void) {
     return this.actionStateMachine.onStateChange(callback);
+  }
+
+  onSelectedRowsChange(callback: (rows: Row<T>[]) => void) {
+    return this.selectionSubject.subscribe({ next: callback });
   }
 
   dispose() {

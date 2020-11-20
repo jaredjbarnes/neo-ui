@@ -1,5 +1,7 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
+import useSelectedRows from "../../mediators/table/hooks/useSelectedRows";
+import useTable from "../../mediators/table/hooks/useTable";
 import styled from "styled-components";
 import TableColumn from "./TableColumn";
 import Surface from "../../core/Surface";
@@ -20,7 +22,10 @@ export interface Props {
 }
 
 const TableHeader = ({ className, style }: Props) => {
+  const table = useTable();
   const columns = useColumns();
+  const selectedRows = useSelectedRows();
+  const isChecked = selectedRows.length > 0;
 
   const barStyles = useMemo(() => {
     const gridTemplateColumns =
@@ -40,6 +45,14 @@ const TableHeader = ({ className, style }: Props) => {
       gridTemplateColumns,
     } as React.CSSProperties;
   }, [columns]);
+
+  const toggleSelection = () => {
+    if (isChecked) {
+      table.deselectAllRows();
+    } else {
+      table.selectedAllRows();
+    }
+  };
 
   return (
     <TableHeaderContainer
@@ -61,7 +74,7 @@ const TableHeader = ({ className, style }: Props) => {
           padding: 0,
         }}
       >
-        <Checkbox />
+        <Checkbox value={isChecked} onValueChange={toggleSelection} />
       </div>
       {columns.map((c, index) => (
         <TableColumn
