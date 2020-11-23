@@ -17,13 +17,16 @@ const CheckboxContainer = styled(Surface)`
 `;
 
 const CheckIcon = styled(Check)`
-  color: rgba(30, 167, 253, 0.9);
+  color: rgba(100, 110, 140, 1);
 `;
 
 export interface Props {
   style?: React.CSSProperties;
   className?: string;
-  onValueChange?: (value: boolean) => void;
+  onValueChange?: (
+    value: boolean,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
   value?: boolean;
 }
 
@@ -31,12 +34,12 @@ const Checkbox = ({ style, className, value, onValueChange }: Props) => {
   const verifiedValue = typeof value === "boolean" ? value : false;
   const [isChecked, setIsChecked] = useState(verifiedValue);
 
-  const onMouseDown = () => {
+  const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const newValue = !isChecked;
 
     setIsChecked(newValue);
     if (typeof onValueChange === "function") {
-      onValueChange(newValue);
+      onValueChange(newValue, event);
     }
   };
 

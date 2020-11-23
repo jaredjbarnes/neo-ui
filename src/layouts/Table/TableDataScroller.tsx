@@ -7,6 +7,7 @@ import useOnRowsChange from "../../mediators/table/hooks/useOnRowsChange";
 import styled from "styled-components";
 import TableStatus from "./TableStatus";
 import TableLoadingRow from "./TableLoadingRow";
+import TableMediator, { Row } from "../../mediators/table/TableMediator";
 
 const RaisedContainer = styled(Surface)`
   min-height: 200px;
@@ -60,6 +61,11 @@ const StyledTableStatus = styled(TableStatus)`
 interface Props {
   style?: React.CSSProperties;
   className?: string;
+  onRowClick?: (
+    row: Row<any>,
+    table: TableMediator<any>,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
 }
 
 interface Range {
@@ -71,7 +77,7 @@ const OFFSET_Y = 37;
 const ROW_HEIGHT = 40;
 const STATUS_HEIGHT = 40;
 
-const TableDataScroller = ({ style, className }: Props) => {
+const TableDataScroller = ({ style, className, onRowClick }: Props) => {
   useOnRowsChange();
   const table = useTable();
   const tableScrollerRef = useRef<HTMLDivElement | null>(null);
@@ -124,7 +130,7 @@ const TableDataScroller = ({ style, className }: Props) => {
     updateRect();
 
     if (
-      !isFinished && 
+      !isFinished &&
       element != null &&
       element.scrollTop >= element.scrollHeight - element.offsetHeight
     ) {
@@ -169,7 +175,12 @@ const TableDataScroller = ({ style, className }: Props) => {
               } as React.CSSProperties;
 
               return (
-                <TableRow key={data.row.id} row={data.row} style={style} />
+                <TableRow
+                  key={data.row.id}
+                  row={data.row}
+                  style={style}
+                  onRowClick={onRowClick}
+                />
               );
             })}
             {!isFinished && <TableLoadingRow style={tableLoadingRowStyle} />}

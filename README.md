@@ -88,3 +88,6 @@ interface TableProps<T> {
     }}
  />
 ```
+
+We need to make a ArrayTable that just takes an array and displays them with the actions needed. This of course, would be built
+on the Table just has a bit more opinion on it. 

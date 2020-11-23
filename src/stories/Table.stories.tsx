@@ -5,9 +5,12 @@ import StoryBackdrop from "./StoryBackdrop";
 import TableDataScroller from "../layouts/Table/TableDataScroller";
 import TableLayout from "../layouts/Table/TableLayout";
 import TableHeader, { Props } from "../layouts/Table/TableHeader";
-import { Column, Response, Row } from "../mediators/table/TableMediator";
+import TableMediator, {
+  Column,
+  Response,
+  Row,
+} from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
-import FieldSet from "../inputs/FieldSet";
 import { RequestOptions, Action } from "../mediators/table/TableMediator";
 import delayAsync from "../utils/delayAsync";
 import Surface from "../core/Surface";
@@ -60,39 +63,6 @@ const getRandomLastName = () => {
   return lastNames[Math.floor(Math.random() * lastNames.length)];
 };
 
-const actions: Action<Person>[] = [
-  {
-    name: "add",
-    label: "Add",
-    isPrimary: true,
-    canActOn: () => true,
-    handler: () => {
-      return Promise.resolve(undefined);
-    },
-    shouldReloadRowsAfterAction: true,
-  },
-  {
-    name: "edit",
-    label: "Edit",
-    isPrimary: false,
-    canActOn: () => true,
-    handler: () => {
-      return Promise.resolve(undefined);
-    },
-    shouldReloadRowsAfterAction: false,
-  },
-  {
-    name: "delete",
-    label: "Delete",
-    isPrimary: false,
-    canActOn: () => true,
-    handler: () => {
-      return Promise.resolve(undefined);
-    },
-    shouldReloadRowsAfterAction: true,
-  },
-];
-
 const createPeople = (amount: number) => {
   const people: Person[] = [];
 
@@ -133,7 +103,7 @@ function convertToRows<T>(data: T[]) {
 }
 
 function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
-  return ({ rows, keywords, sorts }: RequestOptions<T>) => {
+  return ({ rows, query, sorts }: RequestOptions<T>) => {
     let results;
     let isLast = false;
     let pageSize = 10;
@@ -142,13 +112,13 @@ function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
       return columns.some((column) => {
         if (
           typeof item[column.name] === "string" ||
-          item[column.name] === "number" ||
-          item[column.name] === "boolean"
+          typeof item[column.name] === "number" ||
+          typeof item[column.name] === "boolean"
         ) {
           return item[column.name]
             .toString()
             .toLowerCase()
-            .includes(keywords.toLowerCase());
+            .includes(query.toLowerCase());
         }
         return false;
       });
@@ -196,6 +166,36 @@ export function BaseTableLayout(props: Props) {
   const people = createPeople(30);
   const onLoad = onLoadGenerator(people, columns, 1000);
 
+  const actions: Action<Person>[] = [
+    {
+      name: "add",
+      label: "Add",
+      isPrimary: true,
+      canAct: () => true,
+      handler: () => {
+        return Promise.resolve(undefined);
+      },
+    },
+    {
+      name: "edit",
+      label: "Edit",
+      isPrimary: false,
+      canAct: () => true,
+      handler: () => {
+        return Promise.resolve(undefined);
+      },
+    },
+    {
+      name: "delete",
+      label: "Delete",
+      isPrimary: false,
+      canAct: () => true,
+      handler: (table: TableMediator<Person>) => {
+        return Promise.resolve(undefined);
+      },
+    },
+  ];
+
   return (
     <StoryBackdrop>
       <Surface
@@ -203,9 +203,12 @@ export function BaseTableLayout(props: Props) {
         mode="popOut"
         raisedOffset={5}
       >
-        <TableProvider columns={columns} onLoad={onLoad} actions={actions}>
-          <TableLayout style={{ width: "500px", height: "400px" }} />
-        </TableProvider>
+        <Table
+          columns={columns}
+          onLoad={onLoad}
+          actions={actions}
+          style={{ width: "500px", height: "400px" }}
+        />
       </Surface>
     </StoryBackdrop>
   );

@@ -7,8 +7,8 @@ import SolidButton from "../../inputs/SolidButton";
 import OutlineButton from "../../inputs/OutlineButton";
 import TableActions from "./TableActions";
 import Search from "@material-ui/icons/Search";
-import { Tab } from "@material-ui/core";
 import useActions from "../../mediators/table/hooks/useActions";
+import TableMediator, { Row } from "../../mediators/table/TableMediator";
 
 const TableGrid = styled.div`
   position: relative;
@@ -82,12 +82,17 @@ const SearchIcon = styled(Search)`
   color: rgba(100, 110, 140, 0.8);
 `;
 
-export interface Props {
+export interface Props<T> {
   style?: React.CSSProperties;
   className?: string;
+  onRowClick?: (
+    row: Row<T>,
+    table: TableMediator<T>,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
 }
 
-function TableLayout<T>({ style, className }: Props) {
+function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
   const table = useTable();
   const actions = useActions();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -115,7 +120,7 @@ function TableLayout<T>({ style, className }: Props) {
         </SearchIconContainer>
         <SearchInput inputRef={inputRef} onValueChange={search} />
       </SearchContainer>
-      <TableDisplay />
+      <TableDisplay onRowClick={onRowClick} />
       {showActions && <StyledTableActions />}
     </TableGrid>
   );

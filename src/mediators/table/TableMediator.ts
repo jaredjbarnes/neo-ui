@@ -3,7 +3,6 @@ import AsyncActionStateMachine, {
   StateEvent,
 } from "../../utils/AsyncActionStateMachine";
 import { Subject } from "rxjs";
-import StatefulSubject from "../../utils/StatefulSubject";
 
 export interface Cell {
   name: string;
@@ -38,16 +37,15 @@ export interface Sort {
 export interface RequestOptions<T> {
   rows: Row<T>[];
   sorts: Sort[];
-  keywords: string;
+  query: string;
 }
 
 export interface Action<T> {
   name: string;
   label: string;
   isPrimary: boolean;
-  shouldReloadRowsAfterAction: boolean;
-  canActOn: (selectedRows: Row<T>[]) => boolean;
-  handler: (selectedRows: Row<T>[]) => Promise<void>;
+  canAct: (table: TableMediator<T>) => boolean;
+  handler: (table: TableMediator<T>) => Promise<void>;
 }
 
 function nullableOnLoadFunction<T>() {
@@ -68,7 +66,7 @@ export default class TableMediator<T> {
   private loadingStateMachine = new AsyncActionStateMachine<Response<T>>();
   private actionStateMachine = new AsyncActionStateMachine<void>();
   private rows: Row<T>[] = [];
-  private keywords: string = "";
+  private query: string = "";
   private selectedRows = new Map<string, Row<T>>();
   private actions: Map<string, Action<T>> = new Map();
   private currentSorts: Sort[] = [];
@@ -82,25 +80,26 @@ export default class TableMediator<T> {
   private sortSubject = new Subject<Sort[]>();
   private actionsSubject = new Subject<Action<T>[]>();
   private selectionSubject = new Subject<Row<T>[]>();
+  private querySubject = new Subject<string>();
 
   loadNextBatch() {
     const onLoad = this.getOnLoad();
     const rows = this.getRows();
     const sorts = this.getSorts();
-    const keywords = this.getKeywords();
+    const query = this.getQuery();
 
     const action = new AsyncAction(() => {
       return onLoad({
         rows,
         sorts,
-        keywords,
+        query,
       });
     });
 
     this.loadingStateMachine
       .execute(action)
       .then((response) => {
-        this.loadRows(response.data);
+        this.appendRows(response.data);
         if (response.isLast) {
           this.loadingStateMachine.disable();
         }
@@ -113,8 +112,8 @@ export default class TableMediator<T> {
       });
   }
 
-  getKeywords() {
-    return this.keywords;
+  getQuery() {
+    return this.query;
   }
 
   getActions() {
@@ -149,16 +148,9 @@ export default class TableMediator<T> {
     const action = this.actions.get(name);
 
     if (action != null) {
-      const dynamicAction = new AsyncAction(() => action.handler(rows));
+      const dynamicAction = new AsyncAction(() => action.handler(this));
 
-      this.actionStateMachine.execute(dynamicAction).then(() => {
-        if (action.shouldReloadRowsAfterAction) {
-          this.reset();
-          this.loadNextBatch();
-        } else {
-          this.notifyRowsChange();
-        }
-      });
+      this.actionStateMachine.execute(dynamicAction);
     } else {
       throw new Error(`Unable to find action by name of '${name}'.`);
     }
@@ -205,8 +197,9 @@ export default class TableMediator<T> {
     return stringA === stringB;
   }
 
-  search(keywords: string) {
-    this.keywords = keywords;
+  search(query: string) {
+    this.query = query;
+    this.querySubject.next(query);
 
     this.reset();
     this.loadNextBatch();
@@ -290,6 +283,15 @@ export default class TableMediator<T> {
     this.loadingStateMachine.restore();
   }
 
+  reload() {
+    this.reset();
+    this.loadNextBatch();
+  }
+
+  refresh() {
+    this.notifyRowsChange();
+  }
+
   getLoadedRowsLength() {
     return this.rows.length;
   }
@@ -303,7 +305,7 @@ export default class TableMediator<T> {
     return this.rows.slice(start, end);
   }
 
-  loadRows(rows: Row<T>[]) {
+  appendRows(rows: Row<T>[]) {
     rows.forEach((r) => this.rows.push(r));
     this.notifyRowsChange();
   }
@@ -382,6 +384,10 @@ export default class TableMediator<T> {
     return this.selectionSubject.subscribe({ next: callback });
   }
 
+  onQueryChange(callback: (query: string) => void) {
+    return this.querySubject.subscribe({ next: callback });
+  }
+
   dispose() {
     this.loadingStateMachine.dispose();
     this.actionStateMachine.dispose();
@@ -390,5 +396,6 @@ export default class TableMediator<T> {
     this.rowsChangeSubject.complete();
     this.sortSubject.complete();
     this.actionsSubject.complete();
+    this.querySubject.complete();
   }
 }

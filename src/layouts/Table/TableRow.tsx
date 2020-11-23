@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import useTable from "../../mediators/table/hooks/useTable";
 import useIsRowSelected from "../../mediators/table/hooks/useIsRowSelected";
 import styled from "styled-components";
 import TableCell from "./TableCell";
-import { Row } from "../../mediators/table/TableMediator";
+import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import RowProvider from "../../mediators/table/RowProvider";
 import Checkbox from "../../inputs/Checkbox";
 
@@ -23,9 +23,14 @@ export interface Props {
   className?: string;
   style?: React.CSSProperties;
   row: Row<any>;
+  onRowClick?: (
+    row: Row<any>,
+    table: TableMediator<any>,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
 }
 
-const TableRow = ({ row, className, style }: Props) => {
+const TableRow = ({ row, className, style, onRowClick }: Props) => {
   const columns = useColumns();
   const table = useTable();
   const isSelected = useIsRowSelected(row);
@@ -59,11 +64,18 @@ const TableRow = ({ row, className, style }: Props) => {
     }
   };
 
+  const onClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (typeof onRowClick === "function") {
+      onRowClick(row, table, event);
+    }
+  };
+
   return (
     <RowProvider row={row}>
       <TableRowContainer
         style={{ ...style, ...rowStyles }}
         className={className}
+        onClick={onClick}
       >
         <div
           style={{

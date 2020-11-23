@@ -1,25 +1,51 @@
 import React from "react";
-import TableProvider, { TableProviderProps } from "../../mediators/table/TableProvider";
-import AsyncAction from "../../utils/AsyncAction";
-import {
+import TableProvider from "../../mediators/table/TableProvider";
+import TableMediator, {
   RequestOptions,
   Response,
   Column,
   Row,
+  Action,
 } from "../../mediators/table/TableMediator";
+import TableLayout from "./TableLayout";
 
 export interface TableProps<T> {
   columns: Column[];
-  onLoad: (request: RequestOptions<T>) => AsyncAction<Response<T>>;
-  onView?: (item: Row<T>) => Promise<void>;
-  onAdd?: () => Promise<Row<T>>;
-  onEdit?: (item: Row<T>) => Promise<void>;
-  onDelete?: (item: Row<T>) => Promise<void>;
-  children: React.ReactNode[] | React.ReactNode;
+  onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
+  className?: string;
+  style?: React.CSSProperties;
+  actions?: Action<T>[];
+  onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
+  onRowClick?: (
+    row: Row<T>,
+    table: TableMediator<T>,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
 }
 
-function Table<T>(props: TableProps<T>) {
-  return <TableProvider<T> {...props}></TableProvider>;
+function Table<T>({
+  actions,
+  onLoad,
+  columns,
+  onSelectionChange,
+  onRowClick,
+  style,
+  className,
+}: TableProps<T>) {
+  return (
+    <TableProvider
+      actions={actions}
+      columns={columns}
+      onLoad={onLoad}
+      onSelectionChange={onSelectionChange}
+    >
+      <TableLayout
+        style={style}
+        className={className}
+        onRowClick={onRowClick}
+      />
+    </TableProvider>
+  );
 }
 
 export default Table;

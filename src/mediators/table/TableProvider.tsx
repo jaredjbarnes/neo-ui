@@ -1,5 +1,4 @@
 import React, { useMemo, useEffect } from "react";
-import AsyncAction from "../../utils/AsyncAction";
 import TableMediator, {
   RequestOptions,
   Response,
@@ -16,6 +15,7 @@ export interface TableProviderProps<T> {
   columns: Column[];
   actions?: Action<T>[];
   onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
+  onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
   children: React.ReactNode[] | React.ReactNode;
 }
 
@@ -24,6 +24,7 @@ function TableProvider<T>({
   onLoad,
   children,
   actions,
+  onSelectionChange,
 }: TableProviderProps<T>) {
   const tableMediator = useMemo(() => {
     return new TableMediator<T>();
@@ -44,8 +45,19 @@ function TableProvider<T>({
   }, [tableMediator, onLoad]);
 
   useEffect(() => {
+    // This will load the first page on mount.
     tableMediator.loadNextBatch();
   }, [tableMediator]);
+
+  useEffect(() => {
+    if (typeof onSelectionChange === "function") {
+      const subscription = tableMediator.onSelectedRowsChange((rows) => {
+        onSelectionChange(rows, tableMediator);
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [onSelectionChange]);
 
   useEffect(() => () => tableMediator.dispose(), [tableMediator]);
 
