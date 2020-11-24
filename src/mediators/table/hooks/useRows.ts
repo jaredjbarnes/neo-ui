@@ -3,10 +3,10 @@ import useTable from "./useTable";
 
 const useRows = () => {
   const table = useTable();
-  const [rows, setRows] = useState(table.rowsAction.value);
+  const [rows, setRows] = useState(table.loadedRowsAction.value);
 
   const subscription = useMemo(() => {
-    return table.rowsAction.onChange((rows) => {
+    return table.loadedRowsAction.onChange((rows) => {
       setRows(rows);
     });
   }, [table]);

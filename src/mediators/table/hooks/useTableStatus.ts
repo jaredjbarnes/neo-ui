@@ -4,10 +4,10 @@ import { StateEvent } from "../../../utils/StatefulAction";
 
 const useTableStatus = () => {
   const table = useTable();
-  const [state, setState] = useState<StateEvent>(table.rowsAction.status.value);
+  const [state, setState] = useState<StateEvent>(table.loadedRowsAction.status.value);
 
   const subscription = useMemo(() => {
-    return table.rowsAction.status.onChange((state) => {
+    return table.loadedRowsAction.status.onChange((state) => {
       setState(state);
     });
   }, [table]);
