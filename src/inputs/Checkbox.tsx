@@ -34,13 +34,16 @@ const Checkbox = ({ style, className, value, onValueChange }: Props) => {
   const verifiedValue = typeof value === "boolean" ? value : false;
   const [isChecked, setIsChecked] = useState(verifiedValue);
 
-  const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const onClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const newValue = !isChecked;
 
     setIsChecked(newValue);
     if (typeof onValueChange === "function") {
       onValueChange(newValue, event);
     }
+
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   useEffect(() => {
@@ -54,7 +57,7 @@ const Checkbox = ({ style, className, value, onValueChange }: Props) => {
       mode="inset"
       insetOffset={2}
       insetSpread={4}
-      onMouseDown={onMouseDown}
+      onClick={onClick}
     >
       {isChecked && <CheckIcon style={{ fontSize: 15 }} />}
     </CheckboxContainer>

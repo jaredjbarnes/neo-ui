@@ -6,8 +6,8 @@ const useSelectedRows = () => {
   const [rows, setRows] = useState(table.getSelectedRows());
 
   const subscription = useMemo(() => {
-    return table.onSelectedRowsChange((column) => {
-      setRows(column);
+    return table.selectedRows.onChange((rows) => {
+      setRows(rows);
     });
   }, [table]);
 

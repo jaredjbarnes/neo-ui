@@ -17,6 +17,7 @@ const TableRowContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   user-select: none;
+  overflow: hidden;
 `;
 
 export interface Props {

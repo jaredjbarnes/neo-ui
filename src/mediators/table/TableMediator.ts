@@ -1,8 +1,6 @@
 import AsyncAction from "../../utils/AsyncAction";
-import AsyncActionStateMachine, {
-  StateEvent,
-} from "../../utils/AsyncActionStateMachine";
-import { Subject } from "rxjs";
+import StatefulAction from "../../utils/StatefulAction";
+import StatefulValue from "../../utils/StatefulValue";
 
 export interface Cell {
   name: string;
@@ -36,7 +34,7 @@ export interface Sort {
 
 export interface RequestOptions<T> {
   rows: Row<T>[];
-  sorts: Sort[];
+  sorting: Sort[];
   query: string;
 }
 
@@ -63,101 +61,94 @@ function sortColumns(a: Column, b: Column) {
 }
 
 export default class TableMediator<T> {
-  private loadingStateMachine = new AsyncActionStateMachine<Response<T>>();
-  private actionStateMachine = new AsyncActionStateMachine<void>();
-  private rows: Row<T>[] = [];
-  private query: string = "";
-  private selectedRows = new Map<string, Row<T>>();
-  private actions: Map<string, Action<T>> = new Map();
-  private currentSorts: Sort[] = [];
-  private columns: Column[] = [];
+  private selectedRowsMap = new Map<string, Row<T>>();
+  private actionsMap: Map<string, Action<T>> = new Map();
+
+  readonly loadedRowsAction = new StatefulAction<Row<T>[]>([]);
+  readonly action = new StatefulAction<void>(undefined);
+  
+  readonly query = new StatefulValue("");
+  readonly currentSorts = new StatefulValue<Sort[]>([]);
+  readonly columns = new StatefulValue<Column[]>([]);
+  readonly sorting = new StatefulValue<Sort[]>([]);
+  readonly actions = new StatefulValue<Action<T>[]>([]);
+  readonly selectedRows = new StatefulValue<Row<T>[]>([]);
+
   private onLoad: (
     request: RequestOptions<T>
   ) => Promise<Response<T>> = nullableOnLoadFunction;
 
-  private rowsChangeSubject = new Subject<Row<T>[]>();
-  private columnsSubject = new Subject<Column[]>();
-  private sortSubject = new Subject<Sort[]>();
-  private actionsSubject = new Subject<Action<T>[]>();
-  private selectionSubject = new Subject<Row<T>[]>();
-  private querySubject = new Subject<string>();
-
-  loadNextBatch() {
+  async loadNextBatch() {
     const onLoad = this.getOnLoad();
-    const rows = this.getRows();
-    const sorts = this.getSorts();
-    const query = this.getQuery();
+    const rows = this.loadedRowsAction.value.slice();
+    const sorting = this.sorting.value;
+    const query = this.query.value;
+    let isLast = false;
 
-    const action = new AsyncAction(() => {
-      return onLoad({
+    const action = new AsyncAction(async () => {
+      const response = await onLoad({
         rows,
-        sorts,
+        sorting,
         query,
       });
+
+      isLast = response.isLast;
+      return rows.concat(response.data);
     });
 
-    this.loadingStateMachine
-      .execute(action)
-      .then((response) => {
-        this.appendRows(response.data);
-        if (response.isLast) {
-          this.loadingStateMachine.disable();
-        }
-
-        this.notifyRowsChange();
-        return response;
-      })
-      .catch(() => {
-        // Do nothing.
-      });
-  }
-
-  getQuery() {
-    return this.query;
+    try {
+      await this.loadedRowsAction.execute(action);
+    } catch (_) {
+      // Do Nothing
+    } finally {
+      if (isLast) {
+        this.loadedRowsAction.disable();
+      }
+    }
   }
 
   getActions() {
-    return Array.from(this.actions.values());
+    return this.actions.value.slice();
   }
 
   getActionByName(name: string) {
-    return this.actions.get(name);
+    return this.actionsMap.get(name);
   }
 
   setActions(actions: Action<T>[]) {
     if (!this.areActionsEqual(actions)) {
-      this.actions.clear();
-      actions.forEach((a) => this.actions.set(a.name, a));
-      this.actionsSubject.next(actions);
+      this.actionsMap.clear();
+      actions.forEach((a) => this.actionsMap.set(a.name, a));
+      this.actions.value = actions;
     }
   }
 
   areActionsEqual(actions: Action<T>[]) {
     const newActionsLength = actions.length;
-    const currentActionsLength = this.actions.size;
+    const currentActionsLength = this.actionsMap.size;
 
     return (
       newActionsLength === currentActionsLength &&
       actions.every((a) => {
-        return this.actions.has(a.name);
+        return this.actionsMap.has(a.name);
       })
     );
   }
 
   performAction(name: string, rows: Row<T>[]) {
-    const action = this.actions.get(name);
+    const action = this.actionsMap.get(name);
 
     if (action != null) {
       const dynamicAction = new AsyncAction(() => action.handler(this));
 
-      this.actionStateMachine.execute(dynamicAction);
+      this.action.execute(dynamicAction);
     } else {
       throw new Error(`Unable to find action by name of '${name}'.`);
     }
   }
 
   performActionOnSelectedRows(name: string) {
-    this.performAction(name, Array.from(this.selectedRows.values()));
+    this.performAction(name, this.selectedRows.value);
   }
 
   setOnLoad(onLoad: (request: RequestOptions<T>) => Promise<Response<T>>) {
@@ -169,17 +160,15 @@ export default class TableMediator<T> {
   }
 
   getColumns() {
-    return this.columns.slice();
+    return this.columns.value.slice();
   }
 
   setColumns(columns: Column[]) {
-    if (!this.areColumnsEqual(this.columns, columns)) {
-      this.columns = columns;
-      this.columnsSubject.next(columns.slice());
-      this.currentSorts = this.columns
+    if (!this.areColumnsEqual(this.columns.value, columns)) {
+      this.columns.value = columns;
+      this.sorting.value = this.columns.value
         .filter((c) => c.canSort)
         .map((c) => ({ name: c.name, direction: "ASC" }));
-      this.sortSubject.next(this.currentSorts.slice());
     }
   }
 
@@ -198,89 +187,87 @@ export default class TableMediator<T> {
   }
 
   search(query: string) {
-    this.query = query;
-    this.querySubject.next(query);
-
+    this.query.value = query;
     this.reset();
     this.loadNextBatch();
   }
 
   updateRow(row: Row<T>) {
-    const index = this.rows.findIndex((r) => r.id === row.id);
+    const index = this.loadedRowsAction.value.findIndex((r) => r.id === row.id);
 
     if (index > -1) {
-      this.rows.splice(index, 1, row);
+      this.loadedRowsAction.value.splice(index, 1, row);
     }
   }
 
   selectRow(row: Row<T>) {
-    this.selectedRows.set(row.id, row);
-    this.selectionSubject.next(this.getSelectedRows());
+    this.selectedRowsMap.set(row.id, row);
+    this.selectedRows.value = this.getSelectedRows();
   }
 
   deselectRow(row: Row<T>) {
-    this.selectedRows.delete(row.id);
-    this.selectionSubject.next(this.getSelectedRows());
+    this.selectedRowsMap.delete(row.id);
+    this.selectedRows.value = this.getSelectedRows();
   }
 
   deselectAllRows() {
-    this.selectedRows.clear();
-    this.selectionSubject.next(this.getSelectedRows());
+    this.selectedRowsMap.clear();
+    this.selectedRows.value = this.getSelectedRows();
   }
 
   selectedAllRows() {
-    this.rows.forEach((row) => {
-      this.selectedRows.set(row.id, row);
+    this.loadedRowsAction.value.forEach((row) => {
+      this.selectedRowsMap.set(row.id, row);
     });
 
-    this.selectionSubject.next(this.getSelectedRows());
+    this.selectedRows.value = this.getSelectedRows();
   }
 
   getSelectedRows() {
-    return Array.from(this.selectedRows.values());
+    return Array.from(this.selectedRowsMap.values());
   }
 
   isRowSelected(row: Row<T>) {
-    return this.selectedRows.has(row.id);
+    return this.selectedRowsMap.has(row.id);
   }
 
   setSort(name: string, direction: "ASC" | "DESC") {
-    const index = this.currentSorts.findIndex((sort) => {
+    const sorting = this.sorting.value.slice();
+
+    const index = sorting.findIndex((sort) => {
       return sort.name === name;
     });
 
     if (index > -1) {
-      this.currentSorts.splice(index, 1, { name, direction });
+      sorting.splice(index, 1, { name, direction });
     } else {
-      this.currentSorts.push({ name, direction });
+      sorting.push({ name, direction });
     }
 
-    this.sortSubject.next(this.currentSorts.slice());
+    this.sorting.value = sorting;
     this.reset();
     this.loadNextBatch();
   }
 
   removeSortByName(name: string) {
-    const index = this.currentSorts.findIndex((sort) => {
+    const sorting = this.sorting.value;
+
+    const index = sorting.findIndex((sort) => {
       return sort.name === name;
     });
 
     if (index > -1) {
-      this.currentSorts.splice(index, 1);
+      sorting.splice(index, 1);
 
-      this.sortSubject.next(this.currentSorts.slice());
+      this.sorting.value = sorting;
       this.reset();
       this.loadNextBatch();
     }
   }
 
-  getSorts() {
-    return this.currentSorts.slice();
-  }
-
   reset() {
     this.clearRows();
-    this.loadingStateMachine.restore();
+    this.loadedRowsAction.restore();
   }
 
   reload() {
@@ -289,113 +276,30 @@ export default class TableMediator<T> {
   }
 
   refresh() {
-    this.notifyRowsChange();
+    this.loadedRowsAction.value = this.loadedRowsAction.value;
   }
 
   getLoadedRowsLength() {
-    return this.rows.length;
+    return this.loadedRowsAction.value.length;
   }
 
   clearRows() {
-    this.rows.length = 0;
-    this.notifyRowsChange();
-  }
-
-  getRows(start?: number, end?: number) {
-    return this.rows.slice(start, end);
-  }
-
-  appendRows(rows: Row<T>[]) {
-    rows.forEach((r) => this.rows.push(r));
-    this.notifyRowsChange();
-  }
-
-  getRowsWithinRange(
-    offsetY: number,
-    rowHeight: number,
-    startY: number,
-    endY: number
-  ) {
-    startY = startY - offsetY;
-    endY = endY - offsetY;
-
-    let startIndex = Math.floor(startY / rowHeight);
-    let endIndex = Math.ceil(endY / rowHeight);
-
-    startIndex = Math.max(0, startIndex);
-    endIndex = Math.min(this.rows.length - 1, endIndex);
-
-    const width = this.getContentWidth();
-
-    return this.rows.slice(startIndex, endIndex + 1).map((row, index) => {
-      return {
-        row: row,
-        x: 0,
-        y: (startIndex + index) * rowHeight + offsetY,
-        width,
-        height: rowHeight,
-      };
-    });
+    this.loadedRowsAction.value = [];
   }
 
   getContentWidth() {
-    return this.columns.reduce((acc, column) => {
+    return this.columns.value.reduce((acc, column) => {
       return acc + column.width;
     }, 0);
   }
 
-  getLoadingState() {
-    return this.loadingStateMachine.getState().getName();
-  }
-
-  getActionState() {
-    return this.actionStateMachine.getState().getName();
-  }
-
-  notifyRowsChange() {
-    this.rowsChangeSubject.next(this.rows.slice());
-  }
-
-  onSortChange(callback: (sorts: Sort[]) => void) {
-    return this.sortSubject.subscribe({ next: callback });
-  }
-
-  onRowsChange(callback: (rows: Row<T>[]) => void) {
-    return this.rowsChangeSubject.subscribe({ next: callback });
-  }
-
-  onColumnsChange(callback: (columns: Column[]) => void) {
-    return this.columnsSubject.subscribe({ next: callback });
-  }
-
-  onActionsChange(callback: (actions: Action<T>[]) => void) {
-    return this.actionsSubject.subscribe({ next: callback });
-  }
-
-  onLoadingStateChange(callback: (event: StateEvent) => void) {
-    return this.loadingStateMachine.onStateChange(callback);
-  }
-
-  onActionStateChange(callback: (event: StateEvent) => void) {
-    return this.actionStateMachine.onStateChange(callback);
-  }
-
-  onSelectedRowsChange(callback: (rows: Row<T>[]) => void) {
-    return this.selectionSubject.subscribe({ next: callback });
-  }
-
-  onQueryChange(callback: (query: string) => void) {
-    return this.querySubject.subscribe({ next: callback });
-  }
-
   dispose() {
-    this.loadingStateMachine.dispose();
-    this.actionStateMachine.dispose();
-
-    this.columnsSubject.complete();
-    this.rowsChangeSubject.complete();
-    this.sortSubject.complete();
-    this.actionsSubject.complete();
-    this.querySubject.complete();
+    this.loadedRowsAction.dispose();
+    this.action.dispose();
+    this.query.dispose();
+    this.columns.dispose();
+    this.sorting.dispose();
+    this.actions.dispose();
+    this.selectedRows.dispose();
   }
 }

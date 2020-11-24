@@ -1,58 +1,17 @@
-import { Subject } from "rxjs";
+import StatefulValue from "./StatefulValue";
 import AsyncAction, { CancelledError } from "./AsyncAction";
 
 export type StateEvent = "ready" | "pending" | "error" | "disabled";
 
-export default class AsyncActionStateMachine<T> {
+export default class AsyncStatefulValue<T> extends StatefulValue<T> {
   private state: State<T> = new ReadyState(this);
-  private stateSubject = new Subject<StateEvent>();
-  private valueSubject = new Subject<T | null>();
-  private errorSubject = new Subject<Error | null>();
-  private action: AsyncAction<T> | null = null;
-  private value: T | null = null;
-  private error: Error | null = null;
 
-  getAction() {
-    return this.action;
-  }
-
-  setAction(action: AsyncAction<T>) {
-    this.action = action;
-  }
-
-  getValue() {
-    return this.value;
-  }
-
-  setValue(value: T | null) {
-    if (value !== this.value) {
-      this.value = value;
-      this.valueSubject.next(value);
-    }
-  }
-
-  getError() {
-    return this.error;
-  }
-
-  setError(error: Error | null) {
-    if (error !== this.error) {
-      this.error = error;
-      this.errorSubject.next(error);
-    }
-  }
-
-  getState() {
-    return this.state;
-  }
+  readonly status = new StatefulValue<StateEvent>("ready");
+  readonly action = new StatefulValue<AsyncAction<T> | null>(null);
 
   changeState(state: State<T>) {
     this.state = state;
-    this.stateSubject.next(state.getName());
-  }
-
-  getStateName() {
-    return this.state.getName();
+    this.status.value = state.getName();
   }
 
   disable() {
@@ -85,28 +44,16 @@ export default class AsyncActionStateMachine<T> {
     this.changeState(new ReadyState<T>(this));
   }
 
-  onStateChange(callback: (event: StateEvent) => void) {
-    return this.stateSubject.subscribe({ next: callback });
-  }
-
-  onValueChange(callback: (value: T | null) => void) {
-    return this.valueSubject.subscribe({ next: callback });
-  }
-
-  onErrorChange(callback: (error: Error | null) => void) {
-    return this.errorSubject.subscribe({ next: callback });
-  }
-
   dispose() {
-    this.stateSubject.complete();
+    this.status.dispose();
+    this.action.dispose();
   }
 }
 
 abstract class State<T> {
-  protected subject = new Subject<StateEvent>();
-  protected context: AsyncActionStateMachine<T>;
+  protected context: AsyncStatefulValue<T>;
 
-  constructor(context: AsyncActionStateMachine<T>) {
+  constructor(context: AsyncStatefulValue<T>) {
     this.context = context;
   }
 
@@ -129,7 +76,7 @@ abstract class State<T> {
   }
 
   retry() {
-    const action = this.context.getAction();
+    const action = this.context.action.value;
 
     if (action) {
       return action.execute();
@@ -153,21 +100,21 @@ class ReadyState<T> extends State<T> {
   }
 
   execute(action: AsyncAction<T>) {
-    this.context.setAction(action);
+    this.context.action.value = action;
 
     this.context.changeState(new PendingState<T>(this.context));
-    const result = action.execute();
 
-    return result
-      .then((value: T) => {
+    return action
+      .execute()
+      .then((nextValue: T) => {
+        this.context.value = nextValue;
         this.context.changeState(new ReadyState<T>(this.context));
-        this.context.setValue(value);
-        return value;
+        return this.context.value;
       })
       .catch((error: Error) => {
         if (!(error instanceof CancelledError)) {
-          this.context.changeState(new ErrorState<T>(this.context, error));
-          this.context.setError(error);
+          this.context.changeState(new ErrorState<T>(this.context));
+          this.context.error = error;
         }
 
         throw error;
@@ -181,13 +128,13 @@ class PendingState<T> extends State<T> {
   }
 
   execute(action: AsyncAction<T>) {
-    this.context.getAction()?.cancel();
+    this.context.action.value?.cancel();
     this.context.changeState(new ReadyState(this.context));
     return this.context.execute(action);
   }
 
   retry() {
-    const action = this.context.getAction();
+    const action = this.context.action.value;
 
     if (action != null) {
       return action.execute();
@@ -197,26 +144,23 @@ class PendingState<T> extends State<T> {
   }
 
   cancel() {
-    this.context?.getAction()?.cancel();
+    this.context.action.value?.cancel();
     this.context.changeState(new ReadyState(this.context));
   }
 
   disable() {
-    this.context?.getAction()?.cancel();
+    this.context.action.value?.cancel();
     this.context.changeState(new DisabledState(this.context));
   }
 }
 
 class ErrorState<T> extends State<T> {
-  private error: Error;
-
-  constructor(context: AsyncActionStateMachine<T>, error: Error) {
+  constructor(context: AsyncStatefulValue<T>) {
     super(context);
-    this.error = error;
   }
 
   execute(action: AsyncAction<T>) {
-    this.context.setError(null);
+    this.context.error = null;
     this.context.changeState(new ReadyState(this.context));
     return this.context.execute(action);
   }
@@ -226,9 +170,9 @@ class ErrorState<T> extends State<T> {
   }
 
   retry() {
-    this.context.setError(null);
+    this.context.error = null;
     this.context.changeState(new ReadyState(this.context));
-    const action = this.context.getAction();
+    const action = this.context.action.value;
 
     if (action != null) {
       return this.context.execute(action);
@@ -238,7 +182,7 @@ class ErrorState<T> extends State<T> {
   }
 
   resolveError() {
-    this.context.setError(null);
+    this.context.error.value = null;
     return this.context.changeState(new ReadyState(this.context));
   }
 

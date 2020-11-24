@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import styled, { keyframes } from "styled-components";
 

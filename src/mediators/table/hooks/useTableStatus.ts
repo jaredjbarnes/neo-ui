@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
-import { StateEvent } from "../../../utils/AsyncActionStateMachine";
+import { StateEvent } from "../../../utils/StatefulAction";
 
-const useTableState = () => {
+const useTableStatus = () => {
   const table = useTable();
-  const [state, setState] = useState<StateEvent>(table.getLoadingState());
+  const [state, setState] = useState<StateEvent>(table.rowsAction.status.value);
 
   const subscription = useMemo(() => {
-    return table.onLoadingStateChange((state) => {
+    return table.rowsAction.status.onChange((state) => {
       setState(state);
     });
   }, [table]);
@@ -17,4 +17,4 @@ const useTableState = () => {
   return state;
 };
 
-export default useTableState;
+export default useTableStatus;

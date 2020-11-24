@@ -103,7 +103,7 @@ function convertToRows<T>(data: T[]) {
 }
 
 function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
-  return ({ rows, query, sorts }: RequestOptions<T>) => {
+  return ({ rows, query, sorting: sorts }: RequestOptions<T>) => {
     let results;
     let isLast = false;
     let pageSize = 10;
@@ -162,7 +162,7 @@ function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
   };
 }
 
-export function BaseTableLayout(props: Props) {
+export function TableBaseline(props: Props) {
   const people = createPeople(30);
   const onLoad = onLoadGenerator(people, columns, 1000);
 
@@ -208,13 +208,20 @@ export function BaseTableLayout(props: Props) {
           onLoad={onLoad}
           actions={actions}
           style={{ width: "500px", height: "400px" }}
+          onRowClick={(row, table) => {
+            if (table.isRowSelected(row)) {
+              table.deselectRow(row);
+            } else {
+              table.selectRow(row);
+            }
+          }}
         />
       </Surface>
     </StoryBackdrop>
   );
 }
 
-export function TableLayoutWithoutActions(props: Props) {
+export function TableWithoutActions(props: Props) {
   const people = createPeople(30);
   const onLoad = onLoadGenerator(people, columns, 1000);
 
@@ -226,7 +233,19 @@ export function TableLayoutWithoutActions(props: Props) {
         raisedOffset={5}
       >
         <TableProvider columns={columns} onLoad={onLoad}>
-          <TableLayout style={{ width: "500px", height: "400px" }} />
+          <Table
+            columns={columns}
+            onLoad={onLoad}
+            style={{ width: "500px", height: "400px" }}
+            onRowClick={(row, table) => {
+              if (table.isRowSelected(row)) {
+                table.deselectRow(row);
+              } else {
+                table.selectRow(row);
+              }
+            }}
+          />
+          ˝
         </TableProvider>
       </Surface>
     </StoryBackdrop>

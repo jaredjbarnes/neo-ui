@@ -6,7 +6,7 @@ const useColumns = () => {
   const [columns, setColumns] = useState(table.getColumns());
 
   const subscription = useMemo(() => {
-    return table.onColumnsChange((column) => {
+    return table.columns.onChange((column) => {
       setColumns(column);
     });
   }, [table]);

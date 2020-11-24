@@ -3,11 +3,12 @@ import TableHeader from "./TableHeader";
 import Surface from "../../core/Surface";
 import useTable from "../../mediators/table/hooks/useTable";
 import TableRow from "./TableRow";
-import useOnRowsChange from "../../mediators/table/hooks/useOnRowsChange";
+import useRows from "../../mediators/table/hooks/useRows";
 import styled from "styled-components";
 import TableStatus from "./TableStatus";
 import TableLoadingRow from "./TableLoadingRow";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
+import useTableStatus from "../../mediators/table/hooks/useTableStatus";
 
 const RaisedContainer = styled(Surface)`
   min-height: 200px;
@@ -77,23 +78,53 @@ const OFFSET_Y = 37;
 const ROW_HEIGHT = 40;
 const STATUS_HEIGHT = 40;
 
+function getRowsWithinRange(
+  rows: Row<any>[],
+  offsetY: number,
+  rowHeight: number,
+  startY: number,
+  endY: number,
+  contentWidth: number
+) {
+  startY = startY - offsetY;
+  endY = endY - offsetY;
+
+  let startIndex = Math.floor(startY / rowHeight);
+  let endIndex = Math.ceil(endY / rowHeight);
+
+  startIndex = Math.max(0, startIndex);
+  endIndex = Math.min(rows.length - 1, endIndex);
+
+  return rows.slice(startIndex, endIndex + 1).map((row, index) => {
+    return {
+      row: row,
+      x: 0,
+      y: (startIndex + index) * rowHeight + offsetY,
+      width: contentWidth,
+      height: rowHeight,
+    };
+  });
+}
+
 const TableDataScroller = ({ style, className, onRowClick }: Props) => {
-  useOnRowsChange();
+  const rows = useRows();
   const table = useTable();
+  const tableStatus = useTableStatus();
   const tableScrollerRef = useRef<HTMLDivElement | null>(null);
   const [range, setRange] = useState<Range>({ startY: 0, endY: 0 });
 
-  const rowsData = table.getRowsWithinRange(
+  const width = table.getContentWidth();
+  const rowsData = getRowsWithinRange(
+    rows,
     OFFSET_Y,
     ROW_HEIGHT,
     range.startY,
-    range.endY
+    range.endY,
+    width
   );
 
-  const tableState = table.getLoadingState();
-  const isFinished = tableState === "disabled";
+  const isFinished = tableStatus === "disabled";
   const height = table.getLoadedRowsLength() * ROW_HEIGHT;
-  const width = table.getContentWidth();
 
   const tableContentStyle = {
     width: width + "px",
@@ -107,7 +138,7 @@ const TableDataScroller = ({ style, className, onRowClick }: Props) => {
     display: "none",
   } as React.CSSProperties;
 
-  if (tableState === "pending") {
+  if (tableStatus === "pending") {
     tableLoadingRowStyle.transform = `translate(0px, ${height + OFFSET_Y}px)`;
     tableLoadingRowStyle.display = "grid";
   }

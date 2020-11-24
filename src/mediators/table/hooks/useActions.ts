@@ -6,7 +6,7 @@ const useActions = () => {
   const [actions, setActions] = useState(table.getActions());
 
   const subscription = useMemo(() => {
-    return table.onActionsChange((actions) => {
+    return table.actions.onChange((actions) => {
       setActions(actions);
     });
   }, [table]);

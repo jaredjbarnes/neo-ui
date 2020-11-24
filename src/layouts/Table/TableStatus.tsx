@@ -1,5 +1,5 @@
 import React from "react";
-import useTableState from "../../mediators/table/hooks/useTableState";
+import useTableStatus from "../../mediators/table/hooks/useTableStatus";
 import useTable from "../../mediators/table/hooks/useTable";
 import styled from "styled-components";
 
@@ -40,7 +40,7 @@ const textMap = {
 };
 
 const TableStatus = ({ className, style }: Props) => {
-  const state = useTableState();
+  const state = useTableStatus();
   const table = useTable();
 
   return (
