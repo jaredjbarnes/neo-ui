@@ -2,7 +2,7 @@ import ReactDOM from "react-dom";
 import React from "react";
 
 export class Portal {
-  portalDiv: HTMLDivElement;
+  portalDiv: HTMLDivElement | null = null;
   portalMediator: PortalMediator;
 
   constructor(portalMediator: PortalMediator) {
@@ -22,15 +22,21 @@ export class Portal {
     this.portalDiv.style.padding = "0px";
     this.portalDiv.style.margin = "0px";
 
-    this.portalMediator.platformDiv.appendChild(this.portalDiv);
+    this.portalMediator?.platformDiv?.appendChild(this.portalDiv);
   }
 
-  render(children) {
+  render(children: React.ReactNode | React.ReactNode[]) {
+    if (this.portalDiv == null) {
+      return null;
+    }
     return ReactDOM.createPortal(children, this.portalDiv);
   }
 
   dispose() {
-    this.portalMediator.platformDiv.removeChild(this.portalDiv);
+    if (this.portalDiv != null && this.portalMediator.platformDiv != null) {
+      this.portalMediator.platformDiv.removeChild(this.portalDiv);
+    }
+
     this.portalMediator.removePortal(this);
     this.portalDiv = null;
   }
@@ -40,7 +46,7 @@ export default class PortalMediator {
   private body: HTMLElement;
   private portals: Portal[] = [];
 
-  platformDiv: HTMLDivElement;
+  platformDiv: HTMLDivElement | null = null;
 
   constructor(body: HTMLElement) {
     this.body = body;
@@ -69,13 +75,17 @@ export default class PortalMediator {
   }
 
   showPlatform() {
-    if (this.platformDiv.parentElement == null) {
+    if (this.platformDiv != null && this.platformDiv.parentElement == null) {
       this.body.appendChild(this.platformDiv);
     }
   }
 
   hidePlatformIfNecessary() {
-    if (this.portals.length === 0 && this.platformDiv.parentElement != null) {
+    if (
+      this.platformDiv != null &&
+      this.portals.length === 0 &&
+      this.platformDiv.parentElement != null
+    ) {
       this.body.removeChild(this.platformDiv);
     }
   }
@@ -90,7 +100,10 @@ export default class PortalMediator {
   }
 
   dispose() {
-    this.body.removeChild(this.platformDiv);
+    if (this.platformDiv != null) {
+      this.body.removeChild(this.platformDiv);
+    }
+
     this.portals.forEach((p) => {
       p.dispose();
     });
