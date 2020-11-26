@@ -1,10 +1,10 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Table from "../layouts/Table";
+import Table from "../layouts/table";
 import StoryBackdrop from "./StoryBackdrop";
-import TableDataScroller from "../layouts/Table/TableDataScroller";
-import TableLayout from "../layouts/Table/TableLayout";
-import TableHeader, { Props } from "../layouts/Table/TableHeader";
+import TableDataScroller from "../layouts/table/TableDataScroller";
+import TableLayout from "../layouts/table/TableLayout";
+import TableHeader, { Props } from "../layouts/table/TableHeader";
 import TableMediator, {
   Column,
   Response,

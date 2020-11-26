@@ -3,7 +3,7 @@ import useTable from "./useTable";
 
 const useSelectedRows = () => {
   const table = useTable();
-  const [rows, setRows] = useState(table.getSelectedRows());
+  const [rows, setRows] = useState(table.selectedRows.value);
 
   const subscription = useMemo(() => {
     return table.selectedRows.onChange((rows) => {

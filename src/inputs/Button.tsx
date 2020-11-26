@@ -111,6 +111,8 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
     return (
       <ButtonContainer
         ref={ref}
+        raisedOffset={4}
+        raisedSpread={7}
         {...props}
         mode={state}
         transitionDuration={duration}
@@ -123,10 +125,8 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
         onFocus={onFocus}
         onBlur={onBlur}
         tabIndex={0}
-        raisedOffset={4}
-        raisedSpread={7}
       >
-        <ContentContainer ref={contentRef}>{children}</ContentContainer>
+        <ContentContainer>{children}</ContentContainer>
       </ButtonContainer>
     );
   }

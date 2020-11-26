@@ -7,6 +7,8 @@ import TableCell from "./TableCell";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import RowProvider from "../../mediators/table/RowProvider";
 import Checkbox from "../../inputs/Checkbox";
+import IconButton from "../../inputs/Button";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 const TableRowContainer = styled.div`
   display: grid;
@@ -18,6 +20,30 @@ const TableRowContainer = styled.div`
   cursor: pointer;
   user-select: none;
   overflow: hidden;
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  grid-column-start: 1;
+  grid-column-end: 1;
+  padding: 0;
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  grid-column-start: 2;
+  grid-column-end: 2;
+  padding: 0;
+`;
+
+const ActionsButton = styled(IconButton)`
+  width: 25px;
+  height: 25px;
+  margin-left: 5px;
 `;
 
 export interface Props {
@@ -38,7 +64,7 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
 
   const rowStyles = useMemo(() => {
     const gridTemplateColumns =
-      "50px " +
+      "30px 50px " +
       columns
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
         .join(" ") +
@@ -47,7 +73,7 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
     const width =
       columns.reduce((acc, column) => {
         return acc + column.width;
-      }, 0) + 50;
+      }, 0) + 80;
 
     return {
       width: `${width}px`,
@@ -78,25 +104,26 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
         className={className}
         onClick={onClick}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gridColumnStart: 1,
-            gridColumnEnd: 1,
-            padding: 0,
-          }}
-        >
+        <CheckboxContainer>
           <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
-        </div>
+        </CheckboxContainer>
+        <ActionsContainer>
+          <ActionsButton
+            raisedOffset={2}
+            raisedSpread={4}
+            insetOffset={2}
+            insetSpread={4}
+          >
+            <MoreVertIcon fontSize="small" />
+          </ActionsButton>
+        </ActionsContainer>
         {columns.map((c, index) => (
           <TableCell
             column={c}
             key={index}
             style={{
-              gridColumnStart: index + 2,
-              gridColumnEnd: index + 2,
+              gridColumnStart: index + 3,
+              gridColumnEnd: index + 3,
               width: c.width + "px",
             }}
           >
@@ -105,8 +132,8 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
         ))}
         <div
           style={{
-            gridColumnStart: columns.length + 2,
-            gridColumnEnd: columns.length + 2,
+            gridColumnStart: columns.length + 3,
+            gridColumnEnd: columns.length + 3,
             padding: 0,
           }}
         ></div>

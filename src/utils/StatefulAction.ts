@@ -3,6 +3,8 @@ import AsyncAction, { CancelledError } from "./AsyncAction";
 
 export type StateEvent = "ready" | "pending" | "error" | "disabled";
 
+// ActionState
+
 export default class AsyncStatefulValue<T> extends StatefulValue<T> {
   private state: State<T> = new ReadyState(this);
 
@@ -22,6 +24,7 @@ export default class AsyncStatefulValue<T> extends StatefulValue<T> {
     return this.state.enable();
   }
 
+  // Set the action then run, use chaining.
   execute(action: AsyncAction<T>): Promise<T> {
     return this.state.execute(action);
   }
