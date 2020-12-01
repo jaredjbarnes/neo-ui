@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
-import { StateEvent } from "../../../utils/StatefulAction";
+import { StateEvent } from "../../../utils/AsyncActionState";
 
 const useTableStatus = () => {
   const table = useTable();

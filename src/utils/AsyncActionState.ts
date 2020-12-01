@@ -1,15 +1,15 @@
-import StatefulValue from "./StatefulValue";
+import StatefulSubject from "./StatefulSubject";
 import AsyncAction, { CancelledError } from "./AsyncAction";
 
 export type StateEvent = "ready" | "pending" | "error" | "disabled";
 
-// ActionState
+// ActionState and StatefulSubject
 
-export default class AsyncStatefulValue<T> extends StatefulValue<T> {
+export default class AsyncStatefulSubject<T> extends StatefulSubject<T> {
   private state: State<T> = new ReadyState(this);
 
-  readonly status = new StatefulValue<StateEvent>("ready");
-  readonly action = new StatefulValue<AsyncAction<T> | null>(null);
+  readonly status = new StatefulSubject<StateEvent>("ready");
+  readonly action = new StatefulSubject<AsyncAction<T> | null>(null);
 
   changeState(state: State<T>) {
     this.state = state;
@@ -54,9 +54,9 @@ export default class AsyncStatefulValue<T> extends StatefulValue<T> {
 }
 
 abstract class State<T> {
-  protected context: AsyncStatefulValue<T>;
+  protected context: AsyncStatefulSubject<T>;
 
-  constructor(context: AsyncStatefulValue<T>) {
+  constructor(context: AsyncStatefulSubject<T>) {
     this.context = context;
   }
 
@@ -158,7 +158,7 @@ class PendingState<T> extends State<T> {
 }
 
 class ErrorState<T> extends State<T> {
-  constructor(context: AsyncStatefulValue<T>) {
+  constructor(context: AsyncStatefulSubject<T>) {
     super(context);
   }
 

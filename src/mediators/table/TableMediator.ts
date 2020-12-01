@@ -1,6 +1,6 @@
 import AsyncAction from "../../utils/AsyncAction";
-import StatefulAction from "../../utils/StatefulAction";
-import StatefulValue from "../../utils/StatefulValue";
+import AsyncActionState from "../../utils/AsyncActionState";
+import StatefulSubject from "../../utils/StatefulSubject";
 
 export interface Cell {
   name: string;
@@ -64,15 +64,15 @@ export default class TableMediator<T> {
   private selectedRowsMap = new Map<string, Row<T>>();
   private actionsMap: Map<string, Action<T>> = new Map();
 
-  readonly loadedRowsAction = new StatefulAction<Row<T>[]>([]);
-  readonly action = new StatefulAction<void>(undefined);
+  readonly loadedRowsAction = new AsyncActionState<Row<T>[]>([]);
+  readonly action = new AsyncActionState<void>(undefined);
   
-  readonly query = new StatefulValue("");
-  readonly currentSorts = new StatefulValue<Sort[]>([]);
-  readonly columns = new StatefulValue<Column[]>([]);
-  readonly sorting = new StatefulValue<Sort[]>([]);
-  readonly actions = new StatefulValue<Action<T>[]>([]);
-  readonly selectedRows = new StatefulValue<Row<T>[]>([]);
+  readonly query = new StatefulSubject("");
+  readonly currentSorts = new StatefulSubject<Sort[]>([]);
+  readonly columns = new StatefulSubject<Column[]>([]);
+  readonly sorting = new StatefulSubject<Sort[]>([]);
+  readonly actions = new StatefulSubject<Action<T>[]>([]);
+  readonly selectedRows = new StatefulSubject<Row<T>[]>([]);
 
   private onLoad: (
     request: RequestOptions<T>

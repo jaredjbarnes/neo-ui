@@ -51,7 +51,7 @@ const TableRow = ({ className, style }: Props) => {
 
   const rowStyles = useMemo(() => {
     const gridTemplateColumns =
-      "50px " +
+      "80px " +
       columns
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
         .join(" ") +
@@ -60,7 +60,7 @@ const TableRow = ({ className, style }: Props) => {
     const width =
       columns.reduce((acc, column) => {
         return acc + column.width;
-      }, 0) + 50;
+      }, 0) + 80;
 
     return {
       width: `${width}px`,
@@ -80,7 +80,7 @@ const TableRow = ({ className, style }: Props) => {
           padding: 0,
         }}
       >
-        <PulsingSection style={{ width: "60%" }} />
+        <PulsingSection />
       </div>
       {columns.map((c, index) => (
         <div

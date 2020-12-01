@@ -16,7 +16,7 @@ const Container = styled.div`
 `;
 
 export default {
-  title: "ClickAwayListner",
+  title: "ClickAwayListener",
   component: ClickAwayListener,
   argTypes: {},
 } as Meta;

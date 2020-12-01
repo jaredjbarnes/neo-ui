@@ -29,7 +29,7 @@ const TableHeader = ({ className, style }: Props) => {
 
   const barStyles = useMemo(() => {
     const gridTemplateColumns =
-      "50px " +
+      "30px 50px " +
       columns
         .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
         .join(" ") +
@@ -38,7 +38,7 @@ const TableHeader = ({ className, style }: Props) => {
     const width =
       columns.reduce((acc, column) => {
         return acc + column.width;
-      }, 0) + 50;
+      }, 0) + 80;
 
     return {
       width: `${width}px`,
@@ -66,7 +66,7 @@ const TableHeader = ({ className, style }: Props) => {
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-end",
           gridColumnStart: 1,
           gridColumnEnd: 1,
           gridRowStart: 2,
@@ -83,8 +83,8 @@ const TableHeader = ({ className, style }: Props) => {
           style={{
             gridRowStart: 2,
             gridRowEnd: 2,
-            gridColumnStart: index + 2,
-            gridColumnEnd: index + 2,
+            gridColumnStart: index + 3,
+            gridColumnEnd: index + 3,
             width: c.width + "px",
             textAlign: c.alignment,
           }}
@@ -96,8 +96,8 @@ const TableHeader = ({ className, style }: Props) => {
         style={{
           gridRowStart: 2,
           gridRowEnd: 2,
-          gridColumnStart: columns.length + 2,
-          gridColumnEnd: columns.length + 2,
+          gridColumnStart: columns.length + 3,
+          gridColumnEnd: columns.length + 3,
           padding: 0,
         }}
       ></div>

@@ -62,27 +62,47 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
       }
     };
 
-    const onMouseDown = () => {
+    const onMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+      if (typeof props.onMouseDown === "function") {
+        props.onMouseDown(event);
+      }
+
       setState("inset");
       setDuration(1000);
     };
 
-    const onMouseUp = () => {
+    const onMouseUp = (event: React.MouseEvent<HTMLDivElement>) => {
+      if (typeof props.onMouseUp === "function") {
+        props.onMouseUp(event);
+      }
+
       returnToNormal();
       setDuration(1000);
     };
 
-    const onMouseEnter = () => {
+    const onMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
+      if (typeof props.onMouseEnter === "function") {
+        props.onMouseEnter(event);
+      }
+
       setState("raised");
       setDuration(1250);
     };
 
-    const onMouseLeave = () => {
+    const onMouseLeave = (event: React.MouseEvent<HTMLDivElement>) => {
+      if (typeof props.onMouseLeave === "function") {
+        props.onMouseLeave(event);
+      }
+
       returnToNormal();
       setDuration(1250);
     };
 
-    const onFocus = () => {
+    const onFocus = (event: React.FocusEvent<HTMLDivElement>) => {
+      if (typeof props.onFocus === "function") {
+        props.onFocus(event);
+      }
+
       if (state === "flat") {
         setState("raised");
       }
@@ -90,7 +110,11 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
       setIsFocused(true);
     };
 
-    const onBlur = () => {
+    const onBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+      if (typeof props.onBlur === "function") {
+        props.onBlur(event);
+      }
+
       setState("flat");
       setDuration(1250);
       setIsFocused(false);

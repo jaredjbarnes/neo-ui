@@ -1,8 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Popover, { Props } from "../core/Popover";
+import Popover, { Props } from "../core/popover/Popover";
 import Surface from "../core/Surface";
-import OutlineButton from "../inputs/OutlineButton";
 import SolidButton from "../inputs/SolidButton";
 import StoryBackdrop from "./StoryBackdrop";
 import ClickAwayListener from "../core/ClickAwayListener";
@@ -11,7 +10,7 @@ import styled from "styled-components";
 const Menu = styled(Surface)`
   width: 125px;
   height: 200px;
-  border-radius: 16px;
+  border-radius: 4px;
 `;
 
 export default {
@@ -20,20 +19,21 @@ export default {
 } as Meta;
 
 export function Baseline(props: Props) {
-  const [open, setOpen] = useState(false);
+  const [clickOpen, setClickOpen] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const openMenu = () => {
-    setOpen(true);
+    setClickOpen(true);
   };
 
   const closeMenu = () => {
-    setOpen(false);
+    setClickOpen(false);
   };
+
   return (
     <StoryBackdrop>
       <Popover
-        open={open}
+        open={clickOpen}
         anchorRef={buttonRef}
         placement={{ horizontal: "left", vertical: "bottom" }}
       >

@@ -1,6 +1,6 @@
 import { Subject } from "rxjs";
 
-export default class StatefulValue<T, TError = any> {
+export default class StatefulSubject<T, TError = any> {
   private subject = new Subject<T>();
   private _value: T;
   private _error: any = null;

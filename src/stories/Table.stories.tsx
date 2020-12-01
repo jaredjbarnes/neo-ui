@@ -193,7 +193,7 @@ export function TableBaseline(props: Props) {
       handler: (table: TableMediator<Person>) => {
         return Promise.resolve(undefined);
       },
-    },
+    }
   ];
 
   return (
