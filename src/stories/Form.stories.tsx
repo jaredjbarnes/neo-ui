@@ -7,7 +7,8 @@ import StoryBackdrop from "./StoryBackdrop";
 import Surface from "../core/Surface";
 import Handle from "../layouts/window/Handle";
 import styled from "styled-components";
-import Select from "../inputs/Select";
+import Select from "../inputs/select/Select";
+import { Option } from "../mediators/select/SelectMediator";
 
 const WindowHandle = styled(Handle)`
   grid-column-start: 1;
@@ -95,6 +96,19 @@ export default {
 } as Meta;
 
 export function Baseline() {
+  const options = [
+    {
+      label: "First Option",
+      value: "firstOption",
+      isSelected: false,
+    },
+    {
+      label: "First Option",
+      value: "firstOption",
+      isSelected: false,
+    },
+  ] as Option<string>[];
+
   return (
     <StoryBackdrop>
       <Window mode="popOut" raisedOffset={5} raisedSpread={25}>
@@ -104,7 +118,7 @@ export function Baseline() {
             <FirstNameField name="First Name" />
             <LastNameField name="Last Name" />
             <IsMarriedField name="Married" />
-            <SelectField<string> />
+            <SelectField<string> options={options} />
             <SaveButton>Save</SaveButton>
           </Form>
         </WindowBody>

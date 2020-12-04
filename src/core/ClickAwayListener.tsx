@@ -22,14 +22,14 @@ const touchMap = {
 const ClickAwayListener = React.forwardRef<HTMLElement, Props>(
   ({ mouseEvent, touchEvent, children, onClickAway }: Props, ref) => {
     const nodeRef = useRef<any>(null);
-    const DOMMouseEvent = eventMap[mouseEvent] || "click";
-    const DOMTouchEvent = touchMap[touchEvent] || "touchend";
+    const DOMMouseEvent = eventMap[mouseEvent || "onClick"];
+    const DOMTouchEvent = touchMap[touchEvent || "onTouchEnd"];
     const childrenProps = {
       ...children.props,
       ref: useForkRef(nodeRef, children.props.ref, ref),
     };
 
-    const eventHandler = (event) => {
+    const eventHandler = (event: any) => {
       let insideDOM;
 
       // If not enough, can use https://github.com/DieterHolvoet/event-propagation-path/blob/master/propagationPath.js

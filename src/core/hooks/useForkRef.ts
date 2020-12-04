@@ -1,6 +1,6 @@
 import React from "react";
 
-function useForkRef<T> (...args: React.Ref<T>[]) {
+function useForkRef<T>(...args: (React.Ref<T> | undefined)[]) {
   return (obj: any | null) => {
     args.forEach((ref) => {
       if (typeof ref === "function") {
@@ -14,6 +14,6 @@ function useForkRef<T> (...args: React.Ref<T>[]) {
       }
     });
   };
-};
+}
 
 export default useForkRef;

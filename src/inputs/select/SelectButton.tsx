@@ -1,8 +1,14 @@
-import React, { useState } from "react";
-import Surface from "../core/Surface";
+import React, { useState, useCallback } from "react";
+import Surface from "../../core/Surface";
 import styled from "styled-components";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { makeStyledTransition } from "react-motion-ux";
+import {
+  useSelectedOption,
+  useSelectMediator,
+  useIsOpen,
+} from "../../mediators/select/hooks";
+import useForkRef from "../../core/hooks/useForkRef";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
@@ -13,7 +19,19 @@ const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
       border: "2px ridge rgba(255, 255, 255, 0.15)",
     },
   },
-  700
+  200
+);
+
+const useArrowTransition = makeStyledTransition<SVGSVGElement>(
+  {
+    open: {
+      transform: "rotate(180deg)",
+    },
+    closed: {
+      transform: "rotate(0deg)",
+    },
+  },
+  600
 );
 
 const SelectContainer = styled(Surface)`
@@ -50,23 +68,28 @@ const Label = styled.div`
 `;
 
 export interface Props {
-  value: any;
-  className: string;
-  style: React.CSSProperties;
-  innerRef:
-    | ((instance: HTMLDivElement | null) => void)
-    | React.MutableRefObject<HTMLDivElement | null>
-    | null;
+  className?: string;
+  style?: React.CSSProperties;
+  innerRef?: React.Ref<HTMLDivElement>;
 }
 
-export default React.forwardRef<HTMLDivElement, Props>(function (
-  { value, className, style, innerRef }: Props,
-  ref
-) {
+export default function <T>({ className, style, innerRef }: Props) {
+  const selectMediator = useSelectMediator();
+  const open = useIsOpen();
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
-  let containerRef = useContainerStyledTransition(isFocused, { ref });
-
+  const selectedOption = useSelectedOption();
+  const label = selectedOption != null ? selectedOption.value : "-- Select --";
   const [isPressed, setIsPressed] = useState(false);
+
+  const onElementMount = (element: HTMLDivElement | null) => {
+    if (element != null) {
+      selectMediator.dropDownWidth.value = element.offsetWidth;
+    }
+  };
+
+  const ref = useForkRef(innerRef, onElementMount);
+  const svgRef = useArrowTransition(open ? "open" : "closed");
+  let containerRef = useContainerStyledTransition(isFocused, { ref });
 
   const press = () => {
     setIsPressed(true);
@@ -82,6 +105,20 @@ export default React.forwardRef<HTMLDivElement, Props>(function (
 
   const onBlur = () => {
     setIsFocused("normal");
+  };
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter") {
+      toggle();
+    }
+  };
+
+  const toggle = () => {
+    if (selectMediator.isOpen.value) {
+      selectMediator.close();
+    } else {
+      selectMediator.open();
+    }
   };
 
   return (
@@ -100,11 +137,13 @@ export default React.forwardRef<HTMLDivElement, Props>(function (
       className={className}
       style={style}
       tabIndex={0}
+      onClick={toggle}
+      onKeyDown={onKeyDown}
     >
-      <Label>Name</Label>
+      <Label>{label}</Label>
       <DownArrow>
-        <ArrowDropDownIcon />
+        <ArrowDropDownIcon ref={svgRef} />
       </DownArrow>
     </SelectContainer>
   );
-});
+}

@@ -13,12 +13,12 @@ import PopoverMediator, { IAnchorPlacement, IOffset } from "./PopoverMediator";
 const useStyledTransition = makeStyledTransition<HTMLElement>(
   {
     closed: {
-      transform: "scale(0.9) translate(0px, 20px)",
+      transform: "scale(0.9) translate(0px, -20px)",
       opacity: 0,
       transformOrigin: "center center",
     },
     closing: {
-      transform: "scale(0.9) translate(0px, 20px)",
+      transform: "scale(0.9) translate(0px, -20px)",
       opacity: 0,
       transformOrigin: "center center",
     },
@@ -47,6 +47,7 @@ const Popover = React.forwardRef<HTMLElement, Props>(
   ({ open, children, anchorRef, placement, offset }: Props, ref) => {
     const nodeRef = useRef<HTMLElement>(null);
     const forkedRef = useForkRef(nodeRef, ref);
+    const finalOffset = getOffset(offset);
 
     const popoverMediator = useMemo(() => {
       return new PopoverMediator();
@@ -57,16 +58,19 @@ const Popover = React.forwardRef<HTMLElement, Props>(
     >(open ? "open" : "closed");
     const timeoutRef = useRef<number>(0);
 
-    offset = getOffset(offset);
-
     const finalRef = useStyledTransition(internalState, {
       ref: forkedRef,
-      duration: internalState === "open" ? 500 : 200,
+      duration: internalState === "open" ? 200 : 200,
     });
 
     const position = useCallback(() => {
       const anchorElement = anchorRef.current;
       const node = nodeRef.current;
+
+      if (anchorElement == null || node == null) {
+        return;
+      }
+
       const anchorRect = anchorElement.getBoundingClientRect();
       const nodeRect = node.getBoundingClientRect();
       const boundingRect = {
@@ -80,7 +84,7 @@ const Popover = React.forwardRef<HTMLElement, Props>(
 
       popoverMediator.nodeRect = nodeRect;
       popoverMediator.boundingRect = boundingRect;
-      popoverMediator.offset = offset;
+      popoverMediator.offset = finalOffset;
       popoverMediator.anchorRect = anchorRect;
       popoverMediator.placement = placement;
 
