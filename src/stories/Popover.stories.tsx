@@ -5,13 +5,15 @@ import Surface from "../core/Surface";
 import SolidButton from "../inputs/SolidButton";
 import StoryBackdrop from "./StoryBackdrop";
 import ClickAwayListener from "../core/ClickAwayListener";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 
-const Menu = styled(Surface)`
-  width: 125px;
-  height: 200px;
-  border-radius: 4px;
-`;
+const useStyles = createUseStyles({
+  menu: {
+    width: "125px",
+    height: "200px",
+    borderRadius: "4px",
+  },
+});
 
 export default {
   title: "Popover",
@@ -19,6 +21,7 @@ export default {
 } as Meta;
 
 export function Baseline(props: Props) {
+  const classes = useStyles();
   const [clickOpen, setClickOpen] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +41,7 @@ export function Baseline(props: Props) {
         placement={{ horizontal: "left", vertical: "bottom" }}
       >
         <ClickAwayListener onClickAway={closeMenu}>
-          <Menu mode={"popOut"} raisedOffset={2}></Menu>
+          <Surface mode={"popOut"} raisedOffset={2}></Surface>
         </ClickAwayListener>
       </Popover>
       <SolidButton ref={buttonRef} onClick={openMenu}>

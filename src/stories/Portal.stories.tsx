@@ -4,7 +4,6 @@ import Portal, { Props } from "../layouts/Portal";
 import OutlineButton from "../inputs/OutlineButton";
 import SolidButton from "../inputs/SolidButton";
 import StoryBackdrop from "./StoryBackdrop";
-import styled from "styled-components";
 
 export default {
   title: "Portal",

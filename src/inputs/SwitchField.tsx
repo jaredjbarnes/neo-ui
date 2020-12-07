@@ -1,7 +1,5 @@
 import React from "react";
-import styled, { CSSProperties } from "styled-components";
 import Switch from "./Switch";
-import { makeStyledTransition } from "react-motion-ux";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../utils/joinClassNames";
 

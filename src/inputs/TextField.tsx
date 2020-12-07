@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import TextInput from "./TextInput";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../utils/joinClassNames";

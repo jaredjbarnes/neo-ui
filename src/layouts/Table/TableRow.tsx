@@ -2,49 +2,49 @@ import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import useTable from "../../mediators/table/hooks/useTable";
 import useIsRowSelected from "../../mediators/table/hooks/useIsRowSelected";
-import styled from "styled-components";
 import TableCell from "./TableCell";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import RowProvider from "../../mediators/table/RowProvider";
 import Checkbox from "../../inputs/Checkbox";
 import IconButton from "../../inputs/Button";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../../utils/joinClassNames";
 
-const TableRowContainer = styled.div`
-  display: grid;
-  position: relative;
-  height: 40px;
-  min-width: 100%;
-  border-bottom: 2px ridge rgba(255, 255, 255, 0.65);
-  background-color: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  user-select: none;
-  overflow: hidden;
-`;
-
-const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  grid-column-start: 1;
-  grid-column-end: 1;
-  padding: 0;
-`;
-
-const ActionsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  grid-column-start: 2;
-  grid-column-end: 2;
-  padding: 0;
-`;
-
-const ActionsButton = styled(IconButton)`
-  width: 25px;
-  height: 25px;
-  margin-left: 5px;
-`;
+const useStyles = createUseStyles({
+  tableRowContainer: {
+    display: "grid",
+    position: "relative",
+    height: "40px",
+    minWidth: "100%",
+    borderBottom: "2px ridge rgba(255, 255, 255, 0.65)",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    cursor: "pointer",
+    userSelect: "none",
+    overflow: "hidden",
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    padding: 0,
+  },
+  actionsContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    padding: 0,
+  },
+  actionsButton: {
+    width: "25px",
+    height: "25px",
+    marginLeft: "5px",
+  },
+});
 
 export interface Props {
   className?: string;
@@ -58,6 +58,7 @@ export interface Props {
 }
 
 const TableRow = ({ row, className, style, onRowClick }: Props) => {
+  const classes = useStyles();
   const columns = useColumns();
   const table = useTable();
   const isSelected = useIsRowSelected(row);
@@ -99,24 +100,25 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
 
   return (
     <RowProvider row={row}>
-      <TableRowContainer
+      <div
         style={{ ...style, ...rowStyles }}
-        className={className}
+        className={joinClassNames(classes.tableRowContainer, className)}
         onClick={onClick}
       >
-        <CheckboxContainer>
+        <div className={classes.checkboxContainer}>
           <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
-        </CheckboxContainer>
-        <ActionsContainer>
-          <ActionsButton
+        </div>
+        <div className={classes.actionsContainer}>
+          <IconButton
+            className={classes.actionsButton}
             raisedOffset={2}
             raisedSpread={4}
             insetOffset={2}
             insetSpread={4}
           >
             <MoreVertIcon fontSize="small" />
-          </ActionsButton>
-        </ActionsContainer>
+          </IconButton>
+        </div>
         {columns.map((c, index) => (
           <TableCell
             column={c}
@@ -137,7 +139,7 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
             padding: 0,
           }}
         ></div>
-      </TableRowContainer>
+      </div>
     </RowProvider>
   );
 };

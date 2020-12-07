@@ -1,39 +1,38 @@
 import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
-import styled, { keyframes } from "styled-components";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../../utils/joinClassNames";
 
-const TableRowContainer = styled.div`
-  display: grid;
-  position: relative;
-  height: 40px;
-  min-width: 100%;
-  border-bottom: 1px solid #ccc;
-  background-color: rgba(255, 255, 255, 0.5);
-`;
-
-const pulse = keyframes`
-  0% {
-    background-color: rgba(190, 200, 215, 0.5);
-  }
-
-  70% {
-    background-color: rgba(190, 200, 215, 0.15);
-  }
-
-  100% {
-    background-color: rgba(190, 200, 215, 0.5);
-  }
-`;
-
-const PulsingSection = styled.div`
-  display: inline-block;
-  width: 70%;
-  height: 20px;
-  animation-name: ${pulse};
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
-  border-radius: 8px;
-`;
+const useStyles = createUseStyles({
+  tableRowContainer: {
+    display: "grid",
+    position: "relative",
+    height: "40px",
+    minWidth: "100%",
+    borderBottom: "1px solid #ccc",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+  },
+  "@keyframes pulse": {
+    "0%": {
+      backgroundColor: "rgba(190, 200, 215, 0.5)",
+    },
+    "70%": {
+      backgroundColor: "rgba(190, 200, 215, 0.15)",
+    },
+    "100%": {
+      backgroundColor: "rgba(190, 200, 215, 0.5)",
+    },
+  },
+  pulsingSection: {
+    display: "inline-block",
+    width: "70%",
+    height: "20px",
+    animationName: "$pulse",
+    animationDuration: "2s",
+    animationIterationCount: "infinite",
+    borderRadius: "8px",
+  },
+});
 
 const alignmentMap = {
   left: "flex-start",
@@ -47,6 +46,7 @@ export interface Props {
 }
 
 const TableRow = ({ className, style }: Props) => {
+  const classes = useStyles();
   const columns = useColumns();
 
   const rowStyles = useMemo(() => {
@@ -69,7 +69,10 @@ const TableRow = ({ className, style }: Props) => {
   }, [columns]);
 
   return (
-    <TableRowContainer style={{ ...style, ...rowStyles }} className={className}>
+    <div
+      style={{ ...style, ...rowStyles }}
+      className={joinClassNames(classes.tableRowContainer, className)}
+    >
       <div
         style={{
           display: "flex",
@@ -80,7 +83,7 @@ const TableRow = ({ className, style }: Props) => {
           padding: 0,
         }}
       >
-        <PulsingSection />
+        <div className={classes.pulsingSection} />
       </div>
       {columns.map((c, index) => (
         <div
@@ -94,7 +97,7 @@ const TableRow = ({ className, style }: Props) => {
             justifyContent: alignmentMap[c.alignment],
           }}
         >
-          <PulsingSection />
+          <div className={classes.pulsingSection} />
         </div>
       ))}
       <div
@@ -104,7 +107,7 @@ const TableRow = ({ className, style }: Props) => {
           padding: 0,
         }}
       ></div>
-    </TableRowContainer>
+    </div>
   );
 };
 

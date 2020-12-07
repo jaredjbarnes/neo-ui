@@ -2,19 +2,22 @@ import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import useSelectedRows from "../../mediators/table/hooks/useSelectedRows";
 import useTable from "../../mediators/table/hooks/useTable";
-import styled from "styled-components";
 import TableColumn from "./TableColumn";
 import Surface from "../../core/Surface";
 import Checkbox from "../../inputs/Checkbox";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../../utils/joinClassNames";
 
-const TableHeaderContainer = styled(Surface)`
-  display: grid;
-  position: relative;
-  height: 37px;
-  min-width: 100%;
-  background-color: #ecf0f3;
-  grid-template-rows: 6px 25px 6px;
-`;
+const useStyles = createUseStyles({
+  headerContainer: {
+    display: "grid",
+    position: "relative",
+    height: "37px",
+    minWidth: "100%",
+    backgroundColor: "#ecf0f3",
+    gridTemplateRows: "6px 25px 6px",
+  },
+});
 
 export interface Props {
   className?: string;
@@ -22,6 +25,7 @@ export interface Props {
 }
 
 const TableHeader = ({ className, style }: Props) => {
+  const classes = useStyles();
   const table = useTable();
   const columns = useColumns();
   const selectedRows = useSelectedRows();
@@ -55,9 +59,9 @@ const TableHeader = ({ className, style }: Props) => {
   };
 
   return (
-    <TableHeaderContainer
+    <Surface
       style={{ ...style, ...barStyles }}
-      className={className}
+      className={joinClassNames(classes.headerContainer, className)}
       mode="popOut"
       raisedSpread={4}
       raisedOffset={2}
@@ -101,7 +105,7 @@ const TableHeader = ({ className, style }: Props) => {
           padding: 0,
         }}
       ></div>
-    </TableHeaderContainer>
+    </Surface>
   );
 };
 

@@ -1,25 +1,28 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../../utils/joinClassNames";
 import { Column } from "../../mediators/table/TableMediator";
 import useTable from "../../mediators/table/hooks/useTable";
 import useColumnSortDirection from "../../mediators/table/hooks/useColumnSortDirection";
 import Surface from "../../core/Surface";
 
-const ColumnContainer = styled(Surface)`
-  border-radius: 6px;
-  position: relative;
-  text-align: center;
-  line-height: 25px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: rgba(100, 110, 140, 0.8);
-  box-sizing: border-box;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 12px;
-  padding: 0px 8px;
-  cursor: pointer;
-  user-select: none;
-`;
+const useStyles = createUseStyles({
+  columnContainer: {
+    borderRadius: "6px",
+    position: "relative",
+    textAlign: "center",
+    lineHeight: "25px",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    color: "rgba(100, 110, 140, 0.8)",
+    boxSizing: "border-box",
+    fontFamily: "Verdana, Geneva, sans-serif",
+    fontSize: "12px",
+    padding: "0px 8px",
+    cursor: "pointer",
+    userSelect: "none",
+  },
+});
 
 export interface Props {
   column: Column;
@@ -29,6 +32,7 @@ export interface Props {
 }
 
 const TableColumn = ({ column, children, style, className }: Props) => {
+  const classes = useStyles();
   const table = useTable();
   const [state, setState] = useState<"flat" | "inset">("flat");
   const direction = useColumnSortDirection(column.name);
@@ -62,21 +66,21 @@ const TableColumn = ({ column, children, style, className }: Props) => {
   };
 
   return (
-    <ColumnContainer
+    <Surface
       onMouseDown={press}
       onMouseUp={release}
       onMouseLeave={release}
       mode={state}
       onClick={toggleSortDirection}
       style={{ ...style }}
-      className={className}
+      className={joinClassNames(classes.columnContainer, className)}
       insetOffset={2}
       insetSpread={4}
       raisedOffset={2}
       raisedSpread={4}
     >
       {children}
-    </ColumnContainer>
+    </Surface>
   );
 };
 

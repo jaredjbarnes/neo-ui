@@ -3,17 +3,19 @@ import { Meta } from "@storybook/react/types-6-0";
 import ClickAwayListener, { Props } from "../core/ClickAwayListener";
 import StoryBackdrop from "./StoryBackdrop";
 import Portal from "../layouts/Portal";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 
-const Container = styled.div`
-  width: 100px;
-  height: 100px;
-  border: 1px solid #000;
-  background-color: red;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-`;
+const useStyles = createUseStyles({
+  container: {
+    width: "100px",
+    height: "100px",
+    border: "1px solid #000",
+    backgroundColor: "red",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 export default {
   title: "ClickAwayListener",
@@ -22,6 +24,7 @@ export default {
 } as Meta;
 
 export function Baseline(props: Props) {
+  const classes = useStyles();
   const [state, setState] = useState(0);
 
   const handler = () => {
@@ -33,7 +36,7 @@ export function Baseline(props: Props) {
   return (
     <StoryBackdrop>
       <ClickAwayListener onClickAway={handler}>
-        <Container>{state}</Container>
+        <div className={classes.container}>{state}</div>
       </ClickAwayListener>
     </StoryBackdrop>
   );

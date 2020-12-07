@@ -1,19 +1,22 @@
 import React, { useState } from "react";
 import Surface from "../../core/Surface";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 
-const ButtonContainer = styled(Surface)`
-  position: relative;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background-color: rgba(243, 85, 92, 1);
-  cursor: pointer;
-`;
+const useStyles = createUseStyles({
+  button: {
+    position: "relative",
+    width: "13px",
+    height: "13px",
+    borderRadius: "50%",
+    backgroundColor: "rgba(243, 85, 92, 1)",
+    cursor: "pointer",
+  },
+});
 
 export interface Props {}
 
 const Button = ({}: Props) => {
+  const classes = useStyles();
   const [mode, setMode] = useState<"flat" | "cutOut">("flat");
   const press = () => {
     setMode("cutOut");
@@ -23,7 +26,8 @@ const Button = ({}: Props) => {
   };
 
   return (
-    <ButtonContainer
+    <Surface
+      className={classes.button}
       onMouseDown={press}
       onMouseLeave={release}
       onMouseUp={release}
@@ -32,7 +36,7 @@ const Button = ({}: Props) => {
       insetOffset={0}
       shadowColor="rgba(180,0,0,1)"
       highlightColor="rgba(255,80,80,0.9)"
-    ></ButtonContainer>
+    ></Surface>
   );
 };
 

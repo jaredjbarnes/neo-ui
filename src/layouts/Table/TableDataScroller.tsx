@@ -4,60 +4,58 @@ import Surface from "../../core/Surface";
 import useTable from "../../mediators/table/hooks/useTable";
 import TableRow from "./TableRow";
 import useRows from "../../mediators/table/hooks/useRows";
-import styled from "styled-components";
 import TableStatus from "./TableStatus";
 import TableLoadingRow from "./TableLoadingRow";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import useTableStatus from "../../mediators/table/hooks/useTableStatus";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../../utils/joinClassNames";
 
-const RaisedContainer = styled(Surface)`
-  min-height: 200px;
-  min-width: 200px;
-  width: 200px;
-  height: 200px;
-  padding: 0px 6px;
-  border-radius: 8px;
-`;
-
-const InsetContainer = styled(Surface)`
-  position: relative;
-  border-radius: 8px;
-  width: 100%;
-  height: 100%;
-`;
-
-const TableScrollerContainer = styled.div`
-  position: absolute;
-  top: 0px;
-  bottom: 34px;
-  left: 0px;
-  right: 0px;
-  overflow: auto;
-`;
-
-const TableSyledHeader = styled(TableHeader)`
-  position: sticky;
-  top: 0;
-  left: 0;
-  min-width: 100%;
-  z-index: 1;
-`;
-
-const TableContent = styled.div`
-  position: relative;
-  min-width: 100%;
-  min-height: 100%;
-  z-index: 0;
-`;
-
-const StyledTableStatus = styled(TableStatus)`
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  height: 34px;
-  width: 100%;
-  z-index: 2;
-`;
+const useStyles = createUseStyles({
+  raisedContainer: {
+    minHeight: "200px",
+    minWidth: "200px",
+    width: "200px",
+    height: "200px",
+    padding: "0px 6px",
+    borderRadius: "8px",
+  }, // Surface
+  insetContainer: {
+    position: "relative",
+    borderRadius: "8px",
+    width: "100%",
+    height: "100%",
+  }, // Surface
+  scrollContainer: {
+    position: "absolute",
+    top: "0px",
+    bottom: "34px",
+    left: "0px",
+    right: "0px",
+    overflow: "auto",
+  }, // div
+  header: {
+    position: "sticky",
+    top: 0,
+    left: 0,
+    minWidth: "100%",
+    zIndex: 1,
+  }, // TableHeader
+  content: {
+    position: "relative",
+    minWidth: "100%",
+    minHeight: "100%",
+    zIndex: 0,
+  }, // div
+  status: {
+    position: "absolute",
+    bottom: "0px",
+    left: "0px",
+    height: "34px",
+    width: "100%",
+    zIndex: 2,
+  }, // TableStatus
+});
 
 interface Props {
   style?: React.CSSProperties;
@@ -107,6 +105,7 @@ function getRowsWithinRange(
 }
 
 const TableDataScroller = ({ style, className, onRowClick }: Props) => {
+  const classes = useStyles();
   const rows = useRows();
   const table = useTable();
   const tableStatus = useTableStatus();
@@ -184,17 +183,21 @@ const TableDataScroller = ({ style, className, onRowClick }: Props) => {
   }, [updateRect]);
 
   return (
-    <RaisedContainer
-      className={className}
+    <Surface
+      className={joinClassNames(classes.raisedContainer, className)}
       style={style}
       mode="raised"
       raisedOffset={7}
       raisedSpread={14}
     >
-      <InsetContainer mode="cutOut" insetOffset={2}>
-        <TableScrollerContainer ref={tableScrollerRef} onScroll={onScroll}>
-          <TableContent style={tableContentStyle}>
-            <TableSyledHeader />
+      <Surface className={classes.insetContainer} mode="cutOut" insetOffset={2}>
+        <div
+          className={classes.scrollContainer}
+          ref={tableScrollerRef}
+          onScroll={onScroll}
+        >
+          <div className={classes.content} style={tableContentStyle}>
+            <TableHeader className={classes.header} />
             {rowsData.map((data, index) => {
               const y = index * ROW_HEIGHT + OFFSET_Y + range.startY;
 
@@ -215,11 +218,11 @@ const TableDataScroller = ({ style, className, onRowClick }: Props) => {
               );
             })}
             {!isFinished && <TableLoadingRow style={tableLoadingRowStyle} />}
-          </TableContent>
-        </TableScrollerContainer>
-        <StyledTableStatus />
-      </InsetContainer>
-    </RaisedContainer>
+          </div>
+        </div>
+        <TableStatus className={classes.status} />
+      </Surface>
+    </Surface>
   );
 };
 

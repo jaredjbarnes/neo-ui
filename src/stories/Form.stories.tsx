@@ -6,123 +6,127 @@ import OutlineButton from "../inputs/OutlineButton";
 import StoryBackdrop from "./StoryBackdrop";
 import Surface from "../core/Surface";
 import Handle from "../layouts/window/Handle";
-import styled from "styled-components";
 import Select from "../inputs/select/Select";
 import { Option } from "../mediators/select/SelectMediator";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../utils/joinClassNames";
 
-const WindowHandle = styled(Handle)`
-  grid-column-start: 1;
-  grid-column-end: 1;
-  grid-row-start: 1;
-  grid-row-end: 1;
-`;
-
-const WindowBody = styled.div`
-  grid-column-start: 1;
-  grid-column-end: 1;
-  grid-row-start: 2;
-  grid-row-end: 2;
-  border-bottom-right-radius: 6px;
-  border-bottom-left-radius: 6px;
-  overflow: hidden;
-`;
-
-const Window = styled(Surface)`
-  display: grid;
-  grid-template-columns: 100%;
-  grid-template-rows: 35px auto;
-  width: 500px;
-  padding: 0px;
-  margin: 0px;
-  height: 248px;
-  border-radius: 6px;
-  box-sizing: border-box;
-`;
-
-const Form = styled.div`
-  display: grid;
-  width: 100%;
-  padding: 16px;
-  grid-row-gap: 16px;
-  box-sizing: border-box;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 59px 35px 50px;
-`;
-
-const FirstNameField = styled(TextField)`
-  grid-column-start: 1;
-  grid-column-end: 1;
-  grid-row-start: 1;
-  grid-row-end: 1;
-  width: 90%;
-`;
-
-const LastNameField = styled(TextField)`
-  grid-column-start: 2;
-  grid-column-end: 2;
-  grid-row-start: 1;
-  grid-row-end: 1;
-  justify-self: end;
-  width: 90%;
-`;
-
-const IsMarriedField = styled(SwitchField)`
-  grid-column-start: 1;
-  grid-column-end: 1;
-  grid-row-start: 2;
-  grid-row-end: 2;
-`;
-
-const SelectField = styled(Select)`
-  grid-column-start: 2;
-  grid-column-end: 2;
-  grid-row-start: 2;
-  grid-row-end: 2;
-  justify-self: end;
-  width: 90%;
-`;
-
-const SaveButton = styled(OutlineButton)`
-  grid-column-start: 2;
-  grid-column-end: 2;
-  grid-row-start: 3;
-  grid-row-end: 3;
-  justify-self: end;
-  align-self: end;
-`;
+const useStyles = createUseStyles({
+  windowHandle: {
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    gridRowStart: 1,
+    gridRowEnd: 1,
+  },
+  windowBody: {
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    gridRowStart: 2,
+    gridRowEnd: 2,
+    borderBottomRightRadius: "6px",
+    borderBottomLeftRadius: "6px",
+    overflow: "hidden",
+  },
+  window: {
+    display: "grid",
+    gridTemplateColumns: "100%",
+    gridTemplateRows: "35px auto",
+    width: "500px",
+    padding: "0px",
+    margin: "0px",
+    height: "248px",
+    borderRadius: "6px",
+    boxSizing: "border-box",
+  },
+  form: {
+    display: "grid",
+    width: "100%",
+    padding: "16px",
+    gridRowGap: "16px",
+    boxSizing: "border-box",
+    gridTemplateColumns: "50% 50%",
+    gridRemplateRows: "59px 35px 50px",
+  },
+  firstNameField: {
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    gridRowStart: 1,
+    gridRowEnd: 1,
+    width: "90%",
+  },
+  lastNameField: {
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    gridRowStart: 1,
+    gridRowEnd: 1,
+    width: "90%",
+  },
+  isMarriedField: {
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    gridRowStart: 2,
+    gridRowEnd: 2,
+    width: "90%",
+  },
+  selectField: {
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    gridRowStart: 2,
+    gridRowEnd: 2,
+    width: "90%",
+    justifySelf: "end",
+  },
+  saveButton: {
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    gridRowStart: 2,
+    gridRowEnd: 2,
+    width: "90%",
+    justifySelf: "end",
+    alignSelf: "end",
+  },
+});
 
 export default {
   title: "Form",
 } as Meta;
 
 export function Baseline() {
+  const classes = useStyles();
   const options = [
     {
       label: "First Option",
       value: "firstOption",
-      isSelected: false,
     },
     {
       label: "First Option",
       value: "firstOption",
-      isSelected: false,
     },
   ] as Option<string>[];
 
   return (
     <StoryBackdrop>
-      <Window mode="popOut" raisedOffset={5} raisedSpread={25}>
-        <WindowHandle name="Person" />
-        <WindowBody>
-          <Form>
-            <FirstNameField name="First Name" />
-            <LastNameField name="Last Name" />
-            <IsMarriedField name="Married" />
-            <SelectField<string> options={options} />
-            <SaveButton>Save</SaveButton>
-          </Form>
-        </WindowBody>
-      </Window>
+      <Surface
+        className={classes.window}
+        mode="popOut"
+        raisedOffset={5}
+        raisedSpread={25}
+      >
+        <Handle className={classes.windowHandle} name="Person" />
+        <div className={classes.windowBody}>
+          <div className={classes.form}>
+            <TextField className={classes.firstNameField} name="First Name" />
+            <TextField className={classes.lastNameField} name="Last Name" />
+            <SwitchField className={classes.isMarriedField} name="Married" />
+            <Select<string>
+              value={"firstOption"}
+              className={classes.selectField}
+              options={options}
+            />
+            <OutlineButton className={classes.saveButton}>Save</OutlineButton>
+          </div>
+        </div>
+      </Surface>
     </StoryBackdrop>
   );
 }
