@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Surface from "../core/Surface";
 import Check from "@material-ui/icons/Check";
-import styled from "styled-components";
+import joinClassNames from "../utils/joinClassNames";
+import { createUseStyles } from "react-jss";
 
-const CheckboxContainer = styled(Surface)`
-  border-radius: 4px;
-  width: 18px;
-  height: 18px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 2px ridge rgba(255, 255, 255, 0.25);
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-`;
-
-const CheckIcon = styled(Check)`
-  color: rgba(100, 110, 140, 1);
-`;
+const useStyles = createUseStyles({
+  container: {
+    borderRadius: "4px",
+    width: "18px",
+    height: "18px",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    border: "2px ridge rgba(255, 255, 255, 0.25)",
+    boxSizing: "border-box",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+  },
+  icon: {
+    color: "rgba(100, 110, 140, 1)",
+  },
+});
 
 export interface Props {
   style?: React.CSSProperties;
@@ -31,6 +33,7 @@ export interface Props {
 }
 
 const Checkbox = ({ style, className, value, onValueChange }: Props) => {
+  const classes = useStyles();
   const verifiedValue = typeof value === "boolean" ? value : false;
   const [isChecked, setIsChecked] = useState(verifiedValue);
 
@@ -51,16 +54,16 @@ const Checkbox = ({ style, className, value, onValueChange }: Props) => {
   }, [verifiedValue]);
 
   return (
-    <CheckboxContainer
+    <Surface
       style={style}
-      className={className}
+      className={joinClassNames(classes.container, className)}
       mode="inset"
       insetOffset={2}
       insetSpread={4}
       onClick={onClick}
     >
-      {isChecked && <CheckIcon style={{ fontSize: 15 }} />}
-    </CheckboxContainer>
+      {isChecked && <Check className={classes.icon} style={{ fontSize: 15 }} />}
+    </Surface>
   );
 };
 

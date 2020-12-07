@@ -1,41 +1,40 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 import TextInput from "../TextInput";
 import Search from "@material-ui/icons/Search";
 import {
   useSelectMediator,
   useFilterKeywords,
 } from "../../mediators/select/hooks";
+import joinClassNames from "../../utils/joinClassNames";
 
-const SearchContainer = styled.div`
-  display: inline-grid;
-  grid-template-columns: auto 30px;
-  height: 35px;
-`;
-
-const IconContainer = styled.div`
-  display: flex;
-  grid-column-start: 2;
-  grid-column-end: 2;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  grid-column-start: 1;
-  grid-column-end: 1;
-  align-items: center;
-  justify-content: center;
-`;
-
-const SearchIcon = styled(Search)`
-  color: rgba(100, 110, 140, 0.8);
-`;
-
-const StyledInput = styled(TextInput)`
-  width: 100%;
-`;
+const useStyles = createUseStyles({
+  searchContainer: {
+    display: "inline-grid",
+    gridTemplateColumns: "auto 30px",
+    height: "35px",
+  },
+  iconContainer: {
+    display: "flex",
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  inputContainer: {
+    display: "flex",
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchIcon: {
+    color: "rgba(100, 110, 140, 0.8)",
+  },
+  input: {
+    width: "100%",
+  },
+});
 
 export interface Props {
   style?: React.CSSProperties;
@@ -43,6 +42,7 @@ export interface Props {
 }
 
 const SelectSearch = ({ style, className }: Props) => {
+  const classes = useStyles();
   const selectMediator = useSelectMediator();
   const keywords = useFilterKeywords();
 
@@ -53,14 +53,17 @@ const SelectSearch = ({ style, className }: Props) => {
   }, []);
 
   return (
-    <SearchContainer style={style} className={className}>
-      <InputContainer>
-        <StyledInput inputRef={inputRef} />
-      </InputContainer>
-      <IconContainer>
-        <SearchIcon />
-      </IconContainer>
-    </SearchContainer>
+    <div
+      style={style}
+      className={joinClassNames(classes.searchContainer, className)}
+    >
+      <div className={classes.inputContainer}>
+        <TextInput inputRef={inputRef} className={classes.input} />
+      </div>
+      <div className={classes.iconContainer}>
+        <Search className={classes.searchIcon} />
+      </div>
+    </div>
   );
 };
 

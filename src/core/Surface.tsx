@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 import { makeStyledTransition } from "react-motion-ux";
 import ColorConverter from "../utils/ColorConverter";
+import joinClassNames from "../utils/joinClassNames";
 
 const colorConverter = new ColorConverter();
 
@@ -17,11 +18,13 @@ function resolveShadowColor(color: string | null | undefined) {
   return convertedColor;
 }
 
-const Container = styled.div`
-  display: inline-block;
-  box-sizing: border-box;
-  background-color: #ecf0f3;
-`;
+const useStyles = createUseStyles({
+  container: {
+    display: "inline-block",
+    boxSizing: "border-box",
+    backgroundColor: "#ecf0f3",
+  },
+});
 
 const useStyledTransition = makeStyledTransition<HTMLDivElement>(
   ({
@@ -120,6 +123,8 @@ const Surface = React.forwardRef<HTMLDivElement, Props>(function (
   }: Props,
   ref
 ) {
+  const classes = useStyles();
+
   highlightColor = resolveHighlightColor(highlightColor);
   shadowColor = resolveShadowColor(shadowColor);
   mode = mode == null ? "flat" : mode;
@@ -147,14 +152,14 @@ const Surface = React.forwardRef<HTMLDivElement, Props>(function (
   });
 
   return (
-    <Container
+    <div
       {...props}
       ref={containerRef}
-      className={className}
+      className={joinClassNames(classes.container, className)}
       style={style}
     >
       {children}
-    </Container>
+    </div>
   );
 });
 

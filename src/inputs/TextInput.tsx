@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Surface from "../core/Surface";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 import { makeStyledTransition } from "react-motion-ux";
+import joinClassNames from "../utils/joinClassNames";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
@@ -27,47 +28,47 @@ const useTextAreaHeight = makeStyledTransition<HTMLDivElement>(
   700
 );
 
-const InputContainer = styled(Surface)`
-  border-radius: 8px;
-  width: 150px;
-  height: 35px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 2px ridge rgba(255, 255, 255, 0.15);
-  box-sizing: border-box;
-`;
-
-const Input = styled.input`
-  outline: none;
-  border: 0;
-  padding: 0px 8px;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-  color: rgba(100, 110, 140, 1);
-  ::placeholder {
-    color: rgba(100, 110, 140, 0.3);
-  }
-  box-sizing: border-box;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 16px;
-`;
-
-const Textarea = styled.textarea`
-  outline: none;
-  border: 0;
-  padding: 6px 8px;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-  color: rgba(100, 110, 140, 1);
-  ::placeholder {
-    color: rgba(100, 110, 140, 0.3);
-  }
-  box-sizing: border-box;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 16px;
-  resize: none;
-`;
+const useStyles = createUseStyles({
+  inputContainer: {
+    borderRadius: "8px",
+    width: "150px",
+    height: "35px",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    border: "2px ridge rgba(255, 255, 255, 0.15)",
+    boxSizing: "border-box",
+  },
+  input: {
+    outline: "none",
+    border: 0,
+    padding: "0px 8px",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "transparent",
+    color: "rgba(100, 110, 140, 1)",
+    "::placeholder": {
+      color: "rgba(100, 110, 140, 0.3)",
+    },
+    boxSizing: "border-box",
+    fontFamily: "Verdana, Geneva, sans-serif",
+    fontSize: "16px",
+  },
+  textarea: {
+    outline: "none",
+    border: 0,
+    padding: "6px 8px",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "transparent",
+    color: "rgba(100, 110, 140, 1)",
+    "::placeholder": {
+      color: "rgba(100, 110, 140, 0.3)",
+    },
+    boxSizing: "border-box",
+    fontFamily: "Verdana, Geneva, sans-serif",
+    fontSize: "16px",
+    resize: "none",
+  },
+});
 
 export interface Props extends React.DOMAttributes<HTMLElement> {
   value?: string;
@@ -107,6 +108,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
   }: Props,
   ref
 ) {
+  const classes = useStyles();
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
   let containerRef = useContainerStyledTransition(isFocused, { ref });
 
@@ -137,9 +139,9 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
   };
 
   return (
-    <InputContainer
+    <Surface
       ref={containerRef}
-      className={className}
+      className={joinClassNames(classes.inputContainer, className)}
       style={{ ...style, minHeight: large ? "100px" : "35px" }}
       mode={disabled ? "flat" : "inset"}
       insetOffset={3}
@@ -147,7 +149,7 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
       {...props}
     >
       {!large && (
-        <Input
+        <input
           type="text"
           onFocus={onFocus}
           onBlur={onBlur}
@@ -156,11 +158,12 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
           onChange={onInputChangeWrapper}
           placeholder={placeholder}
           disabled={disabled}
+          className={classes.input}
           {...inputProps}
         />
       )}
       {large && (
-        <Textarea
+        <textarea
           onFocus={onFocus}
           onBlur={onBlur}
           ref={textareaRef}
@@ -168,10 +171,11 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
           onChange={onTextChangeWrapper}
           placeholder={placeholder}
           disabled={disabled}
+          className={classes.textarea}
           {...textareaProps}
         />
       )}
-    </InputContainer>
+    </Surface>
   );
 });
 

@@ -3,20 +3,23 @@ import { Option } from "../../mediators/select/SelectMediator";
 import SelectProvider from "../../mediators/select/SelectProvider";
 import SelectOptions from "./SelectOptions";
 import SelectButton from "./SelectButton";
-import styled from "styled-components";
 import useForkRef from "../../core/hooks/useForkRef";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../../utils/joinClassNames";
 
-const StyledButton = styled(SelectButton)`
-  width: 100%;
-`;
-
-const SelectContainer = styled.div`
-  width: 200px;
-  height: 35px;
-`;
+const useStyles = createUseStyles({
+  button: {
+    width: "100%",
+  },
+  container: {
+    width: "200px",
+    height: "35px",
+  },
+});
 
 export interface Props<T> {
   options: Option<T>[];
+  value: T;
   selectRef?: React.Ref<HTMLDivElement>;
   className?: string;
   style?: React.CSSProperties;
@@ -31,10 +34,16 @@ function Select<T>({
   className,
   dropDownWidth,
   dropDownHeight,
+  value,
 }: Props<T>) {
+  const classes = useStyles();
   const buttonRef = useRef<HTMLDivElement | null>(null);
   const ref = useForkRef(selectRef, buttonRef);
-  const selectedOption = options.find((o) => o.isSelected) || null;
+  let selectedOption = null;
+
+  if (Array.isArray(options)) {
+    selectedOption = options.find((o) => o.value === value) || null;
+  }
 
   return (
     <SelectProvider<T>
@@ -43,10 +52,13 @@ function Select<T>({
       dropDownWidth={dropDownWidth}
       dropDownHeight={dropDownHeight}
     >
-      <SelectContainer style={style} className={className}>
-        <StyledButton innerRef={ref}></StyledButton>
+      <div
+        style={style}
+        className={joinClassNames(classes.container, className)}
+      >
+        <SelectButton innerRef={ref} className={classes.button}></SelectButton>
         <SelectOptions anchorRef={buttonRef}></SelectOptions>
-      </SelectContainer>
+      </div>
     </SelectProvider>
   );
 }

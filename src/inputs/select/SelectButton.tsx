@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import Surface from "../../core/Surface";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { makeStyledTransition } from "react-motion-ux";
 import {
@@ -9,6 +9,8 @@ import {
   useIsOpen,
 } from "../../mediators/select/hooks";
 import useForkRef from "../../core/hooks/useForkRef";
+import joinClassNames from "../../utils/joinClassNames";
+import { Divider } from "@material-ui/core";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
@@ -34,38 +36,38 @@ const useArrowTransition = makeStyledTransition<SVGSVGElement>(
   600
 );
 
-const SelectContainer = styled(Surface)`
-  display: inline-grid;
-  grid-template-columns: auto 30px;
-  width: 200px;
-  height: 35px;
-  box-sizing: border-box;
-  border: 2px ridge rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  cursor: pointer;
-  color: rgba(100, 110, 140, 1);
-  font-family: Verdana, Geneva, sans-serif;
-  outline: none;
-`;
-
-const DownArrow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  grid-column-start: 2;
-  grid-column-end: 2;
-  user-select: none;
-`;
-
-const Label = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0px 8px;
-  grid-column-start: 1;
-  grid-column-end: 1;
-  user-select: none;
-`;
+const useStyles = createUseStyles({
+  container: {
+    display: "inline-grid",
+    gridTemplateColumns: "auto 30px",
+    width: "200px",
+    height: "35px",
+    boxSizing: "border-box",
+    border: "2px ridge rgba(255, 255, 255, 0.15)",
+    borderRadius: "8px",
+    cursor: "pointer",
+    color: "rgba(100, 110, 140, 1)",
+    fontFamily: "Verdana, Geneva, sans-serif",
+    outline: "none",
+  },
+  downArrow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    userSelect: "none",
+  },
+  label: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    padding: "0px 8px",
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    userSelect: "none",
+  },
+});
 
 export interface Props {
   className?: string;
@@ -74,6 +76,7 @@ export interface Props {
 }
 
 export default function <T>({ className, style, innerRef }: Props) {
+  const classes = useStyles();
   const selectMediator = useSelectMediator();
   const open = useIsOpen();
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
@@ -122,7 +125,7 @@ export default function <T>({ className, style, innerRef }: Props) {
   };
 
   return (
-    <SelectContainer
+    <Surface
       ref={containerRef}
       onMouseDown={press}
       onMouseUp={release}
@@ -134,16 +137,16 @@ export default function <T>({ className, style, innerRef }: Props) {
       raisedSpread={10}
       insetOffset={2}
       insetSpread={6}
-      className={className}
+      className={joinClassNames(classes.container, className)}
       style={style}
       tabIndex={0}
       onClick={toggle}
       onKeyDown={onKeyDown}
     >
-      <Label>{label}</Label>
-      <DownArrow>
+      <div className={classes.label}>{label}</div>
+      <div className={classes.downArrow}>
         <ArrowDropDownIcon ref={svgRef} />
-      </DownArrow>
-    </SelectContainer>
+      </div>
+    </Surface>
   );
 }

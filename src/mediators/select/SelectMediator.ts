@@ -4,7 +4,6 @@ export interface Option<T> {
   id: string;
   label: string;
   value: T;
-  isSelected?: boolean;
 }
 
 function byId<T>(a: Option<T>, b: Option<T>) {
@@ -67,18 +66,15 @@ export default class SelectMediator<T> {
       return;
     }
 
-    const index = this.options.value.indexOf(option);
+    const index = this.options.value.findIndex((o) => o.value === option.value);
 
     if (index > -1) {
-      this.selectedOption.value = option;
-      this.options.value.forEach((o) => (o.isSelected = false));
-      option.isSelected = true;
+      this.selectedOption.value = this.options.value[index];
     }
   }
 
   deselectOption() {
     if (this.selectedOption.value != null) {
-      this.options.value.forEach((o) => (o.isSelected = false));
       this.selectedOption.value = null;
     }
   }

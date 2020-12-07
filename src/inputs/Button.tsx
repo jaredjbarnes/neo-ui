@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Surface, { Props } from "../core/Surface";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
+import joinClassNames from '../utils/joinClassNames';
 import { makeStyledTransition } from "react-motion-ux";
 
 const useStyledTransition = makeStyledTransition<HTMLDivElement>(
@@ -18,40 +19,42 @@ const useStyledTransition = makeStyledTransition<HTMLDivElement>(
   500
 );
 
-const ButtonContainer = styled(Surface)`
-  position: relative;
-  display: inline-block;
-  border-radius: 18px;
-  height: 35px;
-  width: 100px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
-  user-select: none;
-  color: rgba(0, 0, 0, 0.6);
-  cursor: pointer;
-  outline-style: none;
-  background-color: rgba(0, 0, 0, 0);
-`;
-
-const ContentContainer = styled(Surface)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0);
-`;
+const useStyles = createUseStyles({
+  container: {
+    position: "relative",
+    display: "inline-block",
+    borderRadius: "18px",
+    height: "35px",
+    width: "100px",
+    fontFamily: "Arial, Helvetica, sans-serif",
+    fontSize: "16px",
+    userSelect: "none",
+    color: "rgba(0, 0, 0, 0.6)",
+    cursor: "pointer",
+    outlineStyle: "none",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+  },
+  content: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+  },
+});
 
 export type { Props };
 
 const Button = React.forwardRef<HTMLDivElement, Props>(
-  ({ children, ...props }: Props, ref) => {
+  ({ children, className, ...props }: Props, ref) => {
     const [state, setState] = useState<"raised" | "inset" | "flat">("flat");
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const contentRef = useStyledTransition(state);
+    const classes = useStyles();
     const [duration, setDuration] = useState(2000);
 
     const returnToNormal = () => {
@@ -133,10 +136,11 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
     };
 
     return (
-      <ButtonContainer
+      <Surface
         ref={ref}
         raisedOffset={4}
         raisedSpread={7}
+        className={joinClassNames(className, classes.container)}
         {...props}
         mode={state}
         transitionDuration={duration}
@@ -150,8 +154,8 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
         onBlur={onBlur}
         tabIndex={0}
       >
-        <ContentContainer>{children}</ContentContainer>
-      </ButtonContainer>
+        <Surface className={classes.content}>{children}</Surface>
+      </Surface>
     );
   }
 );

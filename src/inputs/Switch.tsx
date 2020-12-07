@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Surface from "../core/Surface";
-import styled from "styled-components";
+import { createUseStyles } from "react-jss";
+import joinClassNames from "../utils/joinClassNames";
 import { makeStyledTransition } from "react-motion-ux";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
@@ -51,88 +52,91 @@ const useHandleStyledTransition = makeStyledTransition<HTMLDivElement>(
   500
 );
 
-const SwitchContainer = styled(Surface)`
-  display: inline-grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 100%;
-  position: relative;
-  width: 70px;
-  height: 36px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-family: Verdana, Geneva, sans-serif;
-  color: rgba(126, 134, 168, 1);
-  cursor: pointer;
-  border: 2px ridge rgba(30, 167, 253, 0.9);
-  box-sizing: border-box;
-  cursor: pointer;
-  outline-style: none;
-  background-color: rgba(255, 255, 255, 0.5);
-`;
-
-const Handle = styled(Surface)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 28px;
-  height: 26px;
-  transform: translate(5px, 5px);
-  border-radius: 4px;
-  background-color: #ecf0f3;
-`;
-
-const Knob = styled(Surface)`
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-`;
-
-const TopLeftKnob = styled(Knob)`
-  top: 6px;
-  left: 6px;
-`;
-
-const TopRightKnob = styled(Knob)`
-  top: 6px;
-  right: 8px;
-`;
-
-const BottomRightKnob = styled(Knob)`
-  bottom: 7px;
-  right: 8px;
-`;
-
-const BottomLeftKnob = styled(Knob)`
-  bottom: 7px;
-  left: 6px;
-`;
-
-const Off = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  grid-row-start: 1;
-  grid-row-end: 1;
-  grid-column-start: 2;
-  grid-column-end: 2;
-  text-transform: uppercase;
-  padding-right: 2px;
-  user-select: none;
-`;
-
-const On = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  grid-row-start: 1;
-  grid-row-end: 1;
-  grid-column-start: 1;
-  grid-column-end: 1;
-  text-transform: uppercase;
-  padding-left: 4px;
-  user-select: none;
-`;
+const useStyles = createUseStyles({
+  switchContainer: {
+    display: "inline-grid",
+    gridTemplateColumns: "50% 50%",
+    gridTemplateRows: "100%",
+    position: "relative",
+    width: "70px",
+    height: "36px",
+    borderRadius: "8px",
+    fontSize: "10px",
+    fontFamily: "Verdana, Geneva, sans-serif",
+    color: "rgba(126, 134, 168, 1)",
+    border: "2px ridge rgba(30, 167, 253, 0.9)",
+    boxSizing: "border-box",
+    cursor: "pointer",
+    outlineStyle: "none",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+  },
+  handle: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "28px",
+    height: "26px",
+    transform: "translate(5px, 5px)",
+    borderRadius: "4px",
+    backgroundColor: "#ecf0f3",
+  },
+  topLeftTexture: {
+    top: "6px",
+    left: "6px",
+    position: "absolute",
+    width: "4px",
+    height: "4px",
+    borderRadius: "50%",
+  },
+  topRightTexture: {
+    top: "6px",
+    right: "8px",
+    position: "absolute",
+    width: "4px",
+    height: "4px",
+    borderRadius: "50%",
+  },
+  bottomLeftTexture: {
+    bottom: "7px",
+    right: "8px",
+    position: "absolute",
+    width: "4px",
+    height: "4px",
+    borderRadius: "50%",
+  },
+  bottomRightTexture: {
+    bottom: "7px",
+    left: "6px",
+    position: "absolute",
+    width: "4px",
+    height: "4px",
+    borderRadius: "50%",
+  },
+  off: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gridRowStart: 1,
+    gridRowEnd: 1,
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    textTransform: "uppercase",
+    paddingRight: "2px",
+    userSelect: "none",
+  },
+  on: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gridRowStart: 1,
+    gridRowEnd: 1,
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    textTransform: "uppercase",
+    paddingLeft: "4px",
+    userSelect: "none",
+  },
+});
 
 export interface Props {
   checked?: boolean;
@@ -147,9 +151,10 @@ export interface Props {
 }
 
 const Switch = React.forwardRef<HTMLDivElement, Props>(function (
-  { checked, onChange }: Props,
+  { checked, onChange, className, style }: Props,
   ref
 ) {
+  const classes = useStyles();
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
   const containerRef = useContainerStyledTransition(isFocused, { ref });
   const verifiedValue = typeof checked === "boolean" ? checked : false;
@@ -192,7 +197,7 @@ const Switch = React.forwardRef<HTMLDivElement, Props>(function (
   };
 
   return (
-    <SwitchContainer
+    <Surface
       onClick={toggle}
       onKeyDown={onKeyDown}
       ref={containerRef}
@@ -202,16 +207,48 @@ const Switch = React.forwardRef<HTMLDivElement, Props>(function (
       tabIndex={0}
       onBlur={onBlur}
       onFocus={onFocus}
+      className={joinClassNames(classes.switchContainer, className)}
+      style={style}
     >
-      <Off ref={offRef}>Off</Off>
-      <On ref={onRef}>On</On>
-      <Handle ref={handleRef} mode="raised" raisedOffset={2} raisedSpread={5}>
-        <TopLeftKnob mode="raised" raisedOffset={1} raisedSpread={2} />
-        <TopRightKnob mode="raised" raisedOffset={1} raisedSpread={2} />
-        <BottomLeftKnob mode="raised" raisedOffset={1} raisedSpread={2} />
-        <BottomRightKnob mode="raised" raisedOffset={1} raisedSpread={2} />
-      </Handle>
-    </SwitchContainer>
+      <div className={classes.off} ref={offRef}>
+        Off
+      </div>
+      <div className={classes.on} ref={onRef}>
+        On
+      </div>
+      <Surface
+        className={classes.handle}
+        ref={handleRef}
+        mode="raised"
+        raisedOffset={2}
+        raisedSpread={5}
+      >
+        <Surface
+          className={classes.topLeftTexture}
+          mode="raised"
+          raisedOffset={1}
+          raisedSpread={2}
+        />
+        <Surface
+          className={classes.topRightTexture}
+          mode="raised"
+          raisedOffset={1}
+          raisedSpread={2}
+        />
+        <Surface
+          className={classes.bottomLeftTexture}
+          mode="raised"
+          raisedOffset={1}
+          raisedSpread={2}
+        />
+        <Surface
+          className={classes.bottomRightTexture}
+          mode="raised"
+          raisedOffset={1}
+          raisedSpread={2}
+        />
+      </Surface>
+    </Surface>
   );
 });
 
