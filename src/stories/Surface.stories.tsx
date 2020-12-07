@@ -2,8 +2,8 @@ import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
 import Surface, { Props } from "../core/Surface";
 import StoryBackdrop from "./StoryBackdrop";
-import styled from "styled-components";
 import SearchIcon from "@material-ui/icons/Search";
+import { createUseStyles } from "react-jss";
 
 export default {
   title: "Surface",
@@ -12,7 +12,7 @@ export default {
     mode: {
       control: {
         type: "inline-radio",
-        options: ["flat", "raised", "inset","cutOut","popOut"],
+        options: ["flat", "raised", "inset", "cutOut", "popOut"],
       },
     },
     highlightColor: {
@@ -27,89 +27,84 @@ export default {
   },
 } as Meta;
 
-const Circle = styled(Surface)`
-  height: 100px;
-  width: 100px;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 100px;
-`;
-
-const RoundedSquare = styled(Surface)`
-  height: 100px;
-  width: 100px;
-  border-radius: 8px;
-  text-align: center;
-  line-height: 100px;
-  border: 2px ridge rgba(255, 255, 255, 0.15);
-`;
-
-const OuterSurface = styled(Surface)`
-  height: 36px;
-  width: 175px;
-  border-radius: 18px;
-  text-align: center;
-  line-height: 100px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: left;
-`;
-
-const InnerSurface = styled(Surface)`
-  position: relative;
-  height: 30px;
-  width: 130px;
-  border-radius: 15px;
-  text-align: center;
-  line-height: 100px;
-  margin-left: 3px;
-  color: rgba(126, 134, 168, 0.9);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.25);
-`;
-
-const Icon = styled(SearchIcon)`
-  margin-left: 6px;
-  color: rgba(126, 134, 168, 0.9);
-`;
-
-const Input = styled.input`
-  outline: none;
-  border: 0;
-  background-color: transparent;
-  padding: 0px 12px;
-  width: 100%;
-  height: 100%;
-  color: rgba(126, 134, 168, 0.9);
-`;
-
-const Big = styled(Surface)`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Small = styled(Surface)`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Smallest = styled(Surface)`
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-`;
+const useStyles = createUseStyles({
+  circle: {
+    height: "100px",
+    width: "100px",
+    borderRadius: "50%",
+    textAlign: "center",
+    lineHeight: "100px",
+  },
+  roundedSquare: {
+    height: "100px",
+    width: "100px",
+    borderRadius: "8px",
+    textAlign: "center",
+    lineHeight: "100px",
+    border: "2px ridge rgba(255, 255, 255, 0.15)",
+  },
+  outerSurface: {
+    height: "36px",
+    width: "175px",
+    borderRadius: "18px",
+    textAlign: "center",
+    lineHeight: "100px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "left",
+  },
+  innerSurface: {
+    position: "relative",
+    height: "30px",
+    width: "130px",
+    borderRadius: "15px",
+    textAlign: "center",
+    lineHeight: "100px",
+    marginLeft: "3px",
+    color: "rgba(126, 134, 168, 0.9)",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+  },
+  icon: {
+    marginLeft: "6px",
+    color: "rgba(126, 134, 168, 0.9)",
+  },
+  input: {
+    outline: "none",
+    border: 0,
+    backgroundColor: "transparent",
+    padding: "0px 12px",
+    width: "100%",
+    height: "100%",
+    color: "rgba(126, 134, 168, 0.9)",
+  },
+  big: {
+    width: "100px",
+    height: "100px",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  small: {
+    width: "60px",
+    height: "60px",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  smallest: {
+    width: "30px",
+    height: "30px",
+    borderRadius: "4px",
+  },
+});
 
 export function Baseline(props: Props) {
+  const classes = useStyles();
   const isDefault = props.mode == null || props.mode === "flat";
   let inverseMode: "flat" | "raised" | "inset" =
     props.mode === "raised" ? "inset" : "raised";
@@ -117,19 +112,24 @@ export function Baseline(props: Props) {
 
   return (
     <StoryBackdrop>
-      <Circle {...props}></Circle>
-      <RoundedSquare {...props}></RoundedSquare>
-      <OuterSurface {...props} mode="raised">
-        <InnerSurface mode="inset" insetOffset={3} insetSpread={5}>
-          <Input />
-        </InnerSurface>
-        <Icon />
-      </OuterSurface>
-      <Big mode={props.mode}>
-        <Small mode={inverseMode}>
-          <Smallest mode={props.mode}></Smallest>
-        </Small>
-      </Big>
+      <Surface className={classes.circle} {...props}></Surface>
+      <Surface className={classes.roundedSquare} {...props}></Surface>
+      <Surface className={classes.outerSurface} {...props} mode="raised">
+        <Surface
+          className={classes.innerSurface}
+          mode="inset"
+          insetOffset={3}
+          insetSpread={5}
+        >
+          <input className={classes.input} />
+        </Surface>
+        <SearchIcon className={classes.icon} />
+      </Surface>
+      <Surface className={classes.big} mode={props.mode}>
+        <Surface className={classes.small} mode={inverseMode}>
+          <Surface className={classes.smallest} mode={props.mode}></Surface>
+        </Surface>
+      </Surface>
     </StoryBackdrop>
   );
 }
