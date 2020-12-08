@@ -1,4 +1,4 @@
-const classnames = (...args: (string | undefined | null)[]) => {
+const joinClassNames = (...args: (string | undefined | null)[]) => {
   const className = args
     .map((a) => a?.trim())
     .filter((a) => a != null)
@@ -7,4 +7,4 @@ const classnames = (...args: (string | undefined | null)[]) => {
   return className;
 };
 
-export default classnames;
+export default joinClassNames;

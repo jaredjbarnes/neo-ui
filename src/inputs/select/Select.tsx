@@ -19,7 +19,7 @@ const useStyles = createUseStyles({
 
 export interface Props<T> {
   options: Option<T>[];
-  value: T;
+  value?: T | null;
   selectRef?: React.Ref<HTMLDivElement>;
   className?: string;
   style?: React.CSSProperties;

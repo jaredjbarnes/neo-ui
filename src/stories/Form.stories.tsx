@@ -9,7 +9,6 @@ import Handle from "../layouts/window/Handle";
 import Select from "../inputs/select/Select";
 import { Option } from "../mediators/select/SelectMediator";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   windowHandle: {
@@ -60,6 +59,7 @@ const useStyles = createUseStyles({
     gridRowStart: 1,
     gridRowEnd: 1,
     width: "90%",
+    justifySelf: "end",
   },
   isMarriedField: {
     gridColumnStart: 1,
@@ -79,9 +79,8 @@ const useStyles = createUseStyles({
   saveButton: {
     gridColumnStart: 2,
     gridColumnEnd: 2,
-    gridRowStart: 2,
-    gridRowEnd: 2,
-    width: "90%",
+    gridRowStart: 3,
+    gridRowEnd: 3,
     justifySelf: "end",
     alignSelf: "end",
   },
@@ -95,12 +94,39 @@ export function Baseline() {
   const classes = useStyles();
   const options = [
     {
+      id: "1",
       label: "First Option",
-      value: "firstOption",
+      value: "1",
     },
     {
-      label: "First Option",
-      value: "firstOption",
+      id: "2",
+      label: "Second Option",
+      value: "2",
+    },
+    {
+      id: "3",
+      label: "Third Option",
+      value: "3",
+    },
+    {
+      id: "4",
+      label: "Fourth Option",
+      value: "4",
+    },
+    {
+      id: "5",
+      label: "Fifth Option",
+      value: "5",
+    },
+    {
+      id: "6",
+      label: "Sixth Option",
+      value: "6",
+    },
+    {
+      id: "7",
+      label: "Seventh Option",
+      value: "7",
     },
   ] as Option<string>[];
 
@@ -119,7 +145,7 @@ export function Baseline() {
             <TextField className={classes.lastNameField} name="Last Name" />
             <SwitchField className={classes.isMarriedField} name="Married" />
             <Select<string>
-              value={"firstOption"}
+              value={null}
               className={classes.selectField}
               options={options}
             />

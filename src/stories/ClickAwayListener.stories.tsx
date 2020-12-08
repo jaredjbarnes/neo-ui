@@ -43,6 +43,7 @@ export function Baseline(props: Props) {
 }
 
 export function WithPortal(props: Props) {
+  const classes = useStyles();
   const [open, setOpen] = useState(false);
 
   const handler = () => {
@@ -59,7 +60,7 @@ export function WithPortal(props: Props) {
       {open && (
         <Portal>
           <ClickAwayListener onClickAway={handler}>
-            <Container>Hello World</Container>
+            <div className={classes.container}>Hello World</div>
           </ClickAwayListener>
         </Portal>
       )}

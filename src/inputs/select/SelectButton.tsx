@@ -10,7 +10,6 @@ import {
 } from "../../mediators/select/hooks";
 import useForkRef from "../../core/hooks/useForkRef";
 import joinClassNames from "../../utils/joinClassNames";
-import { Divider } from "@material-ui/core";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
@@ -81,7 +80,7 @@ export default function <T>({ className, style, innerRef }: Props) {
   const open = useIsOpen();
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
   const selectedOption = useSelectedOption();
-  const label = selectedOption != null ? selectedOption.value : "-- Select --";
+  const label = selectedOption != null ? selectedOption.label : "-- Select --";
   const [isPressed, setIsPressed] = useState(false);
 
   const onElementMount = (element: HTMLDivElement | null) => {

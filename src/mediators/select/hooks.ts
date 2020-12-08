@@ -22,6 +22,11 @@ export const useSelectedOption = createStatefulSubjectHook<Option<any>>(
   "selectedOption"
 );
 
+export const useHighlightedOption = createStatefulSubjectHook<Option<any>>(
+  useSelectMediator,
+  "highlightedOption"
+);
+
 export const useFilterKeywords = createStatefulSubjectHook<string>(
   useSelectMediator,
   "filterKeywords"

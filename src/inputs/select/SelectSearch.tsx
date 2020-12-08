@@ -52,13 +52,22 @@ const SelectSearch = ({ style, className }: Props) => {
     }
   }, []);
 
+  const onValueChange = (value: string) => {
+    selectMediator.filter(value);
+  };
+
   return (
     <div
       style={style}
       className={joinClassNames(classes.searchContainer, className)}
     >
       <div className={classes.inputContainer}>
-        <TextInput inputRef={inputRef} className={classes.input} />
+        <TextInput
+          value={keywords}
+          onValueChange={onValueChange}
+          inputRef={inputRef}
+          className={classes.input}
+        />
       </div>
       <div className={classes.iconContainer}>
         <Search className={classes.searchIcon} />

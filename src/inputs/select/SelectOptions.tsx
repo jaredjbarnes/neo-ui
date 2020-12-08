@@ -2,7 +2,7 @@ import React from "react";
 import {
   useDropDownWidth,
   useDropDownHeight,
-  useOptions,
+  useFilteredOptions,
   useIsOpen,
   useSelectMediator,
 } from "../../mediators/select/hooks";
@@ -13,6 +13,7 @@ import { IAnchorPlacement } from "../../core/popover/PopoverMediator";
 import ClickAwayListener from "../../core/ClickAwayListener";
 import SelectSearch from "./SelectSearch";
 import joinClassNames from "../../utils/joinClassNames";
+import SelectOption from "./SelectOption";
 
 const useStyles = createUseStyles({
   selectOptions: {
@@ -36,7 +37,9 @@ const useStyles = createUseStyles({
     gridColumnEnd: 2,
     width: "100%",
     height: "100%",
-    borderRadius: "4px",
+    borderRadius: "8px",
+    overflow: "auto",
+    border: "2px ridge rgba(255, 255, 255, 0.15)",
   },
 });
 
@@ -49,7 +52,7 @@ export interface Props {
 function SelectOptions<T>({ anchorRef }: Props) {
   const classes = useStyles();
   const open = useIsOpen();
-  const options = useOptions();
+  const options = useFilteredOptions();
   const selectMediator = useSelectMediator();
   const dropDownWidth = useDropDownWidth();
   const dropDownHeight = useDropDownHeight();
@@ -68,19 +71,36 @@ function SelectOptions<T>({ anchorRef }: Props) {
     height: `${dropDownHeight}px`,
   };
 
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "ArrowDown") {
+      selectMediator.moveHighlightDown();
+    } else if (event.key === "ArrowUp") {
+      selectMediator.moveHighlightUp();
+    } else if (event.key === "Enter") {
+      if (selectMediator.highlightedOption.value != null) {
+        selectMediator.selectOption(selectMediator.highlightedOption.value);
+        selectMediator.close();
+      }
+    } else if (event.key === "Tab") {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+
   return (
     <Popover open={open} anchorRef={anchorRef} placement={placement}>
-      <ClickAwayListener onClickAway={close}>
+      <ClickAwayListener onClickAway={close} mouseEvent="onMouseDown">
         <Surface
           mode="popOut"
           raisedOffset={2}
           style={style}
           className={classes.selectOptions}
+          onKeyDown={onKeyDown}
         >
           <SelectSearch className={classes.search}></SelectSearch>
           <Surface mode="cutOut" insetOffset={2} className={classes.options}>
-            {options.map((o) => (
-              <div>{o.label}</div>
+            {options.map((o, index) => (
+              <SelectOption key={index} option={o} />
             ))}
           </Surface>
         </Surface>

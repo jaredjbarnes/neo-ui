@@ -17,11 +17,12 @@ const useStyles = createUseStyles({
     position: "relative",
     height: "40px",
     minWidth: "100%",
-    borderBottom: "2px ridge rgba(255, 255, 255, 0.65)",
+    borderBottom: "2px ridge rgba(255, 255, 255, 0.35)",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     cursor: "pointer",
     userSelect: "none",
     overflow: "hidden",
+    boxSizing: "border-box"
   },
   checkboxContainer: {
     display: "flex",

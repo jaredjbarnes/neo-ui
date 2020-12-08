@@ -26,8 +26,9 @@ export default class SelectMediator<T> {
   selectedOption = new StatefulSubject<Option<T> | null>(null);
   highlightedOption = new StatefulSubject<Option<T> | null>(null);
 
-  moveHighlightUp() {
+  moveHighlightDown() {
     if (this.highlightedOption.value == null) {
+      this.highlightedOption.value = this.filteredOptions.value[0];
       return;
     }
 
@@ -44,9 +45,8 @@ export default class SelectMediator<T> {
     }
   }
 
-  moveHighlightDown() {
+  moveHighlightUp() {
     if (this.highlightedOption.value == null) {
-      this.highlightedOption.value = this.filteredOptions.value[0];
       return;
     }
 
@@ -57,6 +57,16 @@ export default class SelectMediator<T> {
     if (index > -1) {
       this.highlightedOption.value =
         this.filteredOptions.value[index - 1] || null;
+    }
+  }
+
+  highlightOption(option: Option<T> | null) {
+    if (option == null) {
+      this.highlightedOption.value = null;
+    }
+
+    if (option?.id !== this.highlightedOption.value?.id) {
+      this.highlightedOption.value = option;
     }
   }
 
@@ -82,15 +92,11 @@ export default class SelectMediator<T> {
   setOptions(options: Option<T>[]) {
     if (!this.areOptionsEqual(options)) {
       this.options.value = options;
-      this.filteredOptions.value = this.options.value.filter((option) => {
-        return option.label
-          .toLowerCase()
-          .includes(this.filterKeywords.value.toLowerCase());
-      });
+      this.updateFilteredOptions();
     }
   }
 
-  areOptionsEqual(options: Option<T>[]) {
+  private areOptionsEqual(options: Option<T>[]) {
     const currentOptions = this.options.value.slice();
     const newOptions = options.slice();
 
@@ -100,9 +106,18 @@ export default class SelectMediator<T> {
     return currentOptions.join("|") === newOptions.join("|");
   }
 
+  private updateFilteredOptions() {
+    this.filteredOptions.value = this.options.value.filter((option) => {
+      return option.label
+        .toLowerCase()
+        .includes(this.filterKeywords.value.toLowerCase());
+    });
+  }
+
   filter(keywords: string) {
     if (keywords !== this.filterKeywords.value) {
       this.filterKeywords.value = keywords;
+      this.updateFilteredOptions();
     }
   }
 
