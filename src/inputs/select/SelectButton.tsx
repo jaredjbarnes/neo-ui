@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Surface from "../../core/Surface";
 import { createUseStyles } from "react-jss";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
@@ -82,6 +82,13 @@ export default function <T>({ className, style, innerRef }: Props) {
   const selectedOption = useSelectedOption();
   const label = selectedOption != null ? selectedOption.label : "-- Select --";
   const [isPressed, setIsPressed] = useState(false);
+  const buttonRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open && buttonRef.current != null) {
+      buttonRef.current.focus();
+    }
+  }, [open]);
 
   const onElementMount = (element: HTMLDivElement | null) => {
     if (element != null) {
@@ -89,7 +96,7 @@ export default function <T>({ className, style, innerRef }: Props) {
     }
   };
 
-  const ref = useForkRef(innerRef, onElementMount);
+  const ref = useForkRef(innerRef, onElementMount, buttonRef);
   const svgRef = useArrowTransition(open ? "open" : "closed");
   let containerRef = useContainerStyledTransition(isFocused, { ref });
 
