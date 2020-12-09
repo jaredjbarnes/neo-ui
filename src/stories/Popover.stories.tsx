@@ -41,7 +41,11 @@ export function Baseline(props: Props) {
         placement={{ horizontal: "left", vertical: "bottom" }}
       >
         <ClickAwayListener onClickAway={closeMenu}>
-          <Surface mode={"popOut"} raisedOffset={2}></Surface>
+          <Surface
+            mode={"popOut"}
+            className={classes.menu}
+            raisedOffset={2}
+          ></Surface>
         </ClickAwayListener>
       </Popover>
       <SolidButton ref={buttonRef} onClick={openMenu}>
