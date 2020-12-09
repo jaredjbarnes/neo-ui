@@ -1,41 +1,47 @@
-import { Subject } from "rxjs";
+import { Subject } from 'rxjs';
 
-export default class StatefulSubject<T, TError = any> {
-  private subject = new Subject<T>();
+export default class StatefulSubject<T, TError = any> extends Subject<T> {
   private _value: T;
-  private _error: any = null;
+  readonly errorSubject = new Subject<TError | null>();
+  private _error: TError | null = null;
 
-  constructor(defaultState: T) {
-    this._value = defaultState;
+  constructor(initialState: T) {
+    super();
+    this._value = initialState;
   }
 
-  get error() {
-    return this._error;
+  next(value: T) {
+    this._value = value;
+    return super.next(value);
   }
 
-  set error(error: TError) {
-    this._error = error;
-    this.subject.error(error);
-  }
-
-  get value() {
+  getValue() {
     return this._value;
   }
 
-  set value(value: T) {
-    this._value = value;
-    this.subject.next(value);
+  setValue(value: T) {
+    return this.next(value);
+  }
+
+  setError(e: TError | null) {
+    this._error = e;
+    this.errorSubject.next(e);
+  }
+
+  getError() {
+    return this._error;
+  }
+
+  onError(callback: (e: TError | null) => void) {
+    return this.errorSubject.subscribe({ next: callback });
   }
 
   onChange(callback: (value: T) => void) {
-    return this.subject.subscribe({ next: callback });
-  }
-
-  onError(callback: (error: Error) => void) {
-    return this.subject.subscribe({ error: callback });
+    return this.subscribe({ next: callback });
   }
 
   dispose() {
-    this.subject.complete();
+    this.complete();
+    this.errorSubject.complete();
   }
 }

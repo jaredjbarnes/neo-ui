@@ -172,7 +172,7 @@ export function TableBaseline(props: Props) {
       label: "Add",
       isPrimary: true,
       canAct: () => true,
-      handler: () => {
+      handler: (table: TableMediator<Person>) => {
         return Promise.resolve(undefined);
       },
     },

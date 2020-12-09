@@ -1,69 +1,290 @@
-import delayAsync from "./delayAsync";
-export class CancelledError extends Error {}
+import StatefulSubject from './StatefulSubject';
 
-type OnCancelCallback = (reason: string | CancelledError) => void;
+type Resolve<T> = (value?: T | PromiseLike<T>) => void;
+type Reject = (reason?: any) => void;
 
-export default class AsyncAction<T> {
-  private action: (asyncAction: AsyncAction<T>) => Promise<T>;
-  private promise: Promise<T> | null = null;
-  private reject: (reason: any) => void = () => {};
-  private error: Error | null = null;
-  private onCancelCallbacks: OnCancelCallback[] = [];
+export interface ExtendedPromise<T> extends Promise<T> {
+  isFulfilled: () => boolean;
+  isPending: () => boolean;
+  isRejected: () => boolean;
+  isFinished: () => boolean;
+}
 
-  constructor(action: (asyncAction: AsyncAction<T>) => Promise<T>) {
+export type OnCancelCallback = (reason: CancelledError | TimeoutError) => void;
+export type Action<T> = () => Promise<T>;
+export type PromiseResult<T> = T extends () => Promise<infer U> ? U : never;
+
+/**
+ * Describes the custom recovery strategy function that can be passed to retry.
+ */
+export type RecoverStrategy<E = Error | string> = (
+  error: E | TimeoutError | CancelledError,
+  retryCount: number
+) => boolean | Promise<boolean>;
+
+export class CancelledError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CancelledError';
+  }
+}
+
+export class TimeoutError extends CancelledError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TimeoutError';
+  }
+}
+
+/**
+ * The new and improved PromiseBuilder. Tighter, cleaner, sleeker, faster.
+ * @param action Action<T> - Method that returns a promise which resolves to T.
+ */
+export class AsyncAction<TResult, TError = Error | string> {
+  private action: Action<TResult>;
+  private executingAction: ExtendedPromise<TResult> | null = null;
+  private rejectExecutingAction: Reject = noop;
+  private retryLimit = 0;
+  private useExponentialBackoff = true;
+  private timeout: number | null = null;
+  private timeoutTimer: number | null = null;
+  private cancelSubject = new StatefulSubject<null, CancelledError | TimeoutError>(null);
+  private _retryCount = 0;
+
+  constructor(action: Action<TResult>) {
     this.action = action;
   }
 
-  execute() {
-    // This is a defferred execution, and it should only happen if someone is interested in the result.
-    // Finally cleans up promise and allows for the developer to execute again.
-    if (this.promise == null) {
-      this.onCancelCallbacks = [];
-      this.promise = new Promise((resolve, reject) => {
-        this.reject = reject;
-        this.action(this)
-          .then(resolve)
-          .catch((error) => {
-            this.error = error;
-            reject(error);
-          })
-          .finally(() => (this.promise = null));
+  /**
+   * Just a simple getter for the private retryCount value.
+   */
+  get retryCount() {
+    return this._retryCount;
+  }
+
+  /**
+   *  Throw an error, making retryCount readonly with the above getter.
+   */
+  set retryCount(_count: number) {
+    throw new Error('retryCount is readonly.');
+  }
+
+  /**
+   * Execute the stored action and return the promise.
+   */
+  public execute() {
+    if (this.executingAction == null) {
+      // Setup the wrapper promise. This is mainly so we can facilitate retries.
+      // We dont resolve this until the action is resolved or retry limit is reached.
+      this.executingAction = makeExtendedPromise(
+        new Promise<TResult>((resolve, reject) => {
+          this.rejectExecutingAction = reject;
+
+          this.action()
+            .then(resolve)
+            .catch((error: TError) => {
+              // Will attempt to retry if it should. If it exhausts retry attempts it will
+              // reject the executingAction. if it succeeds then it will resolve the executingAction
+              this.retryWithRecovery(error, resolve, this.rejectExecutingAction);
+            });
+        })
+      );
+
+      // Handle cleanup after the wrapper finishes its execution;
+      this.executingAction.catch(noop).finally(() => {
+        // Only clear the timeout timer when the outer promise finishes.
+        if (this.timeoutTimer != null) {
+          window.clearTimeout(Number(this.timeoutTimer));
+          this.timeoutTimer = null;
+        }
+      });
+
+      // Setup the timeout timer if we have timeout enabled.
+      if (this.timeout != null) {
+        const time = this.timeout;
+        this.timeoutTimer = window.setTimeout(() => {
+          this.cancelExecution(new TimeoutError(`Promise timed out after ${time}`));
+        }, time);
+      }
+    }
+
+    return this.executingAction;
+  }
+
+  /**
+   * Handles retry attempts. If it enounters a CancelledError or TimeoutError it will stop.
+   * If it fails the shouldRecover check, it will stop.
+   * @param error Error | CancelledError | TimeoutError
+   * @param resolve Resolve<T> - The outer resolve (from the current `executingAction`)
+   * @param reject Reject - The outer reject (from the current `executingAction`)
+   */
+  private async retryWithRecovery(
+    error: TError,
+    resolve: Resolve<TResult>,
+    reject: Reject
+  ) {
+    let shouldRecover =
+      // Only if AsyncAction hasn't been cancelled.
+      // `value` is a private variable... which is stupid, and I do what I want.
+      this.cancelSubject.thrownError === null &&
+      // User definable recovery strategy
+      (await this.shouldRecover(error, this._retryCount, this.retryLimit));
+
+    if (!shouldRecover) return reject(error);
+
+    // It is now officially retrying.
+    ++this._retryCount;
+
+    await this.maybeDelay();
+
+    try {
+      const result = await this.action();
+      resolve(result);
+    } catch (err) {
+      this.retryWithRecovery(err as TError, resolve, reject);
+    }
+  }
+
+  /**
+   * The default recovery strategy.
+   */
+  private async shouldRecover(_error: TError, retryCount: number, retryLimit?: number) {
+    return retryLimit != null ? retryCount < retryLimit : false;
+  }
+
+  /**
+   * Handles exponential backoff if its set, otherwise resolves immediately (no delay);
+   */
+  private maybeDelay() {
+    if (this.useExponentialBackoff) {
+      return new Promise<void>(resolve => {
+        const time = ((Math.pow(2, this._retryCount) - 1) / 2) * 100;
+        window.setTimeout(resolve, time);
       });
     }
 
-    return this.promise;
+    return Promise.resolve();
   }
 
-  getError() {
-    return this.error;
+  /**
+   * Cancel the current executing action if there is one.
+   * This method is also used internally by timeout to cancel with a TimeoutError.
+   */
+  public cancelExecution<E extends CancelledError>(reason: string | E = 'Cancelled') {
+    if (this.executingAction == null || this.executingAction.isFinished()) return;
+    const error = typeof reason === 'string' ? new CancelledError(reason) : reason;
+    this.rejectExecutingAction(error);
+    this.cancelSubject.error(error);
   }
 
-  cancel(reason = "Cancelled") {
-    const error = new CancelledError(reason);
-    this.reject(error);
-
-    this.onCancelCallbacks.forEach((callback) => callback(error));
+  /**
+   * Subscribe to cancellation event and execute your own logic when cancellation happens.
+   * @param callback onCancel handler. This method will be invoked when cancel is called.
+   * @returns Subscription
+   */
+  public onCancel(callback: OnCancelCallback) {
+    return this.cancelSubject.subscribe({ error: callback });
   }
 
-  onCancel(callback: OnCancelCallback) {
-    this.onCancelCallbacks.push(callback);
+  /**
+   * Attach a timeout in milliseconds. This timeout is inclusive of retries. This means
+   * that an action execution can timeout even though it may be in the middle of retrying.
+   */
+  public timeoutIn(time: number) {
+    this.timeout = time;
+    return this;
   }
 
-  static delay<T>(milliseconds: number, value: T) {
-    return new AsyncAction<T>(() => {
-      return delayAsync<T>(milliseconds, value);
-    });
+  /**
+   * Enable retries. Disabled by default. You can pass either a simple number to define number
+   * of retry attempts, or you can use your own custom recovery strategy to fit any scenario.
+   * Enable exponential backoff to gradually increase the time between retry attempts.
+   */
+  public retry(
+    amountOrRecoveryStrategy: number | RecoverStrategy<TError>,
+    useExponentialBackoff = true
+  ) {
+    this.useExponentialBackoff = useExponentialBackoff;
+
+    if (isNumber<TError>(amountOrRecoveryStrategy)) {
+      this.retryLimit = amountOrRecoveryStrategy;
+    } else {
+      this.shouldRecover = async (...args: Parameters<RecoverStrategy<TError>>) =>
+        await amountOrRecoveryStrategy(...args);
+    }
+
+    return this;
   }
 
+  /**
+   * Works almost just like `Promise.resolve()`.
+   * AsyncAction.resolve(VALUE).execute()
+   * @param value Resolved value
+   */
   static resolve<T>(value: T) {
     return new AsyncAction<T>(() => {
       return Promise.resolve<T>(value);
     });
   }
 
-  static reject<T>(error: Error) {
-    return new AsyncAction<T>(() => {
-      return Promise.reject(error);
+  /**
+   * Works almost just like `Promise.reject()`
+   * AsyncAction.reject(ERROR).execute()
+   * @param error The rejection reason.
+   */
+  static reject<TResult, E>(error: E) {
+    return new AsyncAction<TResult, E>(() => {
+      return Promise.reject<TResult>(error);
     });
   }
+}
+
+// Some simple helpers
+/**
+ * For narrowing type in the retry method.
+ * @param it number | RecoverStrategy
+ */
+function isNumber<E>(it: number | RecoverStrategy<E>): it is number {
+  return typeof it === 'number';
+}
+
+/**
+ * A function that does absolutely nothing. :)
+ */
+function noop() {}
+
+/**
+ * Turns a normal promise into an extended promise which tracks the promises status.
+ */
+function makeExtendedPromise<
+  TPromise extends Promise<any>,
+  TResult = PromiseResult<TPromise>
+>(promise: Promise<TResult>) {
+  // Set initial state
+  let isPending = true;
+  let isRejected = false;
+  let isFulfilled = false;
+  let isFinished = false;
+
+  // Observe the promise, saving the fulfillment in the closure scope.
+  const extendedPromise = promise
+    .then(v => {
+      isPending = false;
+      isFulfilled = true;
+      isFinished = true;
+      return v;
+    })
+    .catch(e => {
+      isPending = false;
+      isRejected = true;
+      isFinished = true;
+      throw e;
+    }) as ExtendedPromise<TResult>;
+
+  extendedPromise.isPending = () => isPending;
+  extendedPromise.isFulfilled = () => isFulfilled;
+  extendedPromise.isRejected = () => isRejected;
+  extendedPromise.isFinished = () => isFinished;
+
+  return extendedPromise;
 }

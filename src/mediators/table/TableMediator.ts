@@ -1,5 +1,5 @@
-import AsyncAction from "../../utils/AsyncAction";
-import AsyncActionState from "../../utils/AsyncActionState";
+import { AsyncAction } from "../../utils/AsyncAction";
+import { AsyncStateMachine } from "../../utils/AsyncStateMachine";
 import StatefulSubject from "../../utils/StatefulSubject";
 
 export interface Cell {
@@ -64,11 +64,10 @@ export default class TableMediator<T> {
   private selectedRowsMap = new Map<string, Row<T>>();
   private actionsMap: Map<string, Action<T>> = new Map();
 
-  readonly loadedRowsAction = new AsyncActionState<Row<T>[]>([]);
-  readonly action = new AsyncActionState<void>(undefined);
-  
+  readonly rows = new AsyncStateMachine<Row<T>[]>([]);
+  readonly action = new AsyncStateMachine<void>(undefined);
+
   readonly query = new StatefulSubject("");
-  readonly currentSorts = new StatefulSubject<Sort[]>([]);
   readonly columns = new StatefulSubject<Column[]>([]);
   readonly sorting = new StatefulSubject<Sort[]>([]);
   readonly actions = new StatefulSubject<Action<T>[]>([]);
@@ -80,9 +79,9 @@ export default class TableMediator<T> {
 
   async loadNextBatch() {
     const onLoad = this.getOnLoad();
-    const rows = this.loadedRowsAction.value.slice();
-    const sorting = this.sorting.value;
-    const query = this.query.value;
+    const rows = this.rows.getValue().slice();
+    const sorting = this.sorting.getValue();
+    const query = this.query.getValue();
     let isLast = false;
 
     const action = new AsyncAction(async () => {
@@ -97,18 +96,18 @@ export default class TableMediator<T> {
     });
 
     try {
-      await this.loadedRowsAction.execute(action);
+      await this.rows.execute(action);
     } catch (_) {
       // Do Nothing
     } finally {
       if (isLast) {
-        this.loadedRowsAction.disable();
+        this.rows.disable();
       }
     }
   }
 
   getActions() {
-    return this.actions.value.slice();
+    return this.actions.getValue().slice();
   }
 
   getActionByName(name: string) {
@@ -119,7 +118,7 @@ export default class TableMediator<T> {
     if (!this.areActionsEqual(actions)) {
       this.actionsMap.clear();
       actions.forEach((a) => this.actionsMap.set(a.name, a));
-      this.actions.value = actions;
+      this.actions.setValue(actions);
     }
   }
 
@@ -148,7 +147,7 @@ export default class TableMediator<T> {
   }
 
   performActionOnSelectedRows(name: string) {
-    this.performAction(name, this.selectedRows.value);
+    this.performAction(name, this.selectedRows.getValue());
   }
 
   setOnLoad(onLoad: (request: RequestOptions<T>) => Promise<Response<T>>) {
@@ -160,15 +159,18 @@ export default class TableMediator<T> {
   }
 
   getColumns() {
-    return this.columns.value.slice();
+    return this.columns.getValue().slice();
   }
 
   setColumns(columns: Column[]) {
-    if (!this.areColumnsEqual(this.columns.value, columns)) {
-      this.columns.value = columns;
-      this.sorting.value = this.columns.value
-        .filter((c) => c.canSort)
-        .map((c) => ({ name: c.name, direction: "ASC" }));
+    if (!this.areColumnsEqual(this.columns.getValue(), columns)) {
+      this.columns.setValue(columns);
+      this.sorting.setValue(
+        this.columns
+          .getValue()
+          .filter((c) => c.canSort)
+          .map((c) => ({ name: c.name, direction: "ASC" }))
+      );
     }
   }
 
@@ -187,40 +189,40 @@ export default class TableMediator<T> {
   }
 
   search(query: string) {
-    this.query.value = query;
+    this.query.setValue(query);
     this.reset();
     this.loadNextBatch();
   }
 
   updateRow(row: Row<T>) {
-    const index = this.loadedRowsAction.value.findIndex((r) => r.id === row.id);
+    const index = this.rows.getValue().findIndex((r) => r.id === row.id);
 
     if (index > -1) {
-      this.loadedRowsAction.value.splice(index, 1, row);
+      this.rows.getValue().splice(index, 1, row);
     }
   }
 
   selectRow(row: Row<T>) {
     this.selectedRowsMap.set(row.id, row);
-    this.selectedRows.value = this.getSelectedRows();
+    this.selectedRows.setValue(this.getSelectedRows());
   }
 
   deselectRow(row: Row<T>) {
     this.selectedRowsMap.delete(row.id);
-    this.selectedRows.value = this.getSelectedRows();
+    this.selectedRows.setValue(this.getSelectedRows());
   }
 
   deselectAllRows() {
     this.selectedRowsMap.clear();
-    this.selectedRows.value = this.getSelectedRows();
+    this.selectedRows.setValue(this.getSelectedRows());
   }
 
   selectedAllRows() {
-    this.loadedRowsAction.value.forEach((row) => {
+    this.rows.getValue().forEach((row) => {
       this.selectedRowsMap.set(row.id, row);
     });
 
-    this.selectedRows.value = this.getSelectedRows();
+    this.selectedRows.setValue(this.getSelectedRows());
   }
 
   getSelectedRows() {
@@ -232,7 +234,7 @@ export default class TableMediator<T> {
   }
 
   setSort(name: string, direction: "ASC" | "DESC") {
-    const sorting = this.sorting.value.slice();
+    const sorting = this.sorting.getValue().slice();
 
     const index = sorting.findIndex((sort) => {
       return sort.name === name;
@@ -244,13 +246,13 @@ export default class TableMediator<T> {
       sorting.push({ name, direction });
     }
 
-    this.sorting.value = sorting;
+    this.sorting.setValue(sorting);
     this.reset();
     this.loadNextBatch();
   }
 
   removeSortByName(name: string) {
-    const sorting = this.sorting.value;
+    const sorting = this.sorting.getValue();
 
     const index = sorting.findIndex((sort) => {
       return sort.name === name;
@@ -259,7 +261,7 @@ export default class TableMediator<T> {
     if (index > -1) {
       sorting.splice(index, 1);
 
-      this.sorting.value = sorting;
+      this.sorting.setValue(sorting);
       this.reset();
       this.loadNextBatch();
     }
@@ -267,7 +269,7 @@ export default class TableMediator<T> {
 
   reset() {
     this.clearRows();
-    this.loadedRowsAction.restore();
+    this.rows.restore();
   }
 
   reload() {
@@ -276,25 +278,25 @@ export default class TableMediator<T> {
   }
 
   refresh() {
-    this.loadedRowsAction.value = this.loadedRowsAction.value;
+    this.rows.setValue(this.rows.getValue());
   }
 
   getLoadedRowsLength() {
-    return this.loadedRowsAction.value.length;
+    return this.rows.getValue().length;
   }
 
   clearRows() {
-    this.loadedRowsAction.value = [];
+    this.rows.setValue([]);
   }
 
   getContentWidth() {
-    return this.columns.value.reduce((acc, column) => {
+    return this.columns.getValue().reduce((acc, column) => {
       return acc + column.width;
     }, 0);
   }
 
   dispose() {
-    this.loadedRowsAction.dispose();
+    this.rows.dispose();
     this.action.dispose();
     this.query.dispose();
     this.columns.dispose();

@@ -1,21 +1,11 @@
-import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
+import { useValue } from "../../../utils/hooks/useValue";
 
 const useColumnSortDirection = (name: string) => {
   const table = useTable();
-  const sort = table.sorting.value.find((c) => c.name === name);
-  const [direction, setDirection] = useState(sort?.direction || "ASC");
+  const sorting = useValue(table.sorting);
 
-  const subscription = useMemo(() => {
-    return table.sorting.onChange((sorts) => {
-      const sort = sorts.find((s) => s.name === name);
-      setDirection(sort?.direction || "ASC");
-    });
-  }, [table, name]);
-
-  useEffect(() => () => subscription.unsubscribe(), [subscription]);
-
-  return direction;
+  return sorting.find((c) => c.name === name)?.direction || "ASC";
 };
 
 export default useColumnSortDirection;

@@ -1,18 +1,12 @@
 import React from "react";
-import {
-  useDropDownWidth,
-  useDropDownHeight,
-  useFilteredOptions,
-  useIsOpen,
-  useSelectMediator,
-} from "../../mediators/select/hooks";
+import { useSelectMediator } from "../../mediators/select/SelectProvider";
+import { useValue } from "../../utils/hooks/useValue";
 import Surface from "../../core/Surface";
 import Popover from "../../core/popover/Popover";
 import { createUseStyles } from "react-jss";
 import { IAnchorPlacement } from "../../core/popover/PopoverMediator";
 import ClickAwayListener from "../../core/ClickAwayListener";
 import SelectSearch from "./SelectSearch";
-import joinClassNames from "../../utils/joinClassNames";
 import SelectOption from "./SelectOption";
 
 const useStyles = createUseStyles({
@@ -51,11 +45,11 @@ export interface Props {
 
 function SelectOptions<T>({ anchorRef }: Props) {
   const classes = useStyles();
-  const open = useIsOpen();
-  const options = useFilteredOptions();
   const selectMediator = useSelectMediator();
-  const dropDownWidth = useDropDownWidth();
-  const dropDownHeight = useDropDownHeight();
+  const open = useValue(selectMediator.isOpen);
+  const options = useValue(selectMediator.filteredOptions);
+  const dropDownWidth = useValue(selectMediator.dropDownWidth);
+  const dropDownHeight = useValue(selectMediator.dropDownHeight);
 
   const placement = {
     vertical: "bottom",
@@ -77,8 +71,10 @@ function SelectOptions<T>({ anchorRef }: Props) {
     } else if (event.key === "ArrowUp") {
       selectMediator.moveHighlightUp();
     } else if (event.key === "Enter") {
-      if (selectMediator.highlightedOption.value != null) {
-        selectMediator.selectOption(selectMediator.highlightedOption.value);
+      if (selectMediator.highlightedOption.getValue() != null) {
+        selectMediator.selectOption(
+          selectMediator.highlightedOption.getValue()
+        );
         selectMediator.close();
       }
     } else if (event.key === "Tab") {

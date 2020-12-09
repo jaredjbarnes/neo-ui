@@ -1,20 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
+import { useValue } from "../../../utils/hooks/useValue";
 
 const useActions = () => {
   const table = useTable();
-  const [actions, setActions] = useState(table.getActions());
-
-  const subscription = useMemo(() => {
-    return table.actions.onChange((actions) => {
-      setActions(actions);
-    });
-  }, [table]);
-
-  useEffect(() => () => subscription.unsubscribe(), [subscription]);
-
-  return actions;
+  return useValue(table.actions);
 };
 
 export default useActions;
-

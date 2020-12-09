@@ -1,20 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
 import useTable from "./useTable";
+import { useValue } from "../../../utils/hooks/useValue";
 
 const useSelectedRows = () => {
   const table = useTable();
-  const [rows, setRows] = useState(table.selectedRows.value);
-
-  const subscription = useMemo(() => {
-    return table.selectedRows.onChange((rows) => {
-      setRows(rows);
-    });
-  }, [table]);
-
-  useEffect(() => () => subscription.unsubscribe(), [subscription]);
-
-  return rows;
+  return useValue(table.selectedRows);
 };
 
 export default useSelectedRows;
-

@@ -1,11 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { createUseStyles } from "react-jss";
 import { Option } from "../../mediators/select/SelectMediator";
-import {
-  useSelectedOption,
-  useSelectMediator,
-  useHighlightedOption,
-} from "../../mediators/select/hooks";
+import { useSelectMediator } from "../../mediators/select/SelectProvider";
+import { useValue } from "../../utils/hooks/useValue";
 
 const useStyles = createUseStyles({
   selectRow: {
@@ -26,7 +23,7 @@ const useStyles = createUseStyles({
     fontSize: "14px",
     padding: "0px 8px",
     "&:hover": {
-      backgroundColor: "rgba(30, 167, 253, 0.6)",
+      backgroundColor: "rgba(30, 167, 253, 0.5)",
       color: "rgba(255, 255, 255, 0.9)",
     },
   },
@@ -39,9 +36,9 @@ export interface Props {
 const SelectOption = ({ option }: Props) => {
   const classes = useStyles();
   const optionRef = useRef<HTMLDivElement | null>(null);
-  const selectedOption = useSelectedOption();
-  const highlightedOption = useHighlightedOption();
   const selectMediator = useSelectMediator();
+  const selectedOption = useValue(selectMediator.selectedOption);
+  const highlightedOption = useValue(selectMediator.highlightedOption);
   const isHighlighted =
     highlightedOption != null && highlightedOption.id === option.id;
   const isSelected = selectedOption != null && selectedOption.id === option.id;

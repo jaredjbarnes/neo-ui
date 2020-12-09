@@ -2,10 +2,8 @@ import React, { useCallback } from "react";
 import { createUseStyles } from "react-jss";
 import TextInput from "../TextInput";
 import Search from "@material-ui/icons/Search";
-import {
-  useSelectMediator,
-  useFilterKeywords,
-} from "../../mediators/select/hooks";
+import { useSelectMediator } from "../../mediators/select/SelectProvider";
+import { useValue } from "../../utils/hooks/useValue";
 import joinClassNames from "../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
@@ -44,7 +42,7 @@ export interface Props {
 const SelectSearch = ({ style, className }: Props) => {
   const classes = useStyles();
   const selectMediator = useSelectMediator();
-  const keywords = useFilterKeywords();
+  const keywords = useValue(selectMediator.filterKeywords);
 
   const inputRef = useCallback((element) => {
     if (element != null) {

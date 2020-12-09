@@ -27,77 +27,82 @@ export default class SelectMediator<T> {
   highlightedOption = new StatefulSubject<Option<T> | null>(null);
 
   moveHighlightDown() {
-    if (this.highlightedOption.value == null) {
-      this.highlightedOption.value = this.filteredOptions.value[0];
+    const highlightedOption = this.highlightedOption.getValue();
+
+    if (highlightedOption == null) {
+      this.highlightedOption.setValue(this.filteredOptions.getValue()[0]);
       return;
     }
 
-    const index = this.filteredOptions.value.indexOf(
-      this.highlightedOption.value
-    );
+    const index = this.filteredOptions.getValue().indexOf(highlightedOption);
 
     if (index > -1) {
       const nextIndex = Math.min(
-        this.filteredOptions.value.length - 1,
+        this.filteredOptions.getValue().length - 1,
         index + 1
       );
-      this.highlightedOption.value = this.filteredOptions.value[nextIndex];
+      this.highlightedOption.setValue(
+        this.filteredOptions.getValue()[nextIndex]
+      );
     }
   }
 
   moveHighlightUp() {
-    if (this.highlightedOption.value == null) {
+    const highlightedOption = this.highlightedOption.getValue();
+
+    if (highlightedOption == null) {
       return;
     }
 
-    const index = this.filteredOptions.value.indexOf(
-      this.highlightedOption.value
-    );
+    const index = this.filteredOptions.getValue().indexOf(highlightedOption);
 
     if (index > -1) {
-      this.highlightedOption.value =
-        this.filteredOptions.value[index - 1] || null;
+      this.highlightedOption.setValue(
+        this.filteredOptions.getValue()[index - 1] || null
+      );
     }
   }
 
   highlightOption(option: Option<T> | null) {
     if (option == null) {
-      this.highlightedOption.value = null;
+      this.highlightedOption.setValue(null);
     }
 
-    if (option?.id !== this.highlightedOption.value?.id) {
-      this.highlightedOption.value = option;
+    if (option?.id !== this.highlightedOption.getValue()?.id) {
+      this.highlightedOption.setValue(option);
     }
   }
 
   selectOption(option: Option<T> | null) {
     if (option == null) {
-      this.selectedOption.value = option;
+      this.selectedOption.setValue(option);
       return;
     }
 
-    const index = this.options.value.findIndex((o) => o.value === option.value);
+    const index = this.options
+      .getValue()
+      .findIndex((o) => o.value === option.value);
 
     if (index > -1) {
-      this.selectedOption.value = this.options.value[index];
+      this.selectedOption.setValue(this.options.getValue()[index]);
     }
   }
 
   deselectOption() {
-    if (this.selectedOption.value != null) {
-      this.selectedOption.value = null;
+    if (this.selectedOption.getValue() != null) {
+      this.selectedOption.setValue(null);
     }
   }
 
   setOptions(options: Option<T>[]) {
     if (!this.areOptionsEqual(options)) {
-      this.options.value = options;
+      this.options.setValue(options);
       this.updateFilteredOptions();
     }
   }
 
   private areOptionsEqual(options: Option<T>[]) {
-    const currentOptions = this.options.value.slice();
+    const currentOptions = this.options.getValue().slice();
     const newOptions = options.slice();
 
     currentOptions.sort(byId);
@@ -107,30 +112,32 @@ export default class SelectMediator<T> {
   }
 
   private updateFilteredOptions() {
-    this.filteredOptions.value = this.options.value.filter((option) => {
-      return option.label
-        .toLowerCase()
-        .includes(this.filterKeywords.value.toLowerCase());
-    });
+    this.filteredOptions.setValue(
+      this.options.getValue().filter((option) => {
+        return option.label
+          .toLowerCase()
+          .includes(this.filterKeywords.getValue().toLowerCase());
+      })
+    );
   }
 
   filter(keywords: string) {
-    if (keywords !== this.filterKeywords.value) {
-      this.filterKeywords.value = keywords;
+    if (keywords !== this.filterKeywords.getValue()) {
+      this.filterKeywords.setValue(keywords);
       this.updateFilteredOptions();
     }
   }
 
   open() {
-    if (!this.isOpen.value) {
-      this.isOpen.value = true;
+    if (!this.isOpen.getValue()) {
+      this.isOpen.setValue(true);
     }
   }
 
   close() {
-    if (this.isOpen.value) {
-      this.isOpen.value = false;
-      this.highlightedOption.value = null;
+    if (this.isOpen.getValue()) {
+      this.isOpen.setValue(false);
+      this.highlightedOption.setValue(null);
     }
   }
 

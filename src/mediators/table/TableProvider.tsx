@@ -51,7 +51,7 @@ function TableProvider<T>({
 
   useEffect(() => {
     if (typeof onSelectionChange === "function") {
-      const subscription = tableMediator.loadedRowsAction.onChange((rows) => {
+      const subscription = tableMediator.rows.onChange((rows) => {
         onSelectionChange(rows, tableMediator);
       });
 

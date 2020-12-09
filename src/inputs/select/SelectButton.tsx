@@ -3,13 +3,10 @@ import Surface from "../../core/Surface";
 import { createUseStyles } from "react-jss";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { makeStyledTransition } from "react-motion-ux";
-import {
-  useSelectedOption,
-  useSelectMediator,
-  useIsOpen,
-} from "../../mediators/select/hooks";
 import useForkRef from "../../core/hooks/useForkRef";
 import joinClassNames from "../../utils/joinClassNames";
+import { useSelectMediator } from "../../mediators/select/SelectProvider";
+import { useValue } from "../../utils/hooks/useValue";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
@@ -77,9 +74,9 @@ export interface Props {
 export default function <T>({ className, style, innerRef }: Props) {
   const classes = useStyles();
   const selectMediator = useSelectMediator();
-  const open = useIsOpen();
+  const open = useValue(selectMediator.isOpen);
+  const selectedOption = useValue(selectMediator.selectedOption);
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
-  const selectedOption = useSelectedOption();
   const label = selectedOption != null ? selectedOption.label : "-- Select --";
   const [isPressed, setIsPressed] = useState(false);
   const buttonRef = useRef<HTMLDivElement | null>(null);
@@ -92,7 +89,7 @@ export default function <T>({ className, style, innerRef }: Props) {
 
   const onElementMount = (element: HTMLDivElement | null) => {
     if (element != null) {
-      selectMediator.dropDownWidth.value = element.offsetWidth;
+      selectMediator.dropDownWidth.setValue(element.offsetWidth);
     }
   };
 
@@ -123,7 +120,7 @@ export default function <T>({ className, style, innerRef }: Props) {
   };
 
   const toggle = () => {
-    if (selectMediator.isOpen.value) {
+    if (selectMediator.isOpen.getValue()) {
       selectMediator.close();
     } else {
       selectMediator.open();

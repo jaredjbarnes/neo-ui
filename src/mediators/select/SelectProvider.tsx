@@ -1,8 +1,13 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useContext } from "react";
 import SelectMediator, { Option } from "./SelectMediator";
 
 const defaultSelectMediator = new SelectMediator<any>();
+
 export const SelectContext = React.createContext(defaultSelectMediator);
+
+export const useSelectMediator = () => {
+  return useContext(SelectContext);
+};
 
 interface Props<T> {
   selectedOption: Option<T> | null;
@@ -29,19 +34,19 @@ function SelectProvider<T>({
 
   useEffect(() => {
     if (typeof dropDownWidth === "number") {
-      mediator.dropDownWidth.value = dropDownWidth;
+      mediator.dropDownWidth.setValue(dropDownWidth);
     }
   }, [dropDownWidth]);
 
   useEffect(() => {
     if (typeof dropDownHeight === "number") {
-      mediator.dropDownHeight.value = dropDownHeight;
+      mediator.dropDownHeight.setValue(dropDownHeight);
     }
   }, [dropDownHeight]);
 
   useEffect(() => {
     if (typeof dropDownHeight === "number") {
-      mediator.dropDownHeight.value = dropDownHeight;
+      mediator.dropDownHeight.setValue(dropDownHeight);
     }
   }, [dropDownHeight]);
 
