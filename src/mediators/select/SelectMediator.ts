@@ -1,4 +1,4 @@
-import StatefulSubject from "../../utils/StatefulSubject";
+import ObservableValue from "../../utils/ObservableValue";
 
 export interface Option<T> {
   id: string;
@@ -17,14 +17,14 @@ function byId<T>(a: Option<T>, b: Option<T>) {
 }
 
 export default class SelectMediator<T> {
-  dropDownWidth = new StatefulSubject(200);
-  dropDownHeight = new StatefulSubject(200);
-  isOpen = new StatefulSubject(false);
-  filterKeywords = new StatefulSubject("");
-  options = new StatefulSubject<Option<T>[]>([]);
-  filteredOptions = new StatefulSubject<Option<T>[]>([]);
-  selectedOption = new StatefulSubject<Option<T> | null>(null);
-  highlightedOption = new StatefulSubject<Option<T> | null>(null);
+  dropDownWidth = new ObservableValue(200);
+  dropDownHeight = new ObservableValue(200);
+  isOpen = new ObservableValue(false);
+  filterKeywords = new ObservableValue("");
+  options = new ObservableValue<Option<T>[]>([]);
+  filteredOptions = new ObservableValue<Option<T>[]>([]);
+  selectedOption = new ObservableValue<Option<T> | null>(null);
+  highlightedOption = new ObservableValue<Option<T> | null>(null);
 
   moveHighlightDown() {
     const highlightedOption = this.highlightedOption.getValue();

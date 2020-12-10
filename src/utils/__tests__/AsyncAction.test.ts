@@ -1,4 +1,4 @@
-import { AsyncAction, CancelledError } from '@operator/shared/utils/mediator/AsyncAction';
+import { AsyncAction, CancelledError } from '../AsyncAction';
 
 jest.useFakeTimers();
 
@@ -21,7 +21,7 @@ describe('AsyncAction', () => {
         })
     );
 
-    await asyncAction.retry(3, false).execute();
+    await asyncAction.setRecoverStrategy(3, false).execute();
     expect(asyncAction.retryCount).toBe(3);
   });
 
@@ -33,7 +33,9 @@ describe('AsyncAction', () => {
       return success;
     });
 
-    await expect(asyncAction.retry(3, false).execute()).resolves.toBe(success);
+    await expect(asyncAction.setRecoverStrategy(3, false).execute()).resolves.toBe(
+      success
+    );
   });
 
   test('Fail and retry thrice then reject on 3rd retry', async () => {
@@ -43,7 +45,9 @@ describe('AsyncAction', () => {
       }
     });
 
-    await expect(asyncAction.retry(3, false).execute()).rejects.toThrow('Failed');
+    await expect(asyncAction.setRecoverStrategy(3, false).execute()).rejects.toThrow(
+      'Failed'
+    );
   });
 
   test('Cancel an execution and test onCancel defaults', async () => {
@@ -116,9 +120,9 @@ describe('AsyncAction', () => {
 
     const asyncAction = new AsyncAction(action);
 
-    await expect(asyncAction.retry(1000, false).timeoutIn(0).execute()).rejects.toThrow(
-      'Timed Out'
-    );
+    await expect(
+      asyncAction.setRecoverStrategy(1000, false).timeoutIn(0).execute()
+    ).rejects.toThrow('Timed Out');
   });
 
   test('Override retry strategy.', async () => {
@@ -137,7 +141,7 @@ describe('AsyncAction', () => {
 
     await expect(
       asyncAction
-        .retry((error: Error) => {
+        .setRecoverStrategy((error: Error) => {
           return error.message === 'Failed';
         }, false)
         .execute()
@@ -153,5 +157,63 @@ describe('AsyncAction', () => {
     const promise2 = asyncAction.execute();
 
     expect(promise1).toEqual(promise2);
+  });
+
+  test('Retry action after successfully completed.', () => {
+    const action = async () => 'Success';
+    const asyncAction = new AsyncAction(action);
+
+    return asyncAction.execute().then(value => {
+      expect(value).toBe('Success');
+
+      return asyncAction.retry().then(value => {
+        expect(value).toBe('Success');
+      });
+    });
+  });
+
+  test('Retry action after a failure.', () => {
+    let count = 0;
+
+    const action = async () => {
+      if (count === 0) {
+        count++;
+        throw new Error('Failed');
+      } else {
+        return 'Success';
+      }
+    };
+
+    const asyncAction = new AsyncAction(action);
+
+    return asyncAction
+      .execute()
+      .catch(error => {
+        expect(error.message).toBe('Failed');
+      })
+      .finally(() => {
+        return asyncAction.retry().then(value => {
+          expect(value).toBe('Success');
+        });
+      });
+  });
+
+  test('Retry action immediately after executing.', () => {
+    const action = async () => 'Success';
+    const asyncAction = new AsyncAction(action);
+
+    const result = asyncAction.execute();
+    const result2 = asyncAction.retry();
+
+    expect(result).toBe(result2);
+  });
+
+  test('Get executing promise', () => {
+    const action = async () => 'Success';
+    const asyncAction = new AsyncAction(action);
+
+    const promise = asyncAction.execute();
+
+    expect(asyncAction.getExecutingPromise()).toBe(promise);
   });
 });

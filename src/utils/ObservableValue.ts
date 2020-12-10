@@ -1,18 +1,19 @@
-import { Subject } from 'rxjs';
+import { Subject } from "rxjs";
 
-export default class StatefulSubject<T, TError = any> extends Subject<T> {
+export default class ObservableValue<T, TError = any> {
+  private valueSubject = new Subject<T>();
   private _value: T;
+
   readonly errorSubject = new Subject<TError | null>();
   private _error: TError | null = null;
 
   constructor(initialState: T) {
-    super();
     this._value = initialState;
   }
 
   next(value: T) {
     this._value = value;
-    return super.next(value);
+    return this.valueSubject.next(value);
   }
 
   getValue() {
@@ -25,7 +26,10 @@ export default class StatefulSubject<T, TError = any> extends Subject<T> {
 
   setError(e: TError | null) {
     this._error = e;
-    this.errorSubject.next(e);
+
+    if (e != null) {
+      this.errorSubject.next(e);
+    }
   }
 
   getError() {
@@ -37,11 +41,11 @@ export default class StatefulSubject<T, TError = any> extends Subject<T> {
   }
 
   onChange(callback: (value: T) => void) {
-    return this.subscribe({ next: callback });
+    return this.valueSubject.subscribe({ next: callback });
   }
 
   dispose() {
-    this.complete();
+    this.valueSubject.complete();
     this.errorSubject.complete();
   }
 }

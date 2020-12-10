@@ -1,4 +1,4 @@
-import StatefulSubject from './StatefulSubject';
+import { Subject } from 'rxjs';
 
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
 type Reject = (reason?: any) => void;
@@ -42,24 +42,42 @@ export class TimeoutError extends CancelledError {
  */
 export class AsyncAction<TResult, TError = Error | string> {
   private action: Action<TResult>;
-  private executingAction: ExtendedPromise<TResult> | null = null;
-  private rejectExecutingAction: Reject = noop;
+  private executingPromise: ExtendedPromise<TResult> | null = null;
+  private rejectExecutingPromise: Reject = noop;
   private retryLimit = 0;
   private useExponentialBackoff = true;
   private timeout: number | null = null;
   private timeoutTimer: number | null = null;
-  private cancelSubject = new StatefulSubject<null, CancelledError | TimeoutError>(null);
-  private _retryCount = 0;
+  private cancelSubject = new Subject<null>();
+  private _recoverCount = 0;
 
   constructor(action: Action<TResult>) {
     this.action = action;
+  }
+
+  getExecutingPromise() {
+    return this.executingPromise;
+  }
+
+  retry() {
+    if (this.executingPromise && this.executingPromise.isFinished()) {
+      this.executingPromise = null;
+      this.rejectExecutingPromise = noop;
+      if (this.timeoutTimer) {
+        window.clearTimeout(this.timeoutTimer);
+      }
+      this.cancelSubject = new Subject<null>();
+      this._recoverCount = 0;
+    }
+
+    return this.execute();
   }
 
   /**
    * Just a simple getter for the private retryCount value.
    */
   get retryCount() {
-    return this._retryCount;
+    return this._recoverCount;
   }
 
   /**
@@ -73,25 +91,25 @@ export class AsyncAction<TResult, TError = Error | string> {
    * Execute the stored action and return the promise.
    */
   public execute() {
-    if (this.executingAction == null) {
+    if (this.executingPromise == null) {
       // Setup the wrapper promise. This is mainly so we can facilitate retries.
       // We dont resolve this until the action is resolved or retry limit is reached.
-      this.executingAction = makeExtendedPromise(
+      this.executingPromise = makeExtendedPromise(
         new Promise<TResult>((resolve, reject) => {
-          this.rejectExecutingAction = reject;
+          this.rejectExecutingPromise = reject;
 
           this.action()
             .then(resolve)
             .catch((error: TError) => {
               // Will attempt to retry if it should. If it exhausts retry attempts it will
               // reject the executingAction. if it succeeds then it will resolve the executingAction
-              this.retryWithRecovery(error, resolve, this.rejectExecutingAction);
+              this.retryWithRecovery(error, resolve, this.rejectExecutingPromise);
             });
         })
       );
 
       // Handle cleanup after the wrapper finishes its execution;
-      this.executingAction.catch(noop).finally(() => {
+      this.executingPromise.catch(noop).finally(() => {
         // Only clear the timeout timer when the outer promise finishes.
         if (this.timeoutTimer != null) {
           window.clearTimeout(Number(this.timeoutTimer));
@@ -108,7 +126,7 @@ export class AsyncAction<TResult, TError = Error | string> {
       }
     }
 
-    return this.executingAction;
+    return this.executingPromise;
   }
 
   /**
@@ -128,12 +146,12 @@ export class AsyncAction<TResult, TError = Error | string> {
       // `value` is a private variable... which is stupid, and I do what I want.
       this.cancelSubject.thrownError === null &&
       // User definable recovery strategy
-      (await this.shouldRecover(error, this._retryCount, this.retryLimit));
+      (await this.shouldRecover(error, this._recoverCount, this.retryLimit));
 
     if (!shouldRecover) return reject(error);
 
     // It is now officially retrying.
-    ++this._retryCount;
+    ++this._recoverCount;
 
     await this.maybeDelay();
 
@@ -158,7 +176,7 @@ export class AsyncAction<TResult, TError = Error | string> {
   private maybeDelay() {
     if (this.useExponentialBackoff) {
       return new Promise<void>(resolve => {
-        const time = ((Math.pow(2, this._retryCount) - 1) / 2) * 100;
+        const time = ((Math.pow(2, this._recoverCount) - 1) / 2) * 100;
         window.setTimeout(resolve, time);
       });
     }
@@ -171,9 +189,9 @@ export class AsyncAction<TResult, TError = Error | string> {
    * This method is also used internally by timeout to cancel with a TimeoutError.
    */
   public cancelExecution<E extends CancelledError>(reason: string | E = 'Cancelled') {
-    if (this.executingAction == null || this.executingAction.isFinished()) return;
+    if (this.executingPromise == null || this.executingPromise.isFinished()) return;
     const error = typeof reason === 'string' ? new CancelledError(reason) : reason;
-    this.rejectExecutingAction(error);
+    this.rejectExecutingPromise(error);
     this.cancelSubject.error(error);
   }
 
@@ -200,7 +218,7 @@ export class AsyncAction<TResult, TError = Error | string> {
    * of retry attempts, or you can use your own custom recovery strategy to fit any scenario.
    * Enable exponential backoff to gradually increase the time between retry attempts.
    */
-  public retry(
+  public setRecoverStrategy(
     amountOrRecoveryStrategy: number | RecoverStrategy<TError>,
     useExponentialBackoff = true
   ) {

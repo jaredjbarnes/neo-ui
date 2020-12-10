@@ -1,6 +1,6 @@
 import { useValue } from './useValue';
-import { AsyncStateMachine } from '../AsyncStateMachine';
+import { AsyncActionRunner } from '../AsyncActionRunner';
 
-export function useAsyncStatus(asyncStateMachine: AsyncStateMachine<any, any>) {
-  return useValue(asyncStateMachine.status);
+export function useAsyncStatus(asyncActionRunner: AsyncActionRunner<any, any>) {
+  return useValue(asyncActionRunner.status);
 }

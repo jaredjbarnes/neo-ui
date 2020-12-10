@@ -1,4 +1,4 @@
-import StatefulSubject from "../../utils/StatefulSubject";
+import ObservableValue from "../../utils/ObservableValue";
 
 export interface IRect {
   top: number;

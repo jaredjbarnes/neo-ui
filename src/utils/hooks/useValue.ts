@@ -1,14 +1,14 @@
 import { useState, useMemo, useEffect } from "react";
-import StatefulSubject from "../StatefulSubject";
+import ObservableValue from "../ObservableValue";
 
-export function useValue<T>(statefulSubject: StatefulSubject<T>) {
-  const [value, setValue] = useState(statefulSubject.getValue());
+export function useValue<T>(observableValue: ObservableValue<T>) {
+  const [value, setValue] = useState(observableValue.getValue());
 
   const subscription = useMemo(() => {
-    return statefulSubject.onChange((value) => {
+    return observableValue.onChange((value) => {
       setValue(value);
     });
-  }, [statefulSubject]);
+  }, [observableValue]);
 
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 

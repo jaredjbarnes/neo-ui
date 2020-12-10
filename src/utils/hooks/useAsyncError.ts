@@ -1,14 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
-import { AsyncStateMachine } from '../AsyncStateMachine';
+import { AsyncActionRunner } from '../AsyncActionRunner';
 
-export function useAsyncError<T>(asyncStateMachine: AsyncStateMachine<any, T>) {
-  const [value, setValue] = useState(asyncStateMachine.getError());
+export function useAsyncError<T>(asyncActionRunner: AsyncActionRunner<any, T>) {
+  const [value, setValue] = useState(asyncActionRunner.getError());
 
   const subscription = useMemo(() => {
-    return asyncStateMachine.onError(value => {
+    return asyncActionRunner.onError(value => {
       setValue(value);
     });
-  }, [asyncStateMachine]);
+  }, [asyncActionRunner]);
 
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 

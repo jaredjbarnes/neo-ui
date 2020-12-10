@@ -1,6 +1,6 @@
 import { AsyncAction } from "../../utils/AsyncAction";
-import { AsyncStateMachine } from "../../utils/AsyncStateMachine";
-import StatefulSubject from "../../utils/StatefulSubject";
+import { AsyncActionRunner } from "../../utils/AsyncActionRunner";
+import ObservableValue from "../../utils/ObservableValue";
 
 export interface Cell {
   name: string;
@@ -64,14 +64,14 @@ export default class TableMediator<T> {
   private selectedRowsMap = new Map<string, Row<T>>();
   private actionsMap: Map<string, Action<T>> = new Map();
 
-  readonly rows = new AsyncStateMachine<Row<T>[]>([]);
-  readonly action = new AsyncStateMachine<void>(undefined);
+  readonly rows = new AsyncActionRunner<Row<T>[]>([]);
+  readonly action = new AsyncActionRunner<void>(undefined);
 
-  readonly query = new StatefulSubject("");
-  readonly columns = new StatefulSubject<Column[]>([]);
-  readonly sorting = new StatefulSubject<Sort[]>([]);
-  readonly actions = new StatefulSubject<Action<T>[]>([]);
-  readonly selectedRows = new StatefulSubject<Row<T>[]>([]);
+  readonly query = new ObservableValue("");
+  readonly columns = new ObservableValue<Column[]>([]);
+  readonly sorting = new ObservableValue<Sort[]>([]);
+  readonly actions = new ObservableValue<Action<T>[]>([]);
+  readonly selectedRows = new ObservableValue<Row<T>[]>([]);
 
   private onLoad: (
     request: RequestOptions<T>
@@ -269,7 +269,7 @@ export default class TableMediator<T> {
 
   reset() {
     this.clearRows();
-    this.rows.restore();
+    this.rows.reset();
   }
 
   reload() {

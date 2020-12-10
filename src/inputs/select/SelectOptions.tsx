@@ -77,10 +77,12 @@ function SelectOptions<T>({ anchorRef }: Props) {
         );
         selectMediator.close();
       }
-    } else if (event.key === "Tab") {
-      event.stopPropagation();
-      event.preventDefault();
+    } else if (event.key === "Escape") {
+      selectMediator.close();
     }
+
+    event.stopPropagation();
+    event.preventDefault();
   };
 
   return (
