@@ -1,6 +1,7 @@
 import React from "react";
 import useTableStatus from "../../mediators/table/hooks/useTableStatus";
 import useTable from "../../mediators/table/hooks/useTable";
+import useIsTableFinishedLoading from "../../mediators/table/hooks/useIsTableFinishedLoading";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
 
@@ -34,8 +35,9 @@ interface Props {
 }
 
 const textMap = {
-  ready: "Idle",
-  disabled: "Complete",
+  initial: "Idle",
+  success: "Idle",
+  disabled: "Disabled",
   pending: "Loading",
   error: "Error",
 };
@@ -44,13 +46,15 @@ const TableStatus = ({ className, style }: Props) => {
   const classes = useStyles();
   const state = useTableStatus();
   const table = useTable();
+  const isFinished = useIsTableFinishedLoading();
 
+  const status = isFinished ? "Complete" : textMap[state];
   return (
     <div
       className={joinClassNames(classes.tableStatusContainer, className)}
       style={style}
     >
-      <span className={classes.status}>Status: {textMap[state]}</span>
+      <span className={classes.status}>Status: {status}</span>
       <span className={classes.loaded}>
         Loaded: {table.getLoadedRowsLength()}
       </span>

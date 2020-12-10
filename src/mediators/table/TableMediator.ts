@@ -72,37 +72,34 @@ export default class TableMediator<T> {
   readonly sorting = new ObservableValue<Sort[]>([]);
   readonly actions = new ObservableValue<Action<T>[]>([]);
   readonly selectedRows = new ObservableValue<Row<T>[]>([]);
+  readonly isFinishedLoading = new ObservableValue<boolean>(false);
 
   private onLoad: (
     request: RequestOptions<T>
   ) => Promise<Response<T>> = nullableOnLoadFunction;
 
   async loadNextBatch() {
-    const onLoad = this.getOnLoad();
-    const rows = this.rows.getValue().slice();
-    const sorting = this.sorting.getValue();
-    const query = this.query.getValue();
-    let isLast = false;
+    if (!this.isFinishedLoading.getValue()) {
+      const onLoad = this.getOnLoad();
+      const rows = this.rows.getValue().slice();
+      const sorting = this.sorting.getValue();
+      const query = this.query.getValue();
 
-    const action = new AsyncAction(async () => {
-      const response = await onLoad({
-        rows,
-        sorting,
-        query,
+      const action = new AsyncAction(async () => {
+        const response = await onLoad({
+          rows,
+          sorting,
+          query,
+        });
+
+        if (response.isLast) {
+          this.isFinishedLoading.setValue(true);
+        }
+
+        return rows.concat(response.data);
       });
 
-      isLast = response.isLast;
-      return rows.concat(response.data);
-    });
-
-    try {
       await this.rows.execute(action);
-    } catch (_) {
-      // Do Nothing
-    } finally {
-      if (isLast) {
-        this.rows.disable();
-      }
     }
   }
 
@@ -270,6 +267,7 @@ export default class TableMediator<T> {
   reset() {
     this.clearRows();
     this.rows.reset();
+    this.isFinishedLoading.setValue(false);
   }
 
   reload() {

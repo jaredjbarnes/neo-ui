@@ -10,6 +10,7 @@ import IconButton from "../../inputs/Button";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
+import { DynamicRow } from "./DynamicRow";
 
 const useStyles = createUseStyles({
   tableRowContainer: {
@@ -22,7 +23,7 @@ const useStyles = createUseStyles({
     cursor: "pointer",
     userSelect: "none",
     overflow: "hidden",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
   },
   checkboxContainer: {
     display: "flex",
@@ -63,26 +64,6 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
   const columns = useColumns();
   const table = useTable();
   const isSelected = useIsRowSelected(row);
-
-  const rowStyles = useMemo(() => {
-    const gridTemplateColumns =
-      "30px 50px " +
-      columns
-        .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
-        .join(" ") +
-      " auto";
-
-    const width =
-      columns.reduce((acc, column) => {
-        return acc + column.width;
-      }, 0) + 80;
-
-    return {
-      width: `${width}px`,
-      gridTemplateColumns,
-    } as React.CSSProperties;
-  }, [columns]);
-
   const cells = row.cells;
 
   const onCheckboxClick = () => {
@@ -99,48 +80,46 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
     }
   };
 
+  const children = columns.map((c, index) => (
+    <TableCell column={c} key={index}>
+      {cells.find((cell) => cell.name === c.name)?.value}
+    </TableCell>
+  ));
+
+  const columnsWidths = columns.map((column) => column.width);
+
+  if (table.actions.getValue().length > 0) {
+    children.unshift(
+      <div className={classes.checkboxContainer}>
+        <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
+      </div>,
+      <div className={classes.actionsContainer}>
+        <IconButton
+          className={classes.actionsButton}
+          raisedOffset={2}
+          raisedSpread={4}
+          insetOffset={2}
+          insetSpread={4}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      </div>
+    );
+    children.push(<div></div>);
+
+    columnsWidths.unshift(30, 50);
+  }
+
   return (
     <RowProvider row={row}>
-      <div
-        style={{ ...style, ...rowStyles }}
-        className={joinClassNames(classes.tableRowContainer, className)}
+      <DynamicRow
         onClick={onClick}
+        className={joinClassNames(classes.tableRowContainer, className)}
+        style={style}
+        columnWidths={columnsWidths}
       >
-        <div className={classes.checkboxContainer}>
-          <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
-        </div>
-        <div className={classes.actionsContainer}>
-          <IconButton
-            className={classes.actionsButton}
-            raisedOffset={2}
-            raisedSpread={4}
-            insetOffset={2}
-            insetSpread={4}
-          >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-        </div>
-        {columns.map((c, index) => (
-          <TableCell
-            column={c}
-            key={index}
-            style={{
-              gridColumnStart: index + 3,
-              gridColumnEnd: index + 3,
-              width: c.width + "px",
-            }}
-          >
-            {cells.find((cell) => cell.name === c.name)?.value}
-          </TableCell>
-        ))}
-        <div
-          style={{
-            gridColumnStart: columns.length + 3,
-            gridColumnEnd: columns.length + 3,
-            padding: 0,
-          }}
-        ></div>
-      </div>
+        {children}
+      </DynamicRow>
     </RowProvider>
   );
 };

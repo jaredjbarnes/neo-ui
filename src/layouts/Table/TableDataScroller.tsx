@@ -122,7 +122,7 @@ const TableDataScroller = ({ style, className, onRowClick }: Props) => {
     width
   );
 
-  const isFinished = tableStatus === "disabled";
+  const isFinished = table.isFinishedLoading.getValue();
   const height = table.getLoadedRowsLength() * ROW_HEIGHT;
 
   const tableContentStyle = {
@@ -157,6 +157,7 @@ const TableDataScroller = ({ style, className, onRowClick }: Props) => {
 
   const onScroll = () => {
     const element = tableScrollerRef.current;
+    const isFinished = table.isFinishedLoading.getValue();
     updateRect();
 
     if (
