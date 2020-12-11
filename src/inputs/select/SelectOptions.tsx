@@ -79,10 +79,20 @@ function SelectOptions<T>({ anchorRef }: Props) {
       }
     } else if (event.key === "Escape") {
       selectMediator.close();
-    }
+      
+      event.stopPropagation();
+      event.preventDefault();
+    } else if (event.shiftKey && event.key === "Tab") {
+      selectMediator.moveHighlightUp();
 
-    event.stopPropagation();
-    event.preventDefault();
+      event.stopPropagation();
+      event.preventDefault();
+    } else if (event.key === "Tab") {
+      selectMediator.moveHighlightDown();
+
+      event.stopPropagation();
+      event.preventDefault();
+    }
   };
 
   return (

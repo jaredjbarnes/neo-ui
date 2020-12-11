@@ -34,7 +34,7 @@ const columns = [
     name: "firstName",
     width: 100,
     canSort: true,
-    alignment: "left",
+    alignment: "center",
   },
   {
     label: "Last Name",
@@ -245,7 +245,6 @@ export function TableWithoutActions(props: Props) {
               }
             }}
           />
-          ˝
         </TableProvider>
       </Surface>
     </StoryBackdrop>

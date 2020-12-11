@@ -7,15 +7,38 @@ import Surface from "../../core/Surface";
 import Checkbox from "../../inputs/Checkbox";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
+import IconButton from "../../inputs/Button";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { DynamicRow } from "./DynamicRow";
 
 const useStyles = createUseStyles({
   headerContainer: {
-    display: "grid",
     position: "relative",
     height: "37px",
     minWidth: "100%",
     backgroundColor: "#ecf0f3",
-    gridTemplateRows: "6px 25px 6px",
+    padding: "6px 0px",
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    padding: 0,
+  },
+  actionsContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    padding: 0,
+  },
+  actionsButton: {
+    width: "25px",
+    height: "25px",
+    marginLeft: "5px",
   },
 });
 
@@ -31,25 +54,6 @@ const TableHeader = ({ className, style }: Props) => {
   const selectedRows = useSelectedRows();
   const isChecked = selectedRows.length > 0;
 
-  const barStyles = useMemo(() => {
-    const gridTemplateColumns =
-      "30px 50px " +
-      columns
-        .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
-        .join(" ") +
-      " auto";
-
-    const width =
-      columns.reduce((acc, column) => {
-        return acc + column.width;
-      }, 0) + 80;
-
-    return {
-      width: `${width}px`,
-      gridTemplateColumns,
-    } as React.CSSProperties;
-  }, [columns]);
-
   const toggleSelection = () => {
     if (isChecked) {
       table.deselectAllRows();
@@ -58,53 +62,49 @@ const TableHeader = ({ className, style }: Props) => {
     }
   };
 
+  const children = columns.map((column, index) => (
+    <TableColumn
+      column={column}
+      key={index}
+      style={{ textAlign: column.alignment }}
+    >
+      {column.label}
+    </TableColumn>
+  ));
+
+  const columnsWidths = columns.map((column) => column.width);
+
+  if (table.actions.getValue().length > 0) {
+    children.unshift(
+      <div className={classes.checkboxContainer}>
+        <Checkbox value={isChecked} onValueChange={toggleSelection} />
+      </div>,
+      <div className={classes.actionsContainer}>
+        <IconButton
+          className={classes.actionsButton}
+          raisedOffset={2}
+          raisedSpread={4}
+          insetOffset={2}
+          insetSpread={4}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      </div>
+    );
+    children.push(<div></div>);
+
+    columnsWidths.unshift(30, 50);
+  }
+
   return (
     <Surface
-      style={{ ...style, ...barStyles }}
+      style={{ ...style }}
       className={joinClassNames(classes.headerContainer, className)}
       mode="popOut"
       raisedSpread={4}
       raisedOffset={2}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gridColumnStart: 1,
-          gridColumnEnd: 1,
-          gridRowStart: 2,
-          gridRowEnd: 2,
-          padding: 0,
-        }}
-      >
-        <Checkbox value={isChecked} onValueChange={toggleSelection} />
-      </div>
-      {columns.map((c, index) => (
-        <TableColumn
-          column={c}
-          key={index}
-          style={{
-            gridRowStart: 2,
-            gridRowEnd: 2,
-            gridColumnStart: index + 3,
-            gridColumnEnd: index + 3,
-            width: c.width + "px",
-            textAlign: c.alignment,
-          }}
-        >
-          {c.label}
-        </TableColumn>
-      ))}
-      <div
-        style={{
-          gridRowStart: 2,
-          gridRowEnd: 2,
-          gridColumnStart: columns.length + 3,
-          gridColumnEnd: columns.length + 3,
-          padding: 0,
-        }}
-      ></div>
+      <DynamicRow columnWidths={columnsWidths}>{children}</DynamicRow>
     </Surface>
   );
 };

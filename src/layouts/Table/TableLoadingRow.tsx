@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
+import useTable from "../../mediators/table/hooks/useTable";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
+import { DynamicRow } from "./DynamicRow";
 
 const useStyles = createUseStyles({
   tableRowContainer: {
-    display: "grid",
     position: "relative",
     height: "40px",
     minWidth: "100%",
@@ -22,6 +23,12 @@ const useStyles = createUseStyles({
     "100%": {
       backgroundColor: "rgba(190, 200, 215, 0.5)",
     },
+  },
+  pulsingContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px",
   },
   pulsingSection: {
     display: "inline-block",
@@ -45,70 +52,45 @@ export interface Props {
   style?: React.CSSProperties;
 }
 
-const TableRow = ({ className, style }: Props) => {
+const TableLoadingRow = ({ className, style }: Props) => {
+  const table = useTable();
   const classes = useStyles();
   const columns = useColumns();
 
-  const rowStyles = useMemo(() => {
-    const gridTemplateColumns =
-      "80px " +
-      columns
-        .map((c) => (typeof c.width === "number" ? `${c.width}px` : c.width))
-        .join(" ") +
-      " auto";
-
-    const width =
-      columns.reduce((acc, column) => {
-        return acc + column.width;
-      }, 0) + 80;
-
-    return {
-      width: `${width}px`,
-      gridTemplateColumns,
-    } as React.CSSProperties;
-  }, [columns]);
-
-  return (
-    <div
-      style={{ ...style, ...rowStyles }}
-      className={joinClassNames(classes.tableRowContainer, className)}
-    >
+  const children = columns.map((c, index) => {
+    return (
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gridColumnStart: 1,
-          gridColumnEnd: 1,
-          padding: 0,
-        }}
+        key={index}
+        style={{ justifyContent: alignmentMap[c.alignment] }}
+        className={classes.pulsingContainer}
       >
         <div className={classes.pulsingSection} />
       </div>
-      {columns.map((c, index) => (
-        <div
-          key={index}
-          style={{
-            gridColumnStart: index + 2,
-            gridColumnEnd: index + 2,
-            width: c.width + "px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: alignmentMap[c.alignment],
-          }}
-        >
-          <div className={classes.pulsingSection} />
-        </div>
-      ))}
-      <div
-        style={{
-          gridColumnStart: columns.length + 2,
-          gridColumnEnd: columns.length + 2,
-          padding: 0,
-        }}
-      ></div>
-    </div>
+    );
+  });
+
+  const columnsWidths = columns.map((column) => column.width);
+
+  if (table.actions.getValue().length > 0) {
+    children.unshift(
+      <div key={children.length} style={{justifyContent: "flex-start"}} className={classes.pulsingContainer}>
+        <div className={classes.pulsingSection} />
+      </div>
+    );
+    children.push(<div key={children.length}></div>);
+
+    columnsWidths.unshift(80);
+  }
+
+  return (
+    <DynamicRow
+      className={joinClassNames(classes.tableRowContainer, className)}
+      style={style}
+      columnWidths={columnsWidths}
+    >
+      {children}
+    </DynamicRow>
   );
 };
 
-export default TableRow;
+export default TableLoadingRow;

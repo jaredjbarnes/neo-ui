@@ -17,14 +17,16 @@ function byId<T>(a: Option<T>, b: Option<T>) {
 }
 
 export default class SelectMediator<T> {
-  dropDownWidth = new ObservableValue(200);
-  dropDownHeight = new ObservableValue(200);
-  isOpen = new ObservableValue(false);
-  filterKeywords = new ObservableValue("");
-  options = new ObservableValue<Option<T>[]>([]);
-  filteredOptions = new ObservableValue<Option<T>[]>([]);
-  selectedOption = new ObservableValue<Option<T> | null>(null);
-  highlightedOption = new ObservableValue<Option<T> | null>(null);
+  readonly opened = new ObservableValue(0);
+  readonly closed = new ObservableValue(0);
+  readonly dropDownWidth = new ObservableValue(200);
+  readonly dropDownHeight = new ObservableValue(200);
+  readonly isOpen = new ObservableValue(false);
+  readonly filterKeywords = new ObservableValue("");
+  readonly options = new ObservableValue<Option<T>[]>([]);
+  readonly filteredOptions = new ObservableValue<Option<T>[]>([]);
+  readonly selectedOption = new ObservableValue<Option<T> | null>(null);
+  readonly highlightedOption = new ObservableValue<Option<T> | null>(null);
 
   moveHighlightDown() {
     const highlightedOption = this.highlightedOption.getValue();
@@ -125,18 +127,21 @@ export default class SelectMediator<T> {
     if (keywords !== this.filterKeywords.getValue()) {
       this.filterKeywords.setValue(keywords);
       this.updateFilteredOptions();
+      this.highlightedOption.setValue(null);
     }
   }
 
   open() {
     if (!this.isOpen.getValue()) {
       this.isOpen.setValue(true);
+      this.opened.setValue(Date.now());
     }
   }
 
   close() {
     if (this.isOpen.getValue()) {
       this.isOpen.setValue(false);
+      this.closed.setValue(Date.now());
       this.highlightedOption.setValue(null);
     }
   }

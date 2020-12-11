@@ -76,22 +76,23 @@ export default function <T>({ className, style, innerRef }: Props) {
   const selectMediator = useSelectMediator();
   const open = useValue(selectMediator.isOpen);
   const selectedOption = useValue(selectMediator.selectedOption);
+  const closed = useValue(selectMediator.closed);
   const [isFocused, setIsFocused] = useState<"normal" | "focused">("normal");
   const label = selectedOption != null ? selectedOption.label : "-- Select --";
   const [isPressed, setIsPressed] = useState(false);
   const buttonRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!open && buttonRef.current != null) {
-      buttonRef.current.focus();
-    }
-  }, [open]);
 
   const onElementMount = (element: HTMLDivElement | null) => {
     if (element != null) {
       selectMediator.dropDownWidth.setValue(element.offsetWidth);
     }
   };
+
+  useEffect(() => {
+    if (buttonRef.current != null) {
+      buttonRef.current.focus();
+    }
+  }, [closed]);
 
   const ref = useForkRef(innerRef, onElementMount, buttonRef);
   const svgRef = useArrowTransition(open ? "open" : "closed");
