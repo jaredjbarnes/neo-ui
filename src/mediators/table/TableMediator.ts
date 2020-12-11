@@ -330,5 +330,7 @@ export default class TableMediator<T> {
     this.sorting.dispose();
     this.actions.dispose();
     this.selectedRows.dispose();
+    this.isFinishedLoading.dispose();
+    this.isSelectable.dispose();
   }
 }
