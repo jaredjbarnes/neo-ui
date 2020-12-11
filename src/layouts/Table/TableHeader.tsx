@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import useSelectedRows from "../../mediators/table/hooks/useSelectedRows";
 import useTable from "../../mediators/table/hooks/useTable";
@@ -10,6 +10,7 @@ import joinClassNames from "../../utils/joinClassNames";
 import IconButton from "../../inputs/Button";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { DynamicRow } from "./DynamicRow";
+import { useValue } from "../../utils/hooks/useValue";
 
 const useStyles = createUseStyles({
   headerContainer: {
@@ -53,6 +54,7 @@ const TableHeader = ({ className, style }: Props) => {
   const columns = useColumns();
   const selectedRows = useSelectedRows();
   const isChecked = selectedRows.length > 0;
+  const isSelectable = useValue(table.isSelectable);
 
   const toggleSelection = () => {
     if (isChecked) {
@@ -76,10 +78,10 @@ const TableHeader = ({ className, style }: Props) => {
 
   if (table.actions.getValue().length > 0) {
     children.unshift(
-      <div className={classes.checkboxContainer}>
-        <Checkbox value={isChecked} onValueChange={toggleSelection} />
-      </div>,
-      <div className={classes.actionsContainer}>
+      <div
+        style={{ justifyContent: isSelectable ? "flex-start" : "center" }}
+        className={classes.actionsContainer}
+      >
         <IconButton
           className={classes.actionsButton}
           raisedOffset={2}
@@ -91,10 +93,20 @@ const TableHeader = ({ className, style }: Props) => {
         </IconButton>
       </div>
     );
-    children.push(<div></div>);
 
-    columnsWidths.unshift(30, 50);
+    columnsWidths.unshift(40);
   }
+
+  if (isSelectable) {
+    children.unshift(
+      <div className={classes.checkboxContainer}>
+        <Checkbox value={isChecked} onValueChange={toggleSelection} />
+      </div>
+    );
+    columnsWidths.unshift(30);
+  }
+
+  children.push(<div></div>);
 
   return (
     <Surface

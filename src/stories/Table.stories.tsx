@@ -207,6 +207,7 @@ export function TableBaseline(props: Props) {
           columns={columns}
           onLoad={onLoad}
           actions={actions}
+          isSelectable={true}
           style={{ width: "500px", height: "400px" }}
           onRowClick={(row, table) => {
             if (table.isRowSelected(row)) {

@@ -16,78 +16,17 @@ We need to build Windows, Tabs, Sortable Tabs.
 
 We need to trap tab to stay within a Window, This could be done by placing a hidden element in the window to catch the last tab and to refocus to the beginning hidden element. This will prevent unwanted tabbing to other windows.
 
-OutlineButton
-Select
-Checkbox
+OutlineButton X
+Select X
+Checkbox X
 Date / Datetime
 Radio
 Form Tabs
 Field Layout
-Legends
-Dynamic Table (Lazy Loads Pages) These two table look identical.
-Table (Front Loads all Data No Pages)
+Legends X
+Dynamic Table X (Lazy Loads Pages) These two table look identical.
+Table X (Front Loads all Data No Pages)
 Navigation Tree (Expandable Tree)
 Icon List
-PopOver (Works for context menus and Drop downs, and Tooltips.)
-
-I want to have a Table Component with this contract
-
-```
-interface Cell {
-    name: string;
-    value: string | React.Component,
-}
-
-interface Row<T> {
-    cells: Cell[];
-    value: T;
-}
-
-interface Results<T> {
-    data: Row<T>[],
-    isLastResult: boolean;
-    count?: number;
-}
-
-interface Column {
-    name: string;
-    label: string;
-    canSort: boolean;
-}
-
-interface Sort {
-    name: string;
-    direction: "ASC" | "DESC"
-}
-
-interface Page {
-    onPage: number;
-    sort: Sort[];
-    keywords?: string;
-}
-
-interface TableProps<T> {
-    onLoad: (page: Page)=>Promise<Results<T>>
-    columns: Column[];
-    onView?: (item: T) => void;
-    onAdd?: (item: T) => Promise<void>;
-    onEdit?: (item: T) => Promise<void>;
-    onDelete?: (item: T) => Promise<void>;
-    canView?: boolean;
-    canAdd?: boolean;
-    canEdit?: boolean;
-    canDelete?: boolean;
-    rowHeight?: number;
-}
-//
-
-<Table
-    onLoad={({rows, keywords })=>{
-
-        return Promise.resolve([]);
-    }}
- />
-```
-
-We need to make a ArrayTable that just takes an array and displays them with the actions needed. This of course, would be built
-on the Table just has a bit more opinion on it. 
+PopOver X (Works for context menus and Drop downs, and Tooltips.)
+Multi-Select

@@ -17,6 +17,7 @@ export interface TableProviderProps<T> {
   onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
   onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
   children: React.ReactNode[] | React.ReactNode;
+  isSelectable?: boolean;
 }
 
 function TableProvider<T>({
@@ -25,7 +26,10 @@ function TableProvider<T>({
   children,
   actions,
   onSelectionChange,
+  isSelectable,
 }: TableProviderProps<T>) {
+  const selectable = typeof isSelectable === "boolean" ? isSelectable : false;
+
   const tableMediator = useMemo(() => {
     return new TableMediator<T>();
   }, []);
@@ -43,6 +47,10 @@ function TableProvider<T>({
   useEffect(() => {
     tableMediator.setOnLoad(onLoad);
   }, [tableMediator, onLoad]);
+
+  useEffect(() => {
+    tableMediator.isSelectable.setValue(selectable);
+  }, [tableMediator, selectable]);
 
   useEffect(() => {
     // This will load the first page on mount.

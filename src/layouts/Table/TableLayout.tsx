@@ -8,6 +8,7 @@ import useActions from "../../mediators/table/hooks/useActions";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
+import { useValue } from "../../utils/hooks/useValue";
 
 const useStyles = createUseStyles({
   tableLayout: {
@@ -82,7 +83,8 @@ function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
   const table = useTable();
   const actions = useActions();
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const showActions = actions.length > 0;
+  const isSelectable = useValue(table.isSelectable);
+  const showActions = actions.length > 0 && isSelectable;
 
   const search = (value: string) => {
     if (inputRef.current != null) {

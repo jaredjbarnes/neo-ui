@@ -73,6 +73,7 @@ export default class TableMediator<T> {
   readonly actions = new ObservableValue<Action<T>[]>([]);
   readonly selectedRows = new ObservableValue<Row<T>[]>([]);
   readonly isFinishedLoading = new ObservableValue<boolean>(false);
+  readonly isSelectable = new ObservableValue<boolean>(false);
 
   private onLoad: (
     request: RequestOptions<T>
@@ -200,21 +201,36 @@ export default class TableMediator<T> {
   }
 
   selectRow(row: Row<T>) {
+    if (!this.isSelectable.getValue()) {
+      return;
+    }
     this.selectedRowsMap.set(row.id, row);
     this.selectedRows.setValue(this.getSelectedRows());
   }
 
   deselectRow(row: Row<T>) {
+    if (!this.isSelectable.getValue()) {
+      return;
+    }
+
     this.selectedRowsMap.delete(row.id);
     this.selectedRows.setValue(this.getSelectedRows());
   }
 
   deselectAllRows() {
+    if (!this.isSelectable.getValue()) {
+      return;
+    }
+
     this.selectedRowsMap.clear();
     this.selectedRows.setValue(this.getSelectedRows());
   }
 
   selectedAllRows() {
+    if (!this.isSelectable.getValue()) {
+      return;
+    }
+
     this.rows.getValue().forEach((row) => {
       this.selectedRowsMap.set(row.id, row);
     });
@@ -291,6 +307,19 @@ export default class TableMediator<T> {
     return this.columns.getValue().reduce((acc, column) => {
       return acc + column.width;
     }, 0);
+  }
+
+  enableSelection() {
+    if (!this.isSelectable.getValue()) {
+      this.isSelectable.setValue(true);
+    }
+  }
+
+  disableSelection() {
+    if (this.isSelectable.getValue()) {
+      this.deselectAllRows();
+      this.isSelectable.setValue(false);
+    }
   }
 
   dispose() {

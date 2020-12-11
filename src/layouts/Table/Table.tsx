@@ -21,6 +21,7 @@ export interface TableProps<T> {
     table: TableMediator<T>,
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => void;
+  isSelectable?: boolean;
 }
 
 function Table<T>({
@@ -31,6 +32,7 @@ function Table<T>({
   onRowClick,
   style,
   className,
+  isSelectable,
 }: TableProps<T>) {
   return (
     <TableProvider
@@ -38,6 +40,7 @@ function Table<T>({
       columns={columns}
       onLoad={onLoad}
       onSelectionChange={onSelectionChange}
+      isSelectable={isSelectable}
     >
       <TableLayout
         style={style}

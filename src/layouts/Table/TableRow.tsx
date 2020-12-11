@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import useTable from "../../mediators/table/hooks/useTable";
 import useIsRowSelected from "../../mediators/table/hooks/useIsRowSelected";
@@ -11,6 +11,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
 import { DynamicRow } from "./DynamicRow";
+import { useValue } from "../../utils/hooks/useValue";
 
 const useStyles = createUseStyles({
   tableRowContainer: {
@@ -64,6 +65,7 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
   const columns = useColumns();
   const table = useTable();
   const isSelected = useIsRowSelected(row);
+  const isSelectable = useValue(table.isSelectable);
   const cells = row.cells;
 
   const onCheckboxClick = () => {
@@ -90,10 +92,10 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
 
   if (table.actions.getValue().length > 0) {
     children.unshift(
-      <div className={classes.checkboxContainer}>
-        <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
-      </div>,
-      <div className={classes.actionsContainer}>
+      <div
+        style={{ justifyContent: isSelectable ? "flex-start" : "center" }}
+        className={classes.actionsContainer}
+      >
         <IconButton
           className={classes.actionsButton}
           raisedOffset={2}
@@ -105,10 +107,22 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
         </IconButton>
       </div>
     );
-    children.push(<div></div>);
 
-    columnsWidths.unshift(30, 50);
+    columnsWidths.unshift(40);
   }
+
+  if (isSelectable) {
+    children.unshift(
+      <div className={classes.checkboxContainer}>
+        <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
+      </div>
+    );
+
+    columnsWidths.unshift(30);
+  }
+
+  // This is to fill the gap, if there is one at the end of the row.
+  children.push(<div></div>);
 
   return (
     <RowProvider row={row}>

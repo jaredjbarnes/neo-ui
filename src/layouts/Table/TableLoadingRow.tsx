@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React from "react";
 import useColumns from "../../mediators/table/hooks/useColumns";
 import useTable from "../../mediators/table/hooks/useTable";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
 import { DynamicRow } from "./DynamicRow";
+import { useValue } from "../../utils/hooks/useValue";
 
 const useStyles = createUseStyles({
   tableRowContainer: {
@@ -56,6 +57,7 @@ const TableLoadingRow = ({ className, style }: Props) => {
   const table = useTable();
   const classes = useStyles();
   const columns = useColumns();
+  const isSelectable = useValue(table.isSelectable);
 
   const children = columns.map((c, index) => {
     return (
@@ -72,14 +74,24 @@ const TableLoadingRow = ({ className, style }: Props) => {
   const columnsWidths = columns.map((column) => column.width);
 
   if (table.actions.getValue().length > 0) {
+    let actionsWidth = 40;
+
     children.unshift(
-      <div key={children.length} style={{justifyContent: "flex-start"}} className={classes.pulsingContainer}>
+      <div
+        key={children.length}
+        style={{ justifyContent: isSelectable ? "flex-start" : "center" }}
+        className={classes.pulsingContainer}
+      >
         <div className={classes.pulsingSection} />
       </div>
     );
     children.push(<div key={children.length}></div>);
 
-    columnsWidths.unshift(80);
+    if (isSelectable) {
+      actionsWidth = 70;
+    }
+
+    columnsWidths.unshift(actionsWidth);
   }
 
   return (
