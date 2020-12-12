@@ -78,7 +78,7 @@ const TableLoadingRow = ({ className, style }: Props) => {
 
     children.unshift(
       <div
-        key={children.length}
+        key="actions"
         style={{ justifyContent: isSelectable ? "flex-start" : "center" }}
         className={classes.pulsingContainer}
       >

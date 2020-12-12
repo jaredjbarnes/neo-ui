@@ -18,6 +18,7 @@ export interface TableProviderProps<T> {
   onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
   children: React.ReactNode[] | React.ReactNode;
   isSelectable?: boolean;
+  isSearchable?: boolean;
 }
 
 function TableProvider<T>({
@@ -27,8 +28,10 @@ function TableProvider<T>({
   actions,
   onSelectionChange,
   isSelectable,
+  isSearchable
 }: TableProviderProps<T>) {
   const selectable = typeof isSelectable === "boolean" ? isSelectable : false;
+  const searchable = typeof isSearchable === "boolean" ? isSearchable : false;
 
   const tableMediator = useMemo(() => {
     return new TableMediator<T>();
@@ -51,6 +54,10 @@ function TableProvider<T>({
   useEffect(() => {
     tableMediator.isSelectable.setValue(selectable);
   }, [tableMediator, selectable]);
+
+  useEffect(() => {
+    tableMediator.isSearchable.setValue(searchable);
+  }, [tableMediator, searchable]);
 
   useEffect(() => {
     // This will load the first page on mount.

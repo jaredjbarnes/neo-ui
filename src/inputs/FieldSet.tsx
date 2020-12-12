@@ -4,7 +4,7 @@ import joinClassNames from "../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   fieldset: {
-    border: "2px solid rgba(190, 200, 215, 0.45)",
+    border: "2px ridge rgba(255, 255, 255, 0.35)",
     borderRadius: "8px",
     fontFamily: "Verdana, Geneva, sans-serif",
     fontSize: "16px",

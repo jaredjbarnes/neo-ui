@@ -74,6 +74,7 @@ export default class TableMediator<T> {
   readonly selectedRows = new ObservableValue<Row<T>[]>([]);
   readonly isFinishedLoading = new ObservableValue<boolean>(false);
   readonly isSelectable = new ObservableValue<boolean>(false);
+  readonly isSearchable = new ObservableValue<boolean>(false);
 
   private onLoad: (
     request: RequestOptions<T>
@@ -331,6 +332,7 @@ export default class TableMediator<T> {
     this.actions.dispose();
     this.selectedRows.dispose();
     this.isFinishedLoading.dispose();
+    this.isSelectable.dispose();
     this.isSelectable.dispose();
   }
 }

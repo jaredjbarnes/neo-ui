@@ -79,6 +79,7 @@ const TableHeader = ({ className, style }: Props) => {
   if (table.actions.getValue().length > 0) {
     children.unshift(
       <div
+        key="actions"
         style={{ justifyContent: isSelectable ? "flex-start" : "center" }}
         className={classes.actionsContainer}
       >
@@ -99,14 +100,12 @@ const TableHeader = ({ className, style }: Props) => {
 
   if (isSelectable) {
     children.unshift(
-      <div className={classes.checkboxContainer}>
+      <div key="checkbox" className={classes.checkboxContainer}>
         <Checkbox value={isChecked} onValueChange={toggleSelection} />
       </div>
     );
     columnsWidths.unshift(30);
   }
-
-  children.push(<div></div>);
 
   return (
     <Surface

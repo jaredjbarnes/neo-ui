@@ -93,6 +93,7 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
   if (table.actions.getValue().length > 0) {
     children.unshift(
       <div
+        key="actions"
         style={{ justifyContent: isSelectable ? "flex-start" : "center" }}
         className={classes.actionsContainer}
       >
@@ -113,16 +114,13 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
 
   if (isSelectable) {
     children.unshift(
-      <div className={classes.checkboxContainer}>
+      <div key="checkbox" className={classes.checkboxContainer}>
         <Checkbox value={isSelected} onValueChange={onCheckboxClick} />
       </div>
     );
 
     columnsWidths.unshift(30);
   }
-
-  // This is to fill the gap, if there is one at the end of the row.
-  children.push(<div></div>);
 
   return (
     <RowProvider row={row}>

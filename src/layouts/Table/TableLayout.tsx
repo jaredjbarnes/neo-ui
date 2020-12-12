@@ -1,21 +1,20 @@
 import React, { useRef } from "react";
 import useTable from "../../mediators/table/hooks/useTable";
-import TextInput from "../../inputs/TextInput";
 import TableDataScroller from "./TableDataScroller";
 import TableActions from "./TableActions";
-import Search from "@material-ui/icons/Search";
 import useActions from "../../mediators/table/hooks/useActions";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
 import { useValue } from "../../utils/hooks/useValue";
+import { TableSearch } from "./TableSearch";
 
 const useStyles = createUseStyles({
   tableLayout: {
     position: "relative",
     display: "grid",
-    gridTemplateColumns: "auto 125px",
-    gridTemplateRows: "35px 16px auto",
+    gridTemplateColumns: "100% 0px",
+    gridTemplateRows: "0px 0px 100%",
     minWidth: "400px",
     minHeight: "400px",
   },
@@ -37,35 +36,6 @@ const useStyles = createUseStyles({
     gridRowStart: 3,
     gridRowEnd: 3,
   },
-  searchContainer: {
-    display: "grid",
-    gridTemplateColumns: "auto 30px",
-    gridColumnStart: 1,
-    gridColumnEnd: 1,
-    gridRowStart: 1,
-    gridRowEnd: 1,
-    width: "100%",
-  },
-  searchInput: {
-    gridColumnStart: 1,
-    gridColumnEnd: 1,
-    gridRowStart: 1,
-    gridRowEnd: 1,
-    width: "100%",
-  },
-  searchIconContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gridColumnStart: 2,
-    gridColumnEnd: 2,
-    gridRowStart: 1,
-    gridRowEnd: 1,
-    width: "100%",
-  },
-  searchIcon: {
-    color: "rgba(100, 110, 140, 0.8)",
-  },
 });
 
 export interface Props<T> {
@@ -82,22 +52,21 @@ function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
   const classes = useStyles();
   const table = useTable();
   const actions = useActions();
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const isSelectable = useValue(table.isSelectable);
+  const isSearchable = useValue(table.isSearchable);
   const showActions = actions.length > 0 && isSelectable;
 
-  const search = (value: string) => {
-    if (inputRef.current != null) {
-      table.search(value);
-    }
-  };
-
   const gridStyles = {
-    gridTemplateColumns: "auto 125px",
-  };
+    gridTemplateColumns: "100% 0px",
+    gridTemplateRows: "0px 0px 100%",
+  } as React.CSSProperties;
 
-  if (!showActions) {
-    gridStyles.gridTemplateColumns = "100%";
+  if (showActions) {
+    gridStyles.gridTemplateColumns = "auto 125px";
+  }
+
+  if (isSearchable) {
+    gridStyles.gridTemplateRows = "35px 16px auto";
   }
 
   return (
@@ -105,17 +74,11 @@ function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
       className={joinClassNames(classes.tableLayout, className)}
       style={{ ...style, ...gridStyles }}
     >
-      <div className={classes.searchContainer}>
-        <div className={classes.searchIconContainer}>
-          <Search className={classes.searchIcon} />
-        </div>
-        <TextInput
-          className={classes.searchInput}
-          inputRef={inputRef}
-          onValueChange={search}
-        />
-      </div>
-      <TableDataScroller className={classes.display} onRowClick={onRowClick} />
+      {isSearchable && <TableSearch />}
+      <TableDataScroller
+        className={classes.display}
+        onRowClick={onRowClick}
+      />
       {showActions && <TableActions className={classes.actions} />}
     </div>
   );

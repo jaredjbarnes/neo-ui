@@ -1,17 +1,65 @@
 import React from "react";
-import TableProvider from "../../mediators/table/TableProvider";
+import { DiggingTable } from "./DiggingTable";
 import TableMediator, {
-  RequestOptions,
-  Response,
   Column,
+  Response,
   Row,
+  RequestOptions,
   Action,
 } from "../../mediators/table/TableMediator";
-import TableLayout from "./TableLayout";
+
+function onLoadGenerator<T>(rows: Row<T>[], columns: Column[]) {
+  return ({ query, sorting: sorts }: RequestOptions<T>) => {
+    const filteredResults = rows.filter((row: Row<T>) => {
+      return row.cells.some((cell) => {
+        return cell.value
+          ?.toString()
+          .toLowerCase()
+          .includes(query.toLowerCase());
+      });
+    });
+
+    const cells = rows[0]?.cells || [];
+    const columnNameToIndexMap = cells.reduce((acc, column, index) => {
+      acc[column.name] = index;
+      return acc;
+    }, {} as any);
+
+    filteredResults.sort((rowA, rowB) => {
+      let score = 0;
+
+      sorts.every((sort) => {
+        const columnName = sort.name;
+        const direction = sort.direction === "ASC" ? 1 : -1;
+        const columnA =
+          rowA.cells[columnNameToIndexMap[columnName]].value || "";
+        const columnB =
+          rowB.cells[columnNameToIndexMap[columnName]].value || "";
+
+        if (columnA < columnB) {
+          score = -1 * direction;
+          return false;
+        } else if (columnA > columnB) {
+          score = 1 * direction;
+          return false;
+        } else {
+          return true;
+        }
+      });
+
+      return score;
+    });
+
+    return Promise.resolve({
+      data: filteredResults,
+      isLast: true,
+    }) as Promise<Response<T>>;
+  };
+}
 
 export interface TableProps<T> {
   columns: Column[];
-  onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
+  rows: Row<T>[];
   className?: string;
   style?: React.CSSProperties;
   actions?: Action<T>[];
@@ -22,33 +70,16 @@ export interface TableProps<T> {
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => void;
   isSelectable?: boolean;
+  isSearchable?: boolean;
 }
 
-function Table<T>({
-  actions,
-  onLoad,
-  columns,
-  onSelectionChange,
-  onRowClick,
-  style,
-  className,
-  isSelectable,
-}: TableProps<T>) {
+export function Table<T>({ rows, columns, ...props }: TableProps<T>) {
+  const onLoad = onLoadGenerator(rows, columns);
   return (
-    <TableProvider
-      actions={actions}
-      columns={columns}
+    <DiggingTable<T>
       onLoad={onLoad}
-      onSelectionChange={onSelectionChange}
-      isSelectable={isSelectable}
-    >
-      <TableLayout
-        style={style}
-        className={className}
-        onRowClick={onRowClick}
-      />
-    </TableProvider>
+      columns={columns}
+      {...props}
+    ></DiggingTable>
   );
 }
-
-export default Table;

@@ -1,25 +1,28 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Table from "../layouts/table";
+import { DiggingTable } from "../layouts/table/DiggingTable";
+import { Table } from "../layouts/table/Table";
 import StoryBackdrop from "./StoryBackdrop";
 import TableDataScroller from "../layouts/table/TableDataScroller";
-import TableLayout from "../layouts/table/TableLayout";
 import TableHeader, { Props } from "../layouts/table/TableHeader";
 import TableMediator, {
   Column,
   Response,
   Row,
+  RequestOptions,
+  Action,
 } from "../mediators/table/TableMediator";
 import TableProvider from "../mediators/table/TableProvider";
-import { RequestOptions, Action } from "../mediators/table/TableMediator";
 import delayAsync from "../utils/delayAsync";
 import Surface from "../core/Surface";
 
 export default {
   title: "Table",
-  component: Table,
+  component: DiggingTable,
   argTypes: {},
 } as Meta;
+
+console.log(process.env.NODE_ENV);
 
 class Person {
   id!: number;
@@ -162,7 +165,7 @@ function onLoadGenerator<T>(data: T[], columns: Column[], maxLatency: number) {
   };
 }
 
-export function TableBaseline(props: Props) {
+export function DiggingTableBaseline(props: Props) {
   const people = createPeople(30);
   const onLoad = onLoadGenerator(people, columns, 1000);
 
@@ -203,11 +206,12 @@ export function TableBaseline(props: Props) {
         mode="popOut"
         raisedOffset={5}
       >
-        <Table
+        <DiggingTable
           columns={columns}
           onLoad={onLoad}
           actions={actions}
           isSelectable={true}
+          isSearchable={true}
           style={{ width: "500px", height: "400px" }}
           onRowClick={(row, table) => {
             if (table.isRowSelected(row)) {
@@ -222,7 +226,7 @@ export function TableBaseline(props: Props) {
   );
 }
 
-export function TableWithoutActions(props: Props) {
+export function DiggingTableWithoutActions(props: Props) {
   const people = createPeople(30);
   const onLoad = onLoadGenerator(people, columns, 1000);
 
@@ -233,20 +237,50 @@ export function TableWithoutActions(props: Props) {
         mode="popOut"
         raisedOffset={5}
       >
-        <TableProvider columns={columns} onLoad={onLoad}>
-          <Table
-            columns={columns}
-            onLoad={onLoad}
-            style={{ width: "500px", height: "400px" }}
-            onRowClick={(row, table) => {
-              if (table.isRowSelected(row)) {
-                table.deselectRow(row);
-              } else {
-                table.selectRow(row);
-              }
-            }}
-          />
-        </TableProvider>
+        <DiggingTable
+          {...props}
+          columns={columns}
+          onLoad={onLoad}
+          style={{ width: "500px", height: "400px" }}
+          isSearchable={true}
+          onRowClick={(row, table) => {
+            if (table.isRowSelected(row)) {
+              table.deselectRow(row);
+            } else {
+              table.selectRow(row);
+            }
+          }}
+        />
+      </Surface>
+    </StoryBackdrop>
+  );
+}
+
+export function TableWithoutActions(props: Props) {
+  const people = createPeople(90);
+  const rows = convertToRows(people);
+  return (
+    <StoryBackdrop>
+      <Surface
+        style={{ borderRadius: "20px", padding: "30px" }}
+        mode="popOut"
+        raisedOffset={5}
+      >
+        <Table
+          {...props}
+          rows={rows}
+          columns={columns}
+          isSelectable={true}
+          isSearchable={true}
+          style={{ width: "500px", height: "400px" }}
+          onRowClick={(row, table) => {
+            if (table.isRowSelected(row)) {
+              table.deselectRow(row);
+            } else {
+              table.selectRow(row);
+            }
+          }}
+        />
       </Surface>
     </StoryBackdrop>
   );

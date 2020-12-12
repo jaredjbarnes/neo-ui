@@ -21,6 +21,7 @@ const useStyles = createUseStyles({
     padding: "0px 8px",
     cursor: "pointer",
     userSelect: "none",
+    overflow: "hidden",
   },
 });
 

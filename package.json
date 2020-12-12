@@ -48,11 +48,13 @@
     "babel-loader": "^8.1.0",
     "jest": "^26.6.3",
     "react-is": "^16.13.1",
+    "terser-brunch": "^4.0.0",
+    "terser-webpack-plugin": "^5.0.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12"
   },
   "scripts": {
-    "bundle": "webpack --mode=production",
+    "bundle": "webpack",
     "build": "./node_modules/.bin/babel src --out-dir lib --extensions \".ts,.tsx\"",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
