@@ -1,7 +1,9 @@
 import React from "react";
-import useColumns from "../../mediators/table/hooks/useColumns";
-import useTable from "../../mediators/table/hooks/useTable";
-import useIsRowSelected from "../../mediators/table/hooks/useIsRowSelected";
+import {
+  useColumns,
+  useTable,
+  useIsRowSelected,
+} from "../../mediators/table/hooks";
 import TableCell from "./TableCell";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import RowProvider from "../../mediators/table/RowProvider";

@@ -1,7 +1,9 @@
 import React from "react";
-import useColumns from "../../mediators/table/hooks/useColumns";
-import useSelectedRows from "../../mediators/table/hooks/useSelectedRows";
-import useTable from "../../mediators/table/hooks/useTable";
+import {
+  useColumns,
+  useSelectedRows,
+  useTable,
+} from "../../mediators/table/hooks";
 import TableColumn from "./TableColumn";
 import Surface from "../../core/Surface";
 import Checkbox from "../../inputs/Checkbox";

@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
 import { Column } from "../../mediators/table/TableMediator";
-import useTable from "../../mediators/table/hooks/useTable";
-import useColumnSortDirection from "../../mediators/table/hooks/useColumnSortDirection";
+import { useTable, useColumnSortDirection } from "../../mediators/table/hooks";
 import Surface from "../../core/Surface";
 
 const useStyles = createUseStyles({

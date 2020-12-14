@@ -1,8 +1,7 @@
-import React, { useRef } from "react";
-import useTable from "../../mediators/table/hooks/useTable";
+import React from "react";
 import TableDataScroller from "./TableDataScroller";
 import TableActions from "./TableActions";
-import useActions from "../../mediators/table/hooks/useActions";
+import { useActions, useTable } from "../../mediators/table/hooks";
 import TableMediator, { Row } from "../../mediators/table/TableMediator";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
@@ -75,10 +74,7 @@ function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
       style={{ ...style, ...gridStyles }}
     >
       {isSearchable && <TableSearch />}
-      <TableDataScroller
-        className={classes.display}
-        onRowClick={onRowClick}
-      />
+      <TableDataScroller className={classes.display} onRowClick={onRowClick} />
       {showActions && <TableActions className={classes.actions} />}
     </div>
   );

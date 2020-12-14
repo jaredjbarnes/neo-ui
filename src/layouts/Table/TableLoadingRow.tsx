@@ -1,6 +1,5 @@
 import React from "react";
-import useColumns from "../../mediators/table/hooks/useColumns";
-import useTable from "../../mediators/table/hooks/useTable";
+import { useColumns, useTable } from "../../mediators/table/hooks";
 import { createUseStyles } from "react-jss";
 import joinClassNames from "../../utils/joinClassNames";
 import { DynamicRow } from "./DynamicRow";
