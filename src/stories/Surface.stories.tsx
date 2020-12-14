@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Surface, { Props } from "../core/Surface";
+import Surface, { Props } from "../components/core/Surface";
 import StoryBackdrop from "./StoryBackdrop";
 import SearchIcon from "@material-ui/icons/Search";
 import { createUseStyles } from "react-jss";

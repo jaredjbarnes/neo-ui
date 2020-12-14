@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import SwitchField, { Props } from "../inputs/SwitchField";
+import SwitchField, { Props } from "../components/inputs/SwitchField";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {

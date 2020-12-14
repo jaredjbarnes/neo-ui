@@ -1,10 +1,10 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import { DiggingTable } from "../layouts/table/DiggingTable";
-import { Table } from "../layouts/table/Table";
+import { DiggingTable } from "../components/layouts/table/DiggingTable";
+import { Table } from "../components/layouts/table/Table";
 import StoryBackdrop from "./StoryBackdrop";
-import TableDataScroller from "../layouts/table/TableDataScroller";
-import TableHeader, { Props } from "../layouts/table/TableHeader";
+import TableDataScroller from "../components/layouts/table/TableDataScroller";
+import TableHeader, { Props } from "../components/layouts/table/TableHeader";
 import TableMediator, {
   Column,
   Response,
@@ -12,9 +12,9 @@ import TableMediator, {
   RequestOptions,
   Action,
 } from "../mediators/table/TableMediator";
-import TableProvider from "../mediators/table/TableProvider";
+import TableProvider from "../providers/table/TableProvider";
 import delayAsync from "../utils/delayAsync";
-import Surface from "../core/Surface";
+import Surface from "../components/core/Surface";
 
 export default {
   title: "Table",

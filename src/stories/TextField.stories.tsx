@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import TextField, { Props } from "../inputs/TextField";
+import TextField, { Props } from "../components/inputs/TextField";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {

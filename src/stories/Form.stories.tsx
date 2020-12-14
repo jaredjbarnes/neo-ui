@@ -1,12 +1,12 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import TextField from "../inputs/TextField";
-import SwitchField from "../inputs/SwitchField";
-import OutlineButton from "../inputs/OutlineButton";
+import TextField from "../components/inputs/TextField";
+import SwitchField from "../components/inputs/SwitchField";
+import OutlineButton from "../components/inputs/OutlineButton";
 import StoryBackdrop from "./StoryBackdrop";
-import Surface from "../core/Surface";
-import Handle from "../layouts/window/Handle";
-import Select from "../inputs/select/Select";
+import Surface from "../components/core/Surface";
+import Handle from "../components/layouts/window/Handle";
+import Select from "../components/inputs/select/Select";
 import { Option } from "../mediators/select/SelectMediator";
 import { createUseStyles } from "react-jss";
 

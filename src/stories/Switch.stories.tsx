@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Switch, { Props } from "../inputs/Switch";
+import Switch, { Props } from "../components/inputs/Switch";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {
