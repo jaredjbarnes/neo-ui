@@ -267,11 +267,11 @@ export function TableWithoutActions(props: Props) {
         raisedOffset={5}
       >
         <Table
+          isSelectable={true}
+          isSearchable={true}
           {...props}
           rows={rows}
           columns={columns}
-          isSelectable={true}
-          isSearchable={true}
           style={{ width: "500px", height: "400px" }}
           onRowClick={(row, table) => {
             if (table.isRowSelected(row)) {

@@ -17,7 +17,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-jss": "^10.5.0",
-    "react-motion-ux": "^0.4.25"
+    "react-motion-ux": "^0.4.25",
+    "webpack-merge": "^5.7.0"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -54,8 +55,8 @@
     "webpack-cli": "^3.3.12"
   },
   "scripts": {
-    "bundle": "webpack",
-    "build": "./node_modules/.bin/babel src --out-dir lib --extensions \".ts,.tsx\"",
+    "bundle": "webpack --config webpack.prod.js",
+    "build": "./node_modules/.bin/babel src --out-dir lib --extensions \".ts,.tsx\" && webpack --config webpack.prod.js",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   }

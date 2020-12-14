@@ -13,12 +13,12 @@ export const TableContext = React.createContext(defaultTableMediator);
 
 export interface TableProviderProps<T> {
   columns: Column[];
-  actions?: Action<T>[];
-  onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
-  onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
   children: React.ReactNode[] | React.ReactNode;
+  onLoad: (request: RequestOptions<T>) => Promise<Response<T>>;
+  actions?: Action<T>[];
   isSelectable?: boolean;
   isSearchable?: boolean;
+  onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
 }
 
 function TableProvider<T>({
