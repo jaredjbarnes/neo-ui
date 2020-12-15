@@ -1,6 +1,6 @@
-import React, { useMemo, useEffect } from 'react';
-import useForm from './hooks/useForm';
-import FieldMediator from './FieldMediator';
+import React, { useMemo, useEffect } from "react";
+import useForm from "./hooks/useForm";
+import { FieldMediator } from "../../mediators/form/FieldMediator";
 
 interface Props<T> {
   children: React.ReactNode | React.ReactNode[];
@@ -12,7 +12,13 @@ interface Props<T> {
 
 const Context = React.createContext(new FieldMediator());
 
-function FieldProvider<T>({ children, initialValue, name, label, message }: Props<T>) {
+function FieldProvider<T>({
+  children,
+  initialValue,
+  name,
+  label,
+  message,
+}: Props<T>) {
   const formMediator = useForm();
 
   const fieldMediator = useMemo(() => {

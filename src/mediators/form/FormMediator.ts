@@ -1,6 +1,5 @@
 import { Subject } from "rxjs";
-import Field from "./FieldMediator";
-import FieldMediator from "./FieldMediator";
+import { FieldMediator } from "./FieldMediator";
 
 const defaultSubmission = () => {
   return Promise.resolve();
@@ -15,8 +14,8 @@ type FieldsEvent = {
   field: FieldMediator<any>;
 };
 
-export default class FormMediator {
-  private fields: Field<any>[] = [];
+export class FormMediator {
+  private fields: FieldMediator<any>[] = [];
   private validation: (form: FormMediator) => Promise<void> = defaultValidation;
   private submission: (form: FormMediator) => Promise<void> = defaultSubmission;
   private submissionError: Error | null = null;
@@ -31,7 +30,7 @@ export default class FormMediator {
   private changeSubject: Subject<FormMediator> = new Subject();
   private fieldsSubject: Subject<FieldsEvent> = new Subject();
 
-  addField<T>(field: Field<T>) {
+  addField<T>(field: FieldMediator<T>) {
     const fieldWithName = this.fields.find(
       (f) => f.getName() === field.getName()
     );
@@ -48,7 +47,7 @@ export default class FormMediator {
     }
   }
 
-  removeField(field: Field<any>) {
+  removeField(field: FieldMediator<any>) {
     const index = this.fields.indexOf(field);
 
     if (index > -1) {
@@ -61,7 +60,9 @@ export default class FormMediator {
   }
 
   getFieldByName<T>(name: string) {
-    return this.fields.find((f) => f.getName() === name) as Field<T> | null;
+    return this.fields.find((f) => f.getName() === name) as FieldMediator<
+      T
+    > | null;
   }
 
   removeFieldByName(name: string) {
@@ -112,7 +113,7 @@ export default class FormMediator {
       .then(() => {
         return this.validation(this);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         this.validationErrorSubject.next(error);
         throw error;
       })
@@ -131,7 +132,7 @@ export default class FormMediator {
         this.fields.forEach((f) => f.setInitialValue(f.getValue()));
         return this.submission(this);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         this.submissionErrorSubject.next(error);
       })
       .finally(() => {

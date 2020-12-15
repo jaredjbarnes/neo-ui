@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect } from 'react';
-import FormMediator from './FormMediator';
+import React, { useMemo, useEffect } from "react";
+import { FormMediator } from "../../mediators/form/FormMediator";
 
 interface Props {
   children: React.ReactNode | React.ReactNode[];
@@ -21,13 +21,13 @@ const defaultOnInitialize = () => {};
 
 const Context = React.createContext(new FormMediator());
 
-const FormProvider = ({
+export function FormProvider({
   children,
   onValidate,
   onSubmit,
   onChange,
   onInitialize,
-}: Props) => {
+}: Props) {
   const validation = onValidate != null ? onValidate : defaultOnValidate;
   const submission = onSubmit != null ? onSubmit : defaultOnSubmit;
   const change = onChange != null ? onChange : defaultOnChange;
@@ -58,8 +58,6 @@ const FormProvider = ({
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 
   return <Context.Provider value={formMediator}>{children}</Context.Provider>;
-};
-
-export default FormProvider;
+}
 
 export { Context };

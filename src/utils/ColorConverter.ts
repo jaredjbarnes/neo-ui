@@ -1,6 +1,6 @@
 const hexRegEx = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i;
 
-export default class ColorConverter {
+export class ColorConverter {
   convertToRgba(color: string) {
     if (this.isHex(color)) {
       return this.convertHexToRgba(color);

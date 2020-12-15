@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Surface from "../../core/Surface";
+import { Surface } from "../../core/Surface";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({
@@ -15,7 +15,7 @@ const useStyles = createUseStyles({
 
 export interface Props {}
 
-const Button = ({}: Props) => {
+export function Button({}: Props) {
   const classes = useStyles();
   const [mode, setMode] = useState<"flat" | "cutOut">("flat");
   const press = () => {
@@ -38,6 +38,4 @@ const Button = ({}: Props) => {
       highlightColor="rgba(255,80,80,0.9)"
     ></Surface>
   );
-};
-
-export default Button;
+}

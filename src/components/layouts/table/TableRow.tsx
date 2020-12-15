@@ -4,14 +4,14 @@ import {
   useTable,
   useIsRowSelected,
 } from "../../../providers/table/hooks";
-import TableCell from "./TableCell";
-import TableMediator, { Row } from "../../../mediators/table/TableMediator";
-import RowProvider from "../../../providers/table/RowProvider";
-import Checkbox from "../../inputs/Checkbox";
-import IconButton from "../../inputs/Button";
+import { TableCell } from "./TableCell";
+import { TableMediator, Row } from "../../../mediators/table/TableMediator";
+import { RowProvider } from "../../../providers/table/RowProvider";
+import { Checkbox } from "../../inputs/Checkbox";
+import { Button as IconButton } from "../../inputs/Button";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 import { DynamicRow } from "./DynamicRow";
 import { useValue } from "../../../utils/hooks/useValue";
 
@@ -62,7 +62,7 @@ export interface Props {
   ) => void;
 }
 
-const TableRow = ({ row, className, style, onRowClick }: Props) => {
+export function TableRow({ row, className, style, onRowClick }: Props) {
   const classes = useStyles();
   const columns = useColumns();
   const table = useTable();
@@ -136,6 +136,4 @@ const TableRow = ({ row, className, style, onRowClick }: Props) => {
       </DynamicRow>
     </RowProvider>
   );
-};
-
-export default TableRow;
+}

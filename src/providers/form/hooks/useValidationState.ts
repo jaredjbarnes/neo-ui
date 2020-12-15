@@ -1,12 +1,12 @@
-import { useMemo, useEffect, useState } from 'react';
-import useForm from './useForm';
+import { useMemo, useEffect, useState } from "react";
+import useForm from "./useForm";
 
-const useValidationState = () => {
+export function useValidationState() {
   const form = useForm();
   const [isValidating, setIsValidating] = useState(form.getIsValidating());
 
   const subscription = useMemo(() => {
-    return form.onValidationChange(isValidating => {
+    return form.onValidationChange((isValidating) => {
       setIsValidating(isValidating);
     });
   }, [form]);
@@ -14,6 +14,4 @@ const useValidationState = () => {
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 
   return isValidating;
-};
-
-export default useValidationState;
+}

@@ -1,10 +1,10 @@
 import React, { useCallback } from "react";
 import { createUseStyles } from "react-jss";
-import TextInput from "../TextInput";
+import { TextInput } from "../TextInput";
 import Search from "@material-ui/icons/Search";
 import { useSelectMediator } from "../../../providers/select/SelectProvider";
 import { useValue } from "../../../utils/hooks/useValue";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   searchContainer: {
@@ -39,7 +39,7 @@ export interface Props {
   className?: string;
 }
 
-const SelectSearch = ({ style, className }: Props) => {
+export function SelectSearch({ style, className }: Props) {
   const classes = useStyles();
   const selectMediator = useSelectMediator();
   const keywords = useValue(selectMediator.filterKeywords);
@@ -72,6 +72,4 @@ const SelectSearch = ({ style, className }: Props) => {
       </div>
     </div>
   );
-};
-
-export default SelectSearch;
+}

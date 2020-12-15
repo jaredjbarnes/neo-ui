@@ -1,13 +1,13 @@
 import React from "react";
 import { useSelectMediator } from "../../../providers/select/SelectProvider";
 import { useValue } from "../../../utils/hooks/useValue";
-import Surface from "../../core/Surface";
-import Popover from "../../core/popover/Popover";
+import { Surface } from "../../core/Surface";
+import { Popover } from "../../core/popover/Popover";
 import { createUseStyles } from "react-jss";
 import { IAnchorPlacement } from "../../../mediators/popover/PopoverMediator";
-import ClickAwayListener from "../../core/ClickAwayListener";
-import SelectSearch from "./SelectSearch";
-import SelectOption from "./SelectOption";
+import { ClickAwayListener } from "../../core/ClickAwayListener";
+import { SelectSearch } from "./SelectSearch";
+import { SelectOption } from "./SelectOption";
 
 const useStyles = createUseStyles({
   selectOptions: {
@@ -43,7 +43,7 @@ export interface Props {
     | React.MutableRefObject<HTMLDivElement>;
 }
 
-function SelectOptions<T>({ anchorRef }: Props) {
+export function SelectOptions({ anchorRef }: Props) {
   const classes = useStyles();
   const selectMediator = useSelectMediator();
   const open = useValue(selectMediator.isOpen);
@@ -79,7 +79,7 @@ function SelectOptions<T>({ anchorRef }: Props) {
       }
     } else if (event.key === "Escape") {
       selectMediator.close();
-      
+
       event.stopPropagation();
       event.preventDefault();
     } else if (event.shiftKey && event.key === "Tab") {
@@ -116,5 +116,3 @@ function SelectOptions<T>({ anchorRef }: Props) {
     </Popover>
   );
 }
-
-export default SelectOptions;

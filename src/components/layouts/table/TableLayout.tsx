@@ -1,10 +1,10 @@
 import React from "react";
 import TableDataScroller from "./TableDataScroller";
-import TableActions from "./TableActions";
+import { TableActions } from "./TableActions";
 import { useActions, useTable } from "../../../providers/table/hooks";
-import TableMediator, { Row } from "../../../mediators/table/TableMediator";
+import { TableMediator, Row } from "../../../mediators/table/TableMediator";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 import { useValue } from "../../../utils/hooks/useValue";
 import { TableSearch } from "./TableSearch";
 
@@ -47,7 +47,7 @@ export interface Props<T> {
   ) => void;
 }
 
-function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
+export function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
   const classes = useStyles();
   const table = useTable();
   const actions = useActions();
@@ -79,5 +79,3 @@ function TableLayout<T>({ style, className, onRowClick }: Props<T>) {
     </div>
   );
 }
-
-export default TableLayout;

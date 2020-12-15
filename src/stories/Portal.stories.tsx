@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Portal, { Props } from "../components/layouts/Portal";
-import OutlineButton from "../components/inputs/OutlineButton";
-import SolidButton from "../components/inputs/SolidButton";
+import { Portal, Props } from "../components/layouts/Portal";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {

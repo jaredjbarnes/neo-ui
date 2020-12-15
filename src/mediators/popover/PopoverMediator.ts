@@ -36,7 +36,7 @@ const defaultPlacement: IAnchorPlacement = {
   horizontal: "left",
 };
 
-export default class PopoverMediator {
+export class PopoverMediator {
   private newPlaceRect: IRect = JSON.parse(JSON.stringify(defaultRect));
 
   nodeRect: IRect = defaultRect;

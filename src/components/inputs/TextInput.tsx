@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Surface from "../core/Surface";
+import { Surface } from "../core/Surface";
 import { createUseStyles } from "react-jss";
 import { makeStyledTransition } from "react-motion-ux";
-import joinClassNames from "../../utils/joinClassNames";
+import { joinClassNames } from "../../utils/joinClassNames";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
   {
@@ -91,7 +91,7 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
   textareaProps?: React.DOMAttributes<HTMLTextAreaElement>;
 }
 
-const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
+export const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
   {
     value,
     onValueChange,
@@ -178,5 +178,3 @@ const TextInput = React.forwardRef<HTMLDivElement, Props>(function (
     </Surface>
   );
 });
-
-export default TextInput;

@@ -1,7 +1,7 @@
 import React from "react";
-import Switch from "./Switch";
+import { Switch } from "./Switch";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../utils/joinClassNames";
+import { joinClassNames } from "../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   switchFieldContainer: {
@@ -50,7 +50,7 @@ export interface Props {
   className?: string;
 }
 
-const SwitchField = React.forwardRef<HTMLDivElement, Props>(
+export const SwitchField = React.forwardRef<HTMLDivElement, Props>(
   ({ name, checked, className, style, ...props }: Props, ref) => {
     const classes = useStyles();
 
@@ -66,5 +66,3 @@ const SwitchField = React.forwardRef<HTMLDivElement, Props>(
     );
   }
 );
-
-export default SwitchField;

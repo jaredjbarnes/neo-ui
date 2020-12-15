@@ -5,10 +5,14 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import Portal from "../../layouts/Portal";
-import useForkRef from "../hooks/useForkRef";
+import { Portal } from "../../layouts/Portal";
+import { useForkRef } from "../hooks/useForkRef";
 import { makeStyledTransition } from "react-motion-ux";
-import PopoverMediator, { IAnchorPlacement, IOffset } from "../../../mediators/popover/PopoverMediator";
+import {
+  PopoverMediator,
+  IAnchorPlacement,
+  IOffset,
+} from "../../../mediators/popover/PopoverMediator";
 
 const useStyledTransition = makeStyledTransition<HTMLElement>(
   {
@@ -43,7 +47,7 @@ const getOffset = (offset: { x: number; y: number } | null | undefined) => {
   return offset != null && typeof offset === "object" ? offset : { x: 0, y: 0 };
 };
 
-const Popover = React.forwardRef<HTMLElement, Props>(
+export const Popover = React.forwardRef<HTMLElement, Props>(
   ({ open, children, anchorRef, placement, offset }: Props, ref) => {
     const nodeRef = useRef<HTMLElement>(null);
     const forkedRef = useForkRef(nodeRef, ref);
@@ -136,5 +140,3 @@ const Popover = React.forwardRef<HTMLElement, Props>(
     }
   }
 );
-
-export default Popover;

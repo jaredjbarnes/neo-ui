@@ -1,7 +1,7 @@
 import React from "react";
 import { useColumns, useTable } from "../../../providers/table/hooks";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 import { DynamicRow } from "./DynamicRow";
 import { useValue } from "../../../utils/hooks/useValue";
 
@@ -52,7 +52,7 @@ export interface Props {
   style?: React.CSSProperties;
 }
 
-const TableLoadingRow = ({ className, style }: Props) => {
+export function TableLoadingRow({ className, style }: Props) {
   const table = useTable();
   const classes = useStyles();
   const columns = useColumns();
@@ -102,6 +102,4 @@ const TableLoadingRow = ({ className, style }: Props) => {
       {children}
     </DynamicRow>
   );
-};
-
-export default TableLoadingRow;
+}

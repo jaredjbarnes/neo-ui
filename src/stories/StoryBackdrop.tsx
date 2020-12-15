@@ -21,7 +21,7 @@ export interface Props {
   children?: React.ReactNode | React.ReactNode[];
 }
 
-const StoryBackdrop = ({ children }: Props) => {
+export const StoryBackdrop = ({ children }: Props) => {
   const classes = useStyles();
 
   return <div className={classes.container}>{children}</div>;

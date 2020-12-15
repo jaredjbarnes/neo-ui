@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Surface from "../core/Surface";
+import { Surface } from "../core/Surface";
 import Check from "@material-ui/icons/Check";
-import joinClassNames from "../../utils/joinClassNames";
+import { joinClassNames } from "../../utils/joinClassNames";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({
@@ -32,7 +32,7 @@ export interface Props {
   value?: boolean;
 }
 
-const Checkbox = ({ style, className, value, onValueChange }: Props) => {
+export function Checkbox({ style, className, value, onValueChange }: Props) {
   const classes = useStyles();
   const verifiedValue = typeof value === "boolean" ? value : false;
   const [isChecked, setIsChecked] = useState(verifiedValue);
@@ -65,6 +65,4 @@ const Checkbox = ({ style, className, value, onValueChange }: Props) => {
       {isChecked && <Check className={classes.icon} style={{ fontSize: 15 }} />}
     </Surface>
   );
-};
-
-export default Checkbox;
+}

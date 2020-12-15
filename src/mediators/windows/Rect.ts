@@ -1,4 +1,4 @@
-export default interface Rect {
+export interface Rect {
   top: number;
   left: number;
   right: number;

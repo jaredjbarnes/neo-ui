@@ -5,7 +5,7 @@ import {
   useIsTableFinishedLoading,
 } from "../../../providers/table/hooks";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   tableStatusContainer: {
@@ -31,7 +31,7 @@ const useStyles = createUseStyles({
   },
 });
 
-interface Props {
+export interface Props {
   style?: React.CSSProperties;
   className?: string;
 }
@@ -44,7 +44,7 @@ const textMap = {
   error: "Error",
 };
 
-const TableStatus = ({ className, style }: Props) => {
+export function TableStatus({ className, style }: Props) {
   const classes = useStyles();
   const state = useTableStatus();
   const table = useTable();
@@ -62,6 +62,4 @@ const TableStatus = ({ className, style }: Props) => {
       </span>
     </div>
   );
-};
-
-export default TableStatus;
+}

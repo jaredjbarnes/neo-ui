@@ -60,7 +60,7 @@ function sortColumns(a: Column, b: Column) {
   }
 }
 
-export default class TableMediator<T> {
+export class TableMediator<T> {
   private selectedRowsMap = new Map<string, Row<T>>();
   private actionsMap: Map<string, Action<T>> = new Map();
 

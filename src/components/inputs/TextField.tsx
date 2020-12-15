@@ -1,7 +1,7 @@
 import React from "react";
-import TextInput from "./TextInput";
+import { TextInput } from "./TextInput";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../utils/joinClassNames";
+import { joinClassNames } from "../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   textFieldContainer: {
@@ -68,7 +68,7 @@ export interface Props extends React.DOMAttributes<HTMLElement> {
   disabled?: boolean;
 }
 
-const TextField = React.forwardRef<HTMLDivElement, Props>(function (
+export const TextField = React.forwardRef<HTMLDivElement, Props>(function (
   { name, value, style, className, ...props }: Props,
   ref
 ) {
@@ -84,5 +84,3 @@ const TextField = React.forwardRef<HTMLDivElement, Props>(function (
     </div>
   );
 });
-
-export default TextField;

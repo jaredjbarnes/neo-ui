@@ -1,13 +1,14 @@
 import React from "react";
-import TableProvider from "../../../providers/table/TableProvider";
-import TableMediator, {
+import { TableProvider } from "../../../providers/table/TableProvider";
+import {
+  TableMediator,
   RequestOptions,
   Response,
   Column,
   Row,
   Action,
 } from "../../../mediators/table/TableMediator";
-import TableLayout from "./TableLayout";
+import { TableLayout } from "./TableLayout";
 
 export interface DiggingTableProps<T> {
   columns: Column[];
@@ -34,7 +35,7 @@ export function DiggingTable<T>({
   style,
   className,
   isSelectable,
-  isSearchable
+  isSearchable,
 }: DiggingTableProps<T>) {
   return (
     <TableProvider

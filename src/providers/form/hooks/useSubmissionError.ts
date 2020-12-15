@@ -1,12 +1,14 @@
-import { useMemo, useEffect, useState } from 'react';
-import useForm from './useForm';
+import { useMemo, useEffect, useState } from "react";
+import { useForm } from "./useForm";
 
-const useSubmissionError = () => {
+export function useSubmissionError() {
   const form = useForm();
-  const [submissionError, setSubmissionError] = useState(form.getSubmissionError());
+  const [submissionError, setSubmissionError] = useState(
+    form.getSubmissionError()
+  );
 
   const subscription = useMemo(() => {
-    return form.onSubmissionError(submissionError => {
+    return form.onSubmissionError((submissionError) => {
       setSubmissionError(submissionError);
     });
   }, [form]);
@@ -14,6 +16,4 @@ const useSubmissionError = () => {
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 
   return submissionError;
-};
-
-export default useSubmissionError;
+}

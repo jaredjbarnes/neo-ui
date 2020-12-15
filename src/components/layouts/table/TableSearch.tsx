@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useTable } from "../../../providers/table/hooks";
-import TextInput from "../../inputs/TextInput";
+import { TextInput } from "../../inputs/TextInput";
 import Search from "@material-ui/icons/Search";
 import { createUseStyles } from "react-jss";
 

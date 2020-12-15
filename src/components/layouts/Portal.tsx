@@ -1,12 +1,12 @@
 import React, { useMemo, useEffect } from "react";
-import usePortalMediator from "../../providers/portal/hooks/usePortalMediator";
-import useForkRef from "../core/hooks/useForkRef";
+import { usePortalMediator } from "../../providers/portal/hooks/usePortalMediator";
+import { useForkRef } from "../core/hooks/useForkRef";
 
 export interface Props {
   children: React.ReactElement;
 }
 
-const Portal = React.forwardRef<HTMLElement, Props>(
+export const Portal = React.forwardRef<HTMLElement, Props>(
   ({ children }: Props, ref) => {
     const portalMediator = usePortalMediator();
     const portal = useMemo(() => {
@@ -23,5 +23,3 @@ const Portal = React.forwardRef<HTMLElement, Props>(
     );
   }
 );
-
-export default Portal;

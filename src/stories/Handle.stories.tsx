@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Handle from "../components/layouts/window/Handle";
+import { Handle } from "../components/layouts/window/Handle";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {

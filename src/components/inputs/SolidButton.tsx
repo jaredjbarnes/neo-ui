@@ -1,5 +1,5 @@
 import React from "react";
-import Button, { Props as ButtonProps } from "../inputs/Button";
+import { Button, Props as ButtonProps } from "../inputs/Button";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({
@@ -18,7 +18,7 @@ export interface Props extends ButtonProps {
   color?: string;
 }
 
-const OutlineButton = React.forwardRef<HTMLDivElement, Props>(
+export const SolidButton = React.forwardRef<HTMLDivElement, Props>(
   ({ children, color, ...props }: Props, ref) => {
     const classes = useStyles();
     let solidStyle = undefined;
@@ -38,5 +38,3 @@ const OutlineButton = React.forwardRef<HTMLDivElement, Props>(
     );
   }
 );
-
-export default OutlineButton;

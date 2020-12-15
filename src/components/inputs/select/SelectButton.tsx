@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import Surface from "../../core/Surface";
+import { Surface } from "../../core/Surface";
 import { createUseStyles } from "react-jss";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { makeStyledTransition } from "react-motion-ux";
-import useForkRef from "../../core/hooks/useForkRef";
-import joinClassNames from "../../../utils/joinClassNames";
+import { useForkRef } from "../../core/hooks/useForkRef";
+import { joinClassNames } from "../../../utils/joinClassNames";
 import { useSelectMediator } from "../../../providers/select/SelectProvider";
 import { useValue } from "../../../utils/hooks/useValue";
 
@@ -71,7 +71,7 @@ export interface Props {
   innerRef?: React.Ref<HTMLDivElement>;
 }
 
-export default function <T>({ className, style, innerRef }: Props) {
+export function SelectButton<T>({ className, style, innerRef }: Props) {
   const classes = useStyles();
   const selectMediator = useSelectMediator();
   const open = useValue(selectMediator.isOpen);

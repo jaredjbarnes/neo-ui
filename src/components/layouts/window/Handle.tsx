@@ -1,7 +1,7 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
-import Button from "./Button";
+import { joinClassNames } from "../../../utils/joinClassNames";
+import { Button } from "./Button";
 
 const useStyles = createUseStyles({
   handleContainer: {
@@ -53,7 +53,7 @@ export interface Props {
   style?: React.CSSProperties;
 }
 
-const Handle = ({ name, style, className }: Props) => {
+export function Handle({ name, style, className }: Props) {
   const classes = useStyles();
 
   return (
@@ -70,6 +70,6 @@ const Handle = ({ name, style, className }: Props) => {
       </div>
     </div>
   );
-};
+}
 
 export default Handle;

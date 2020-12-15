@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useContext } from "react";
-import SelectMediator, { Option } from "../../mediators/select/SelectMediator";
+import { SelectMediator, Option } from "../../mediators/select/SelectMediator";
 
 const defaultSelectMediator = new SelectMediator<any>();
 
@@ -9,7 +9,7 @@ export const useSelectMediator = () => {
   return useContext(SelectContext);
 };
 
-interface Props<T> {
+export interface Props<T> {
   selectedOption: Option<T> | null;
   options: Option<T>[];
   children?: React.ReactNode | React.ReactNode[];
@@ -17,7 +17,7 @@ interface Props<T> {
   dropDownHeight?: number;
 }
 
-function SelectProvider<T>({
+export function SelectProvider<T>({
   children,
   dropDownHeight,
   dropDownWidth,
@@ -62,5 +62,3 @@ function SelectProvider<T>({
     <SelectContext.Provider value={mediator}>{children}</SelectContext.Provider>
   );
 }
-
-export default SelectProvider;

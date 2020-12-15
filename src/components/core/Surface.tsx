@@ -1,8 +1,8 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
 import { makeStyledTransition } from "react-motion-ux";
-import ColorConverter from "../../utils/ColorConverter";
-import joinClassNames from "../../utils/joinClassNames";
+import { ColorConverter } from "../../utils/ColorConverter";
+import { joinClassNames } from "../../utils/joinClassNames";
 
 const colorConverter = new ColorConverter();
 
@@ -106,7 +106,7 @@ export interface Props extends React.DOMAttributes<HTMLDivElement> {
   tabIndex?: number;
 }
 
-const Surface = React.forwardRef<HTMLDivElement, Props>(function (
+export const Surface = React.forwardRef<HTMLDivElement, Props>(function (
   {
     className,
     style,
@@ -162,5 +162,3 @@ const Surface = React.forwardRef<HTMLDivElement, Props>(function (
     </div>
   );
 });
-
-export default Surface;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Surface from "../core/Surface";
+import { Surface } from "../core/Surface";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../utils/joinClassNames";
+import { joinClassNames } from "../../utils/joinClassNames";
 import { makeStyledTransition } from "react-motion-ux";
 
 const useContainerStyledTransition = makeStyledTransition<HTMLDivElement>(
@@ -150,7 +150,7 @@ export interface Props {
   className?: string;
 }
 
-const Switch = React.forwardRef<HTMLDivElement, Props>(function (
+export const Switch = React.forwardRef<HTMLDivElement, Props>(function (
   { checked, onChange, className, style }: Props,
   ref
 ) {

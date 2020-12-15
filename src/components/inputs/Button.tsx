@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Surface, { Props } from "../core/Surface";
+import { Surface, Props } from "../core/Surface";
 import { createUseStyles } from "react-jss";
-import joinClassNames from '../../utils/joinClassNames';
+import { joinClassNames } from "../../utils/joinClassNames";
 import { makeStyledTransition } from "react-motion-ux";
 
 const useStyledTransition = makeStyledTransition<HTMLDivElement>(
@@ -49,7 +49,7 @@ const useStyles = createUseStyles({
 
 export type { Props };
 
-const Button = React.forwardRef<HTMLDivElement, Props>(
+export const Button = React.forwardRef<HTMLDivElement, Props>(
   ({ children, className, ...props }: Props, ref) => {
     const [state, setState] = useState<"raised" | "inset" | "flat">("flat");
     const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -159,5 +159,3 @@ const Button = React.forwardRef<HTMLDivElement, Props>(
     );
   }
 );
-
-export default Button;

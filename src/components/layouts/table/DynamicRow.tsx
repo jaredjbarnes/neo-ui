@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   row: {

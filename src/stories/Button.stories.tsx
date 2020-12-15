@@ -1,8 +1,8 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Button, { Props } from "../components/inputs/Button";
-import OutlineButton from "../components/inputs/OutlineButton";
-import SolidButton from "../components/inputs/SolidButton";
+import { Button, Props } from "../components/inputs/Button";
+import { OutlineButton } from "../components/inputs/OutlineButton";
+import { SolidButton } from "../components/inputs/SolidButton";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {

@@ -4,7 +4,7 @@ const defaultValidation = () => {
   return Promise.resolve();
 };
 
-export default class FieldMediator<T> {
+export class FieldMediator<T> {
   private value: T | null = null;
   private name: string = "";
   private label: string = "";

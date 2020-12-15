@@ -5,11 +5,11 @@ import {
   useTable,
 } from "../../../providers/table/hooks";
 import TableColumn from "./TableColumn";
-import Surface from "../../core/Surface";
-import Checkbox from "../../inputs/Checkbox";
+import { Surface } from "../../core/Surface";
+import { Checkbox } from "../../inputs/Checkbox";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
-import IconButton from "../../inputs/Button";
+import { joinClassNames } from "../../../utils/joinClassNames";
+import { Button as IconButton } from "../../inputs/Button";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { DynamicRow } from "./DynamicRow";
 import { useValue } from "../../../utils/hooks/useValue";
@@ -50,7 +50,7 @@ export interface Props {
   style?: React.CSSProperties;
 }
 
-const TableHeader = ({ className, style }: Props) => {
+export function TableHeader({ className, style }: Props) {
   const classes = useStyles();
   const table = useTable();
   const columns = useColumns();
@@ -120,6 +120,6 @@ const TableHeader = ({ className, style }: Props) => {
       <DynamicRow columnWidths={columnsWidths}>{children}</DynamicRow>
     </Surface>
   );
-};
+}
 
 export default TableHeader;

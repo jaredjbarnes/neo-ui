@@ -5,16 +5,17 @@ import { Table } from "../components/layouts/table/Table";
 import StoryBackdrop from "./StoryBackdrop";
 import TableDataScroller from "../components/layouts/table/TableDataScroller";
 import TableHeader, { Props } from "../components/layouts/table/TableHeader";
-import TableMediator, {
+import {
+  TableMediator,
   Column,
   Response,
   Row,
   RequestOptions,
   Action,
 } from "../mediators/table/TableMediator";
-import TableProvider from "../providers/table/TableProvider";
-import delayAsync from "../utils/delayAsync";
-import Surface from "../components/core/Surface";
+import { TableProvider } from "../providers/table/TableProvider";
+import { delayAsync } from "../utils/delayAsync";
+import { Surface } from "../components/core/Surface";
 
 export default {
   title: "Table",

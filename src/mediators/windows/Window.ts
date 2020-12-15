@@ -1,6 +1,5 @@
-import Rect from "../../utils/Rect";
+import { Rect } from "./Rect";
 import { Subject } from "rxjs";
-import WindowMediator from "./WindowsMediator";
 
 export interface MetaDataEvent<T> {
   key: string;

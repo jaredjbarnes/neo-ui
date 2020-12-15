@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Select, { Props } from "../components/inputs/select/Select";
+import { Select, Props } from "../components/inputs/select/Select";
 import { Option } from "../mediators/select/SelectMediator";
 import StoryBackdrop from "./StoryBackdrop";
 

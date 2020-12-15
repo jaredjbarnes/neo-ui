@@ -1,6 +1,7 @@
 import React from "react";
 import { DiggingTable } from "./DiggingTable";
-import TableMediator, {
+import {
+  TableMediator,
   Column,
   Response,
   Row,

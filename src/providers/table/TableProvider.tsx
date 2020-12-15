@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect } from "react";
-import TableMediator, {
+import {
+  TableMediator,
   RequestOptions,
   Response,
   Column,
@@ -21,14 +22,14 @@ export interface TableProviderProps<T> {
   onSelectionChange?: (rows: Row<T>[], table: TableMediator<T>) => void;
 }
 
-function TableProvider<T>({
+export function TableProvider<T>({
   columns,
   onLoad,
   children,
   actions,
   onSelectionChange,
   isSelectable,
-  isSearchable
+  isSearchable,
 }: TableProviderProps<T>) {
   const selectable = typeof isSelectable === "boolean" ? isSelectable : false;
   const searchable = typeof isSearchable === "boolean" ? isSearchable : false;
@@ -82,5 +83,3 @@ function TableProvider<T>({
     </TableContext.Provider>
   );
 }
-
-export default TableProvider;

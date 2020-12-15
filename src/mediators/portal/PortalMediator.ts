@@ -42,7 +42,7 @@ export class Portal {
   }
 }
 
-export default class PortalMediator {
+export class PortalMediator {
   private body: HTMLElement;
   private portals: Portal[] = [];
 

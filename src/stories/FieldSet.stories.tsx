@@ -1,6 +1,6 @@
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import FieldSet from "../components/inputs/FieldSet";
+import { FieldSet } from "../components/inputs/FieldSet";
 import StoryBackdrop from "./StoryBackdrop";
 
 export default {

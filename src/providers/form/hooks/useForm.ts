@@ -1,8 +1,8 @@
-import { useContext } from 'react';
-import { Context } from '../FormProvider';
+import { useContext } from "react";
+import { Context } from "../FormProvider";
 
-const useForm = () => {
+export function useForm() {
   return useContext(Context);
-};
+}
 
 export default useForm;

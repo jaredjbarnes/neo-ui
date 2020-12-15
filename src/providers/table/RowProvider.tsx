@@ -1,5 +1,5 @@
 import React from "react";
-import { Row } from "./TableMediator";
+import { Row } from "../../mediators/table/TableMediator";
 
 export const RowContext = React.createContext<Row<any>>({
   value: {},
@@ -7,13 +7,11 @@ export const RowContext = React.createContext<Row<any>>({
   id: "0",
 });
 
-interface Props<T> {
+export interface Props<T> {
   row: Row<T>;
   children: React.ReactChild | React.ReactChild[];
 }
 
-function RowProvider<T>({ row, children }: Props<T>) {
+export function RowProvider<T>({ row, children }: Props<T>) {
   return <RowContext.Provider value={row}>{children}</RowContext.Provider>;
 }
-
-export default RowProvider;

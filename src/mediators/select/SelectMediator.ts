@@ -16,7 +16,7 @@ function byId<T>(a: Option<T>, b: Option<T>) {
   }
 }
 
-export default class SelectMediator<T> {
+export class SelectMediator<T> {
   readonly opened = new ObservableValue(0);
   readonly closed = new ObservableValue(0);
   readonly dropDownWidth = new ObservableValue(200);

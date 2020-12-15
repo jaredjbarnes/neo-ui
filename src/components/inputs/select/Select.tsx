@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
 import { Option } from "../../../mediators/select/SelectMediator";
-import SelectProvider from "../../../providers/select/SelectProvider";
-import SelectOptions from "./SelectOptions";
-import SelectButton from "./SelectButton";
-import useForkRef from "../../core/hooks/useForkRef";
+import { SelectProvider } from "../../../providers/select/SelectProvider";
+import { SelectOptions } from "./SelectOptions";
+import { SelectButton } from "./SelectButton";
+import { useForkRef } from "../../core/hooks/useForkRef";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   button: {
@@ -27,7 +27,7 @@ export interface Props<T> {
   dropDownHeight?: number;
 }
 
-function Select<T>({
+export function Select<T>({
   options,
   selectRef,
   style,
@@ -62,5 +62,3 @@ function Select<T>({
     </SelectProvider>
   );
 }
-
-export default Select;

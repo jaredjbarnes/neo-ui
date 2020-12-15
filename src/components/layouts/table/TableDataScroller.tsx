@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import TableHeader from "./TableHeader";
-import Surface from "../../core/Surface";
+import { Surface } from "../../core/Surface";
 import {
   useTable,
   useRows,
   useTableStatus,
 } from "../../../providers/table/hooks";
-import TableRow from "./TableRow";
-import TableStatus from "./TableStatus";
-import TableLoadingRow from "./TableLoadingRow";
-import TableMediator, { Row } from "../../../mediators/table/TableMediator";
+import { TableRow } from "./TableRow";
+import { TableStatus } from "./TableStatus";
+import { TableLoadingRow } from "./TableLoadingRow";
+import { TableMediator, Row } from "../../../mediators/table/TableMediator";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   raisedContainer: {

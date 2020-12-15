@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import ClickAwayListener, { Props } from "../components/core/ClickAwayListener";
+import { ClickAwayListener, Props } from "../components/core/ClickAwayListener";
 import StoryBackdrop from "./StoryBackdrop";
-import Portal from "../components/layouts/Portal";
+import { Portal } from "../components/layouts/Portal";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({

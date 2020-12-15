@@ -33,7 +33,7 @@ export interface Props {
   option: Option<any>;
 }
 
-const SelectOption = ({ option }: Props) => {
+export function SelectOption({ option }: Props) {
   const classes = useStyles();
   const optionRef = useRef<HTMLDivElement | null>(null);
   const selectMediator = useSelectMediator();
@@ -92,6 +92,4 @@ const SelectOption = ({ option }: Props) => {
       {option.label}
     </div>
   );
-};
-
-export default SelectOption;
+}

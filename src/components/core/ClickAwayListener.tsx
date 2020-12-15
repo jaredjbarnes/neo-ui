@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import useForkRef from "./hooks/useForkRef";
+import { useForkRef } from "./hooks/useForkRef";
 
 export interface Props {
   onClickAway: (event: React.MouseEvent | React.TouchEvent) => void;
@@ -19,7 +19,7 @@ const touchMap = {
   onTouchEnd: "touchend",
 };
 
-const ClickAwayListener = React.forwardRef<HTMLElement, Props>(
+export const ClickAwayListener = React.forwardRef<HTMLElement, Props>(
   ({ mouseEvent, touchEvent, children, onClickAway }: Props, ref) => {
     const nodeRef = useRef<any>(null);
     const DOMMouseEvent = eventMap[mouseEvent || "onClick"];
@@ -59,5 +59,3 @@ const ClickAwayListener = React.forwardRef<HTMLElement, Props>(
     return React.cloneElement(children, childrenProps);
   }
 );
-
-export default ClickAwayListener;

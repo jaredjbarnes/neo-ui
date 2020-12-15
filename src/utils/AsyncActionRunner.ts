@@ -9,13 +9,13 @@ export enum Status {
   DISABLED = 'disabled',
 }
 
-// ActionState and ObservableValue
 export class AsyncActionRunner<TResult, TError = any> extends ObservableValue<TResult> {
   private _internalState: State<TResult, TError> = new InitialState<TResult, TError>(
     this
   );
 
   readonly status = new ObservableValue<Status>(Status.INITIAL);
+  action: AsyncAction<TResult> | null = null;
 
   changeState(state: State<TResult, TError>) {
     this._internalState = state;
@@ -30,9 +30,8 @@ export class AsyncActionRunner<TResult, TError = any> extends ObservableValue<TR
     return this._internalState.enable();
   }
 
-  // Set the action then run, use chaining.
   execute(action: AsyncAction<TResult>) {
-    this._internalState.execute(action);
+    return this._internalState.execute(action);
   }
 
   cancel() {
@@ -73,10 +72,10 @@ abstract class State<TResult, TError> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  execute(action: AsyncAction<TResult>) {
+  execute(action: AsyncAction<TResult>): Promise<TResult> {
     // disabled linter per defining an interface that needs to be followed on other states
-    // return Promise.reject<TResult>(new Error('Not yet implemented.'));
-    // Do Nothing.
+    // Throw because this should never be hit.
+    return Promise.reject(new Error('Not Yet Implmented'));
   }
 
   retry() {
@@ -98,37 +97,65 @@ class InitialState<TResult, TError> extends State<TResult, TError> {
   }
 
   execute(action: AsyncAction<TResult>) {
-    this.context.changeState(new PendingState<TResult, TError>(this.context, action));
+    this.context.action = action;
+
+    const pendingState = new PendingState<TResult, TError>(this.context);
+    this.context.changeState(pendingState);
+
+    return pendingState.executingPromise;
   }
 }
 
 class PendingState<TResult, TError> extends State<TResult, TError> {
-  constructor(context: AsyncActionRunner<TResult, TError>, action: AsyncAction<TResult>) {
+  private isEnabled = true;
+  readonly executingPromise: Promise<TResult>;
+
+  constructor(context: AsyncActionRunner<TResult, TError>) {
     super(context);
+    const action = this.context.action;
 
-    this.cancel = function cancel() {
-      const executingPromise = action.getExecutingPromise();
-      if (!executingPromise) return;
+    if (action == null) {
+      throw new Error(
+        'Cannot switch to pending state without an action set to the context.'
+      );
+    }
 
-      executingPromise.catch((error: TError) => {
-        this.context.setError(error);
-        this.context.changeState(new ErrorState<TResult, TError>(this.context, action));
-      });
-      action.cancelExecution();
-    };
-
-    action
+    this.executingPromise = action
       .execute()
       .then((nextValue: TResult) => {
         this.context.next(nextValue);
         this.context.changeState(new SuccessState<TResult, TError>(this.context));
+        return nextValue;
       })
       .catch((error: TError) => {
         if (!(error instanceof CancelledError)) {
           this.context.setError(error);
-          this.context.changeState(new ErrorState<TResult, TError>(this.context, action));
+          this.context.changeState(new ErrorState<TResult, TError>(this.context));
+        }
+
+        throw error;
+      })
+      .finally(() => {
+        if (!this.isEnabled) {
+          this.context.changeState(new DisabledState<TResult, TError>(this.context));
         }
       });
+  }
+
+  cancel() {
+    this.context.action?.cancelExecution();
+  }
+
+  disable() {
+    this.isEnabled = false;
+  }
+
+  enable() {
+    this.isEnabled = true;
+  }
+
+  execute() {
+    return this.executingPromise;
   }
 
   getName() {
@@ -142,7 +169,12 @@ class SuccessState<TResult, TError> extends State<TResult, TError> {
   }
 
   execute(action: AsyncAction<TResult>) {
-    this.context.changeState(new PendingState<TResult, TError>(this.context, action));
+    this.context.action = action;
+
+    const pendingState = new PendingState<TResult, TError>(this.context);
+    this.context.changeState(pendingState);
+
+    return pendingState.executingPromise;
   }
 
   disable() {
@@ -151,15 +183,9 @@ class SuccessState<TResult, TError> extends State<TResult, TError> {
 }
 
 class ErrorState<TResult, TError> extends State<TResult, TError> {
-  constructor(context: AsyncActionRunner<TResult, TError>, action: AsyncAction<TResult>) {
-    super(context);
-
-    // Yes... calling retry() on the action will immindately execute it, and then the pending
-    // state will call .execute on it... which is fine, because that will just return the same promise. Booyah.
-    this.retry = function retry() {
-      action.retry();
-      this.context.changeState(new PendingState<TResult, TError>(this.context, action));
-    };
+  retry() {
+    const pendingState = new PendingState<TResult, TError>(this.context);
+    this.context.changeState(pendingState);
   }
 
   getName() {
@@ -167,7 +193,12 @@ class ErrorState<TResult, TError> extends State<TResult, TError> {
   }
 
   execute(action: AsyncAction<TResult>) {
-    this.context.changeState(new PendingState<TResult, TError>(this.context, action));
+    this.context.action = action;
+
+    const pendingState = new PendingState<TResult, TError>(this.context);
+    this.context.changeState(pendingState);
+
+    return pendingState.executingPromise;
   }
 
   disable() {
@@ -176,6 +207,10 @@ class ErrorState<TResult, TError> extends State<TResult, TError> {
 }
 
 class DisabledState<TResult, TError> extends State<TResult, TError> {
+  execute() {
+    return Promise.reject(new Error('Cannot execute while runner is disabled.'));
+  }
+
   getName() {
     return Status.DISABLED;
   }

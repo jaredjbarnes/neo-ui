@@ -1,12 +1,12 @@
-import { useMemo, useEffect, useState } from 'react';
-import useForm from './useForm';
+import { useMemo, useEffect, useState } from "react";
+import { useForm } from "./useForm";
 
-const useSubmissionState = () => {
+export function useSubmissionState() {
   const form = useForm();
   const [isSubmitting, setIsSubmitting] = useState(form.getIsSubmitting());
 
   const subscription = useMemo(() => {
-    return form.onSubmissionChange(isSubmitting => {
+    return form.onSubmissionChange((isSubmitting) => {
       setIsSubmitting(isSubmitting);
     });
   }, [form]);
@@ -14,6 +14,4 @@ const useSubmissionState = () => {
   useEffect(() => () => subscription.unsubscribe(), [subscription]);
 
   return isSubmitting;
-};
-
-export default useSubmissionState;
+}

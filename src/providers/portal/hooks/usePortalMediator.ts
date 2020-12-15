@@ -1,8 +1,6 @@
 import { useContext } from "react";
 import { PortalContext } from "../PortalProvider";
 
-const usePortalMediator = () => {
+export function usePortalMediator() {
   return useContext(PortalContext);
-};
-
-export default usePortalMediator;
+}

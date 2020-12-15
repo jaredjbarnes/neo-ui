@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import Popover, { Props } from "../components/core/popover/Popover";
-import Surface from "../components/core/Surface";
-import SolidButton from "../components/inputs/SolidButton";
+import { Popover, Props } from "../components/core/popover/Popover";
+import { Surface } from "../components/core/Surface";
+import { SolidButton } from "../components/inputs/SolidButton";
 import StoryBackdrop from "./StoryBackdrop";
-import ClickAwayListener from "../components/core/ClickAwayListener";
+import { ClickAwayListener } from "../components/core/ClickAwayListener";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({

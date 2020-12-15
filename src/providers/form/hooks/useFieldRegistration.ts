@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useState } from "react";
-import useForm from "./useForm";
-import FieldMediator from "../FieldMediator";
+import { useForm } from "./useForm";
+import { FieldMediator } from "../../../mediators/form/FieldMediator";
 
 interface Options<T> {
   name: string;
@@ -8,7 +8,11 @@ interface Options<T> {
   initialValue?: T | null;
 }
 
-function useFieldRegistration<T>({ name, label, initialValue }: Options<T>) {
+export function useFieldRegistration<T>({
+  name,
+  label,
+  initialValue,
+}: Options<T>) {
   const form = useForm();
   const [_, render] = useState<any>({});
   let field = form.getFieldByName(name) as FieldMediator<T>;
@@ -34,5 +38,3 @@ function useFieldRegistration<T>({ name, label, initialValue }: Options<T>) {
 
   return field;
 }
-
-export default useFieldRegistration;

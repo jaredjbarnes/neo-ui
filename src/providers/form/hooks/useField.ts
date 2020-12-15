@@ -1,14 +1,14 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
-import useForm from './useForm';
+import { useState, useMemo, useEffect, useRef } from "react";
+import useForm from "./useForm";
 
-const useField = (name: string) => {
+export function useField(name: string) {
   const form = useForm();
   const field = form.getFieldByName(name);
   const [_, render] = useState<any>({});
   const timeoutRef = useRef<number>(-1);
 
   const formSubscription = useMemo(() => {
-    return form.onFieldsChange(event => {
+    return form.onFieldsChange((event) => {
       if (event.field.getName() === name) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
@@ -22,7 +22,7 @@ const useField = (name: string) => {
 
   const fieldSubscription = useMemo(() => {
     if (field != null) {
-      return field.onChange(_ => {
+      return field.onChange((_) => {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
           render({});
@@ -41,6 +41,4 @@ const useField = (name: string) => {
   }, [fieldSubscription]);
 
   return field;
-};
-
-export default useField;
+}

@@ -1,9 +1,9 @@
 import React from "react";
-import SolidButton from "../../inputs/SolidButton";
-import OutlineButton from "../../inputs/OutlineButton";
+import { SolidButton } from "../../inputs/SolidButton";
+import { OutlineButton } from "../../inputs/OutlineButton";
 import { useActions, useTable } from "../../../providers/table/hooks";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   actionsContainer: {
@@ -25,7 +25,7 @@ interface Props {
   className?: string;
 }
 
-const TableActions = React.forwardRef<HTMLDivElement, Props>(
+export const TableActions = React.forwardRef<HTMLDivElement, Props>(
   ({ style, className }: Props, ref) => {
     const classes = useStyles();
     const actions = useActions();
@@ -68,5 +68,3 @@ const TableActions = React.forwardRef<HTMLDivElement, Props>(
     );
   }
 );
-
-export default TableActions;

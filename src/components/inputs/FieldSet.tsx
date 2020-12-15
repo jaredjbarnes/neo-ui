@@ -1,6 +1,6 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../utils/joinClassNames";
+import { joinClassNames } from "../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   fieldset: {
@@ -20,7 +20,7 @@ export interface Props {
   children?: React.ReactNode | React.ReactNode[];
 }
 
-const FieldSet = React.forwardRef<HTMLFieldSetElement, Props>(
+export const FieldSet = React.forwardRef<HTMLFieldSetElement, Props>(
   ({ name, className, style, children }: Props, ref) => {
     const classes = useStyles();
     return (
@@ -35,5 +35,3 @@ const FieldSet = React.forwardRef<HTMLFieldSetElement, Props>(
     );
   }
 );
-
-export default FieldSet;

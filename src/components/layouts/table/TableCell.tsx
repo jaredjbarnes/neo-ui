@@ -1,7 +1,7 @@
 import React from "react";
 import { Column } from "../../../mediators/table/TableMediator";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 
 const useStyles = createUseStyles({
   tableCell: {
@@ -28,7 +28,7 @@ export interface Props {
   className?: string;
 }
 
-const TableCell = ({ column, children, style, className }: Props) => {
+export function TableCell({ column, children, style, className }: Props) {
   const styleOverrides = {
     textAlign: column.alignment,
   } as React.CSSProperties;
@@ -42,6 +42,4 @@ const TableCell = ({ column, children, style, className }: Props) => {
       {children}
     </div>
   );
-};
-
-export default TableCell;
+}

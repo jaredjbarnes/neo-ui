@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { createUseStyles } from "react-jss";
-import joinClassNames from "../../../utils/joinClassNames";
+import { joinClassNames } from "../../../utils/joinClassNames";
 import { Column } from "../../../mediators/table/TableMediator";
-import { useTable, useColumnSortDirection } from "../../../providers/table/hooks";
-import Surface from "../../core/Surface";
+import {
+  useTable,
+  useColumnSortDirection,
+} from "../../../providers/table/hooks";
+import { Surface } from "../../core/Surface";
 
 const useStyles = createUseStyles({
   columnContainer: {
@@ -31,7 +34,7 @@ export interface Props {
   className?: string;
 }
 
-const TableColumn = ({ column, children, style, className }: Props) => {
+export function TableColumn({ column, children, style, className }: Props) {
   const classes = useStyles();
   const table = useTable();
   const [state, setState] = useState<"flat" | "inset">("flat");
@@ -82,6 +85,6 @@ const TableColumn = ({ column, children, style, className }: Props) => {
       {children}
     </Surface>
   );
-};
+}
 
 export default TableColumn;
